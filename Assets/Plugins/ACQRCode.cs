@@ -221,7 +221,7 @@ public class ACQRCode
 
 		PatternType = bytes[0x69];
 		Pixels = new byte[32 * 16];
-		Array.Copy(bytes, 0x6C, Pixels, 0, 32 * 16);
+		Array.Copy(bytes, 0x6D, Pixels, 0, 32 * 16);
 	}
 
 	public Bitmap GetImage()

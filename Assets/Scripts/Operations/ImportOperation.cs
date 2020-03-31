@@ -161,11 +161,26 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 				bmp.Dispose();
 				bmp = croppedBmp;
 
+				var transparentPixels = new bool[bmp.Width * bmp.Height];
+				for (var y = 0; y < bmp.Height; y++)
+				{
+					for (var x = 0; x < bmp.Width; x++)
+					{
+						transparentPixels[x + y * bmp.Width] = bmp.GetPixel(x, y).A != 255;
+					}
+				}
 				var targetImage = ImageBuffer.QuantizeImage(bmp, quantizer, null, 15, 1);
 
 				bmp.Dispose();
 				bmp = new Bitmap(targetImage);
-
+				for (var y = 0; y < bmp.Height; y++)
+				{
+					for (var x = 0; x < bmp.Width; x++)
+					{
+						if (transparentPixels[x + y * bmp.Width])
+							bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(0, 0, 0, 0));
+					}
+				}
 				Result = bmp;
 				IsReady = true;
 				IsParsing = false;

@@ -70,16 +70,20 @@ public static class DesignPatternExtension
 				if (x < bitmap.Width && y < bitmap.Height)
 					pixelColor = bitmap.GetPixel(x, y);
 
+				
 				byte index = 0xF;
-				if (colorMap.ContainsKey(pixelColor))
-					index = colorMap[pixelColor];
-				else
+				if (pixelColor.A == 255)
 				{
-					index = (byte) colorMap.Count;
-					pattern.Palette[index].R = pixelColor.R;
-					pattern.Palette[index].G = pixelColor.G;
-					pattern.Palette[index].B = pixelColor.B;
-					colorMap.Add(pixelColor, index);
+					if (colorMap.ContainsKey(pixelColor))
+						index = colorMap[pixelColor];
+					else
+					{
+						index = (byte) colorMap.Count;
+						pattern.Palette[index].R = pixelColor.R;
+						pattern.Palette[index].G = pixelColor.G;
+						pattern.Palette[index].B = pixelColor.B;
+						colorMap.Add(pixelColor, index);
+					}
 				}
 
 				pattern.SetPixel(x, y, index);

@@ -11,7 +11,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{03BD554A-5FA2-90B2-E463-BC08DA5C3CBD}</ProjectGuid>
+    <ProjectGuid>{30F36984-AF43-F58D-6955-3C62F26EBD73}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -119,34 +119,34 @@
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
  <Reference Include="Unity.Timeline.Editor">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.VSCode.Editor">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Timeline">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
  </Reference>
  <Reference Include="Unity.CollabProxy.Editor">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Rider.Editor">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.2D.Sprite.Editor">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.UI">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -323,16 +323,16 @@
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
  </Reference>
  <Reference Include="System.Drawing">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Assets/Plugins/System.Drawing.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Assets/Plugins/System.Drawing.dll</HintPath>
  </Reference>
  <Reference Include="zxing">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Assets/Plugins/zxing.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Assets/Plugins/zxing.dll</HintPath>
  </Reference>
  <Reference Include="Ookii.Dialogs">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
  </Reference>
  <Reference Include="System.Windows.Forms">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
  </Reference>
  <Reference Include="mscorlib">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
@@ -691,15 +691,15 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{CFCED946-3365-C1D8-C9DD-E05FE63A7527}</Project>
+      <Project>{3CECFECF-B9A7-F0D0-456C-DBDDBB2B478E}</Project>
       <Name>Assembly-CSharp-firstpass</Name>
     </ProjectReference>
     <ProjectReference Include="Coffee.SoftMaskForUGUI.csproj">
-      <Project>{4D9417F2-CBC7-6F8C-6BC9-8A7791CEDD11}</Project>
+      <Project>{746891EF-1981-4CEA-FABB-61955A840A1A}</Project>
       <Name>Coffee.SoftMaskForUGUI</Name>
     </ProjectReference>
     <ProjectReference Include="Coffee.SoftMaskForUGUI.Editor.csproj">
-      <Project>{BB06F02B-6A6F-9ADE-7530-9F064E474571}</Project>
+      <Project>{9C4BC7FE-A483-B059-822C-35C8EC92B292}</Project>
       <Name>Coffee.SoftMaskForUGUI.Editor</Name>
     </ProjectReference>
   </ItemGroup>

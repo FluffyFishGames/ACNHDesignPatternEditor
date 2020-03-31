@@ -11,7 +11,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{84B9049C-E7E9-7EA4-7D57-7D236F41598F}</ProjectGuid>
+    <ProjectGuid>{AE489F73-FA55-864D-6F7E-B508C0AA4C9C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Coffee.SoftMaskForUGUI.Editor</AssemblyName>
@@ -60,16 +60,16 @@
      <Compile Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\Scripts\Editor\Utils.cs" />
      <None Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\Scripts\Editor\Coffee.SoftMaskForUGUI.Editor.asmdef" />
  <Reference Include="UnityEditor.UI">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.TestRunner">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/UnityEditor.TestRunner.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/UnityEditor.TestRunner.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.TestRunner">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/ScriptAssemblies/UnityEngine.TestRunner.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/ScriptAssemblies/UnityEngine.TestRunner.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -255,19 +255,19 @@
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
  </Reference>
  <Reference Include="System.Drawing">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Assets/Plugins/System.Drawing.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Assets/Plugins/System.Drawing.dll</HintPath>
  </Reference>
  <Reference Include="zxing">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Assets/Plugins/zxing.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Assets/Plugins/zxing.dll</HintPath>
  </Reference>
  <Reference Include="Ookii.Dialogs">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
  </Reference>
  <Reference Include="System.Windows.Forms">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
  </Reference>
  <Reference Include="nunit.framework">
- <HintPath>E:/Projects/ACNHDesignEditor/ACNHDesignEditor/Library/PackageCache/com.unity.ext.nunit@1.0.0/net35/unity-custom/nunit.framework.dll</HintPath>
+ <HintPath>E:/Projects/ACNHDesignPatternEditor/Library/PackageCache/com.unity.ext.nunit@1.0.0/net35/unity-custom/nunit.framework.dll</HintPath>
  </Reference>
  <Reference Include="mscorlib">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
@@ -626,7 +626,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Coffee.SoftMaskForUGUI.csproj">
-      <Project>{4D9417F2-CBC7-6F8C-6BC9-8A7791CEDD11}</Project>
+      <Project>{746891EF-1981-4CEA-FABB-61955A840A1A}</Project>
       <Name>Coffee.SoftMaskForUGUI</Name>
     </ProjectReference>
   </ItemGroup>
