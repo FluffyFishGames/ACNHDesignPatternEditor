@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MyHorizons.Data;
 
-public class ACQRCode
+public class ACFileFormat
 {
 	public string Name;
 	public string Username;
@@ -210,7 +210,7 @@ public class ACQRCode
 		null, //0xFF unused (white in-game, editing freezes the game)
 	};
 
-	public ACQRCode(byte[] bytes)
+	public ACFileFormat(byte[] bytes)
 	{
 		Name = System.Text.Encoding.Unicode.GetString(bytes, 0, 0x29).Replace(" ", "").Trim();
 		Username = System.Text.Encoding.Unicode.GetString(bytes, 0x2c, 20).Replace(" ", "").Trim();
@@ -221,7 +221,7 @@ public class ACQRCode
 
 		PatternType = bytes[0x69];
 		Pixels = new byte[32 * 16];
-		Array.Copy(bytes, 0x6D, Pixels, 0, 32 * 16);
+		Array.Copy(bytes, 0x6C, Pixels, 0, 32 * 16);
 	}
 
 	public Bitmap GetImage()

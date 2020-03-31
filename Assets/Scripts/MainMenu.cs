@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
+using System;
 
 public class MainMenu : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class MainMenu : MonoBehaviour
 	public Pop HowToPop;
 	private bool SavegameLoading = false;
 	private bool SavegameLoaded = false;
+	private string SavegameError = null;
 
 	public void Open()
 	{
@@ -48,9 +50,16 @@ public class MainMenu : MonoBehaviour
 		StartCoroutine(ShowLoading());
 		SavegameLoading = true;
 		Thread t = new Thread(() => {
-			Controller.Instance.CurrentSavegame = Savegame.Decrypt(new System.IO.FileInfo(path));
+			try
+			{
+				Controller.Instance.CurrentSavegame = Savegame.Decrypt(new System.IO.FileInfo(path));
+				SavegameLoaded = true;
+			}
+			catch (Exception e)
+			{
+				SavegameError = e.Message;
+			}
 //			Controller.Instance.CurrentSavegame.Decrypt();
-			SavegameLoaded = true;
 		});
 		t.Start();
 	}
@@ -85,13 +94,25 @@ public class MainMenu : MonoBehaviour
 		yield return new WaitForSeconds(3f);
 		while (SavegameLoading && !SavegameLoaded)
 		{
+			if (SavegameError != null)
+			{
+				Controller.Instance.Popup.SetText("There was an <#FF6666>error<#FFFFFF>!\r\n" + SavegameError, false, () => {
+					StartCoroutine(OpenAnimation());
+					return true; 
+				});
+				SavegameError = null;
+				break;
+			}
 			yield return new WaitForEndOfFrame();
 		}
-		//Controller.Instance.CurrentSavegame.GenerateDesignImages();
 		SavegameLoading = false;
-		Controller.Instance.Popup.Close();
-		yield return new WaitForSeconds(0.3f);
-		Controller.Instance.SwitchToPatternMenu();
+		if (SavegameLoaded)
+		{
+			//Controller.Instance.CurrentSavegame.GenerateDesignImages();
+			Controller.Instance.Popup.Close();
+			yield return new WaitForSeconds(0.3f);
+			Controller.Instance.SwitchToPatternMenu();
+		}
 	}
 
 	public IEnumerator OpenAnimation()

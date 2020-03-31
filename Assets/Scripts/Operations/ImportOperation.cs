@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using WebPWrapper;
 using ZXing;
 
 public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperation
@@ -90,6 +91,18 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 		this.Name = this.Pattern.Name;
 	}
 
+	public void SetBytes(byte[] bytes)
+	{
+		var qrCode = new ACFileFormat(bytes);
+		IsQRCode = true;
+		this.Image = qrCode.GetImage();
+		this.Name = qrCode.Name;
+		this.Username = qrCode.Username;
+		this.Town = qrCode.TownName;
+		this.Result = this.Image;
+		this.IsReady = true;
+	}
+
 	public void SetImage(System.Drawing.Bitmap image)
 	{
 		var scanner = new BarcodeReader()
@@ -109,18 +122,32 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 		var result = scanner.Decode(image);
 		if (result != null)
 		{
-			var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(result.Text);
-			if (bytes.Length == 0x26D && bytes[0x6A] == 0x09) // its a simple pattern
+			var resultBytes = new byte[result.RawBytes.Length - 2];
+			for (int i = 5; i < result.RawBytes.Length * 2; i++)
 			{
-				var qrCode = new ACQRCode(bytes);
-				IsQRCode = true;
-				this.Image = qrCode.GetImage();
-				this.Name = qrCode.Name;
-				this.Username = qrCode.Username;
-				this.Town = qrCode.TownName;
-				this.Result = this.Image;
-				this.IsReady = true;
+				int byteIndex = (i - 5) / 2;
+				int rawByteIndex = i / 2;
+				byte value = 0;
+				if (i % 2 == 0)
+					value = (byte) ((result.RawBytes[rawByteIndex] & 0xF0) >> 4);
+				else
+					value = (byte) (result.RawBytes[rawByteIndex] & 0x0F);
+				if ((i - 5) % 2 == 0)
+					resultBytes[byteIndex] += (byte) (value << 4);
+				else
+					resultBytes[byteIndex] += value;
 			}
+			var bytes = resultBytes;
+			if (bytes[0x69] == 0x09)
+			{
+				IsQRCode = true;
+			}
+			if (IsQRCode)
+			{
+				SetBytes(bytes);
+			}
+			else
+				this.Image = image;
 		}
 		else
 			this.Image = image;
@@ -240,12 +267,55 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 	public void Start()
 	{
 		Controller.Instance.Popup.SetText("Please select any <#FF6666>Image<#FFFFFF> file to import.", false, () => {
-			StandaloneFileBrowser.OpenFilePanelAsync("Import image", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif" }) }, false, (path) =>
+			StandaloneFileBrowser.OpenFilePanelAsync("Import image", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "acnl" }) }, false, (path) =>
 			{
 				if (path.Length > 0)
 				{
-					var bmp = new Bitmap(System.Drawing.Image.FromFile(path[0]));
-					this.SetImage(bmp);
+					try
+					{
+						if (path[0].EndsWith(".acnl"))
+						{
+							var bytes = System.IO.File.ReadAllBytes(path[0]);
+							this.SetBytes(bytes);
+						}
+						else
+						{
+							Bitmap bmp = null;
+							var imageStream = new System.IO.FileStream(path[0], System.IO.FileMode.Open, System.IO.FileAccess.Read);
+							byte[] fourBytes = new byte[4];
+							imageStream.Read(fourBytes, 0, 4);
+							if (fourBytes[0] == 0x52 && fourBytes[1] == 0x49 && fourBytes[2] == 0x46 && fourBytes[3] == 0x46)
+							{
+								using (WebP webp = new WebP())
+									bmp = webp.Load(path[0]);
+								imageStream.Close();
+								imageStream.Dispose();
+							}
+							else
+							{
+								bmp = new Bitmap(System.Drawing.Image.FromFile(path[0]));
+								imageStream.Close();
+								imageStream.Dispose();
+							}
+							this.SetImage(bmp);
+						}
+					}
+					catch (System.IO.FileLoadException e)
+					{
+						Controller.Instance.Popup.SetText("Failed to load the file. File error.", false, () =>
+						{
+							return true;
+						});
+						return;
+					}
+					catch (Exception e)
+					{
+						Controller.Instance.Popup.SetText("Invalid image file.", false, () =>
+						{
+							return true;
+						});
+						return;
+					}
 					Controller.Instance.PatternSelector.ActionMenu.Close();
 					Controller.Instance.SwitchToPatternEditor(
 						() =>
