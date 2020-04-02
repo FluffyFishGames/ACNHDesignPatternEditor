@@ -267,7 +267,7 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 	public void Start()
 	{
 		Controller.Instance.Popup.SetText("Please select any <#FF6666>Image<#FFFFFF> file to import.", false, () => {
-			StandaloneFileBrowser.OpenFilePanelAsync("Import image", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "acnl" }) }, false, (path) =>
+			StandaloneFileBrowser.OpenFilePanelAsync("Import image", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "acnl", "webp" }) }, false, (path) =>
 			{
 				if (path.Length > 0)
 				{

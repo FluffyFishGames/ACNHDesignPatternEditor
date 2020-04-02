@@ -105,6 +105,7 @@ public class Controller : MonoBehaviour
 
 	void Start()
 	{
+		Application.targetFrameRate = 60;
 		Popup.gameObject.SetActive(true);
 		MainMenu.gameObject.SetActive(true);
 		Tooltip.gameObject.SetActive(true);

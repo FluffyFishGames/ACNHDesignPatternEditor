@@ -27,7 +27,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Windows.Forms;
 
 namespace WebPWrapper
 {
@@ -478,29 +477,7 @@ namespace WebPWrapper
 				if (info)
 				{
 					stats = (WebPAuxStats) Marshal.PtrToStructure(ptrStats, typeof(WebPAuxStats));
-					MessageBox.Show("Dimension: " + wpic.width + " x " + wpic.height + " pixels\n" +
-									"Output:    " + stats.coded_size + " bytes\n" +
-									"PSNR Y:    " + stats.PSNRY + " db\n" +
-									"PSNR u:    " + stats.PSNRU + " db\n" +
-									"PSNR v:    " + stats.PSNRV + " db\n" +
-									"PSNR ALL:  " + stats.PSNRALL + " db\n" +
-									"Block intra4:  " + stats.block_count_intra4 + "\n" +
-									"Block intra16: " + stats.block_count_intra16 + "\n" +
-									"Block skipped: " + stats.block_count_skipped + "\n" +
-									"Header size:    " + stats.header_bytes + " bytes\n" +
-									"Mode-partition: " + stats.mode_partition_0 + " bytes\n" +
-									"Macroblocks 0:  " + stats.segment_size_segments0 + " residuals bytes\n" +
-									"Macroblocks 1:  " + stats.segment_size_segments1 + " residuals bytes\n" +
-									"Macroblocks 2:  " + stats.segment_size_segments2 + " residuals bytes\n" +
-									"Macroblocks 3:  " + stats.segment_size_segments3 + " residuals bytes\n" +
-									"Quantizer   0:  " + stats.segment_quant_segments0 + " residuals bytes\n" +
-									"Quantizer   1:  " + stats.segment_quant_segments1 + " residuals bytes\n" +
-									"Quantizer   2:  " + stats.segment_quant_segments2 + " residuals bytes\n" +
-									"Quantizer   3:  " + stats.segment_quant_segments3 + " residuals bytes\n" +
-									"Filter level 0: " + stats.segment_level_segments0 + " residuals bytes\n" +
-									"Filter level 1: " + stats.segment_level_segments1 + " residuals bytes\n" +
-									"Filter level 2: " + stats.segment_level_segments2 + " residuals bytes\n" +
-									"Filter level 3: " + stats.segment_level_segments3 + " residuals bytes\n");
+					
 				}
 
 				return rawWebP;
@@ -670,13 +647,6 @@ namespace WebPWrapper
 					if ((stats.lossless_features & 2) > 0) features = features + " CROSS-COLOR-TRANSFORM";
 					if ((stats.lossless_features & 4) > 0) features = features + " SUBTRACT-GREEN";
 					if ((stats.lossless_features & 8) > 0) features = features + " PALETTE";
-					MessageBox.Show("Dimension: " + wpic.width + " x " + wpic.height + " pixels\n" +
-									"Output:    " + stats.coded_size + " bytes\n" +
-									"Losslesss compressed size: " + stats.lossless_size + " bytes\n" +
-									"  * Header size: " + stats.lossless_hdr_size + " bytes\n" +
-									"  * Image data size: " + stats.lossless_data_size + " bytes\n" +
-									"  * Lossless features used:" + features + "\n" +
-									"  * Precision Bits: histogram=" + stats.histogram_bits + " transform=" + stats.transform_bits + " cache=" + stats.cache_bits);
 				}
 
 				return rawWebP;
@@ -792,13 +762,6 @@ namespace WebPWrapper
 					if ((stats.lossless_features & 2) > 0) features = features + " CROSS-COLOR-TRANSFORM";
 					if ((stats.lossless_features & 4) > 0) features = features + " SUBTRACT-GREEN";
 					if ((stats.lossless_features & 8) > 0) features = features + " PALETTE";
-					MessageBox.Show("Dimension: " + wpic.width + " x " + wpic.height + " pixels\n" +
-									"Output:    " + stats.coded_size + " bytes\n" +
-									"Losslesss compressed size: " + stats.lossless_size + " bytes\n" +
-									"  * Header size: " + stats.lossless_hdr_size + " bytes\n" +
-									"  * Image data size: " + stats.lossless_data_size + " bytes\n" +
-									"  * Lossless features used:" + features + "\n" +
-									"  * Precision Bits: histogram=" + stats.histogram_bits + " transform=" + stats.transform_bits + " cache=" + stats.cache_bits);
 				}
 
 				return rawWebP;
