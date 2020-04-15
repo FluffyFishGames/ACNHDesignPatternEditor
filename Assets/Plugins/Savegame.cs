@@ -16,6 +16,6 @@ public class Savegame
 		var headerFile = new FileInfo(Path.Combine(file.Directory.FullName, Path.GetFileNameWithoutExtension(file.Name) + "Header.dat"));
 		if (!headerFile.Exists)
 			throw new Exception("mainHeader.dat is missing! Please export your whole savegame.");
-		return new MainSaveFile(headerFile.FullName, file.FullName, new MainSaveFile.Settings() { ParseDesigns = true, ParsePlayers = false, ParseVillagers = false });
+		return new MainSaveFile(headerFile.FullName, file.FullName, new MainSaveFile.Settings() { ParseDesigns = true, ParseProDesigns = true, ParsePlayers = false, ParseVillagers = false });
 	}
 }

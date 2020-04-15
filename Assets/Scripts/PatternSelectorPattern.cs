@@ -109,7 +109,7 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 			if (!IsMouseOver && HoverPhase > 0f)
 				HoverPhase = Mathf.Max(0f, HoverPhase - Time.deltaTime * 3f);
 		}
-		var scaleAdd = EasingFunction.EaseInOutBack(0f, 0.2f, HoverPhase);
+		var scaleAdd = EasingFunction.EaseOutBack(0f, 0.2f, HoverPhase);
 		MyTransform.localScale = new Vector3(1f + scaleAdd, 1f + scaleAdd, 1f);
 		ImageTransform.localScale = new Vector3(1f - scaleAdd / 2f, 1f - scaleAdd / 2f, 1f);
 		SelectionBorderTransform.localScale = new Vector3(1f - scaleAdd / 2f, 1f - scaleAdd / 2f, 1f);

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7893352126323157363}
   - component: {fileID: 8328568223353699862}
   - component: {fileID: 1507413965779265575}
+  - component: {fileID: 5603696614988260945}
   m_Layer: 5
   m_Name: ActionButton
   m_TagString: Untagged
@@ -142,6 +143,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  Menu: {fileID: 0}
+  Index: 0
 --- !u!222 &3032920384931234276
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -202,6 +205,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a26c0a43e7377894e89fbdfd774d910e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5603696614988260945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2311724826521638684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f94bdd1982a16714d959e498bb9176dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cursor: 1
 --- !u!1 &2863682404211970480
 GameObject:
   m_ObjectHideFlags: 0

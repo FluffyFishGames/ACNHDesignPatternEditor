@@ -39,10 +39,19 @@ public class SwapOperation : IOperation, IPatternOperation, IPatternSelectorOper
 	{
 		if (pattern == Pattern) return;
 		var backup = new DesignPattern();
-		backup.CopyFrom(Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index]);
-
-		Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index].CopyFrom(Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Index]);
-		Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Index].CopyFrom(backup); 
+		
+		if (Pattern.IsPro)
+		{
+			backup.CopyFrom(Controller.Instance.CurrentSavegame.ProDesignPatterns[Pattern.Index]);
+			Controller.Instance.CurrentSavegame.ProDesignPatterns[Pattern.Index].CopyFrom(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Index]);
+			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Index].CopyFrom(backup);
+		}
+		else
+		{
+			backup.CopyFrom(Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index]);
+			Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index].CopyFrom(Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Index]);
+			Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Index].CopyFrom(backup);
+		}
    
 		_IsFinished = true;
 	}

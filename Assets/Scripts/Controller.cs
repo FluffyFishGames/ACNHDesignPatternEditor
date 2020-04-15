@@ -11,6 +11,7 @@ using ZXing;
 
 public class Controller : MonoBehaviour
 {
+	public QRCode QRCode;
 	public HowToExport Tutorial;
 	public DesignPattern CurrentPattern;
 	public static Controller Instance;
@@ -18,9 +19,11 @@ public class Controller : MonoBehaviour
 	public MainMenu MainMenu;
 	public MainSaveFile CurrentSavegame;
 	public PatternSelector PatternSelector;
+	public Importer Importer;
 	public RectTransform RectTransform;
 	public Tooltip Tooltip;
 	public ConfirmationPopup ConfirmationPopup;
+	public FormatPopup FormatPopup;
 	public AudioClip HoverSound;
 	public AudioClip ClickSound;
 	public AudioClip PopupSound;
@@ -28,10 +31,12 @@ public class Controller : MonoBehaviour
 	public AudioClip AppOpenSound;
 	public NameInput NameInput;
 	public IOperation CurrentOperation;
+	public RectTransform TopLeftTransform;
 
 	private AudioSource[] AudioSources = new AudioSource[16];
 	public Animator TransitionAnimator;
 	public PatternEditor PatternEditor;
+	public ClothSelector ClothSelector;
 
 	private int CurrentAudioSource = 0;
 
@@ -46,6 +51,8 @@ public class Controller : MonoBehaviour
 		PatternSelection,
 		PatternEditor,
 		NameInput,
+		ClothSelector,
+		Importer,
 		Tutorial
 	}
 
@@ -68,6 +75,7 @@ public class Controller : MonoBehaviour
 
 	void OnEnable()
 	{
+		Application.targetFrameRate = 60;
 		TooltipTransform = Tooltip.GetComponent<RectTransform>();
 		RectTransform = GetComponent<RectTransform>();
 		Instance = this;
@@ -105,7 +113,6 @@ public class Controller : MonoBehaviour
 
 	void Start()
 	{
-		Application.targetFrameRate = 60;
 		Popup.gameObject.SetActive(true);
 		MainMenu.gameObject.SetActive(true);
 		Tooltip.gameObject.SetActive(true);
@@ -114,6 +121,7 @@ public class Controller : MonoBehaviour
 		NameInput.gameObject.SetActive(false);
 		PatternEditor.gameObject.SetActive(false);
 		PatternSelector.gameObject.SetActive(false);
+		Importer.gameObject.SetActive(false);
 		MainMenu.Open();
 		for (int i = 0; i < AudioSources.Length; i++)
 		{
@@ -159,12 +167,57 @@ public class Controller : MonoBehaviour
 		CurrentOperation.Start();
 	}
 
-	public void SwitchToPatternEditor(System.Action confirm, System.Action cancel)
+	public void SwitchToImporter(System.Drawing.Bitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<System.Drawing.Bitmap> confirm, System.Action cancel)
 	{
-		StartCoroutine(ShowPatternEditor(confirm, cancel));
+		StartCoroutine(ShowImporter(bitmap, rect, resultSize, confirm, cancel));
 	}
 
-	IEnumerator ShowPatternEditor(System.Action confirm, System.Action cancel)
+	IEnumerator ShowImporter(System.Drawing.Bitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<System.Drawing.Bitmap> confirm, System.Action cancel)
+	{
+		if (Popup.IsOpened)
+		{
+			Popup.Close();
+			yield return new WaitForSeconds(0.5f);
+		}
+		HideTooltip();
+		ClothSelector.gameObject.SetActive(false);
+		Importer.Show(bitmap, rect, resultSize, confirm, cancel);
+		CurrentState = State.Importer;
+	}
+
+	public void SwitchToPatternEditor(DesignPattern pattern, System.Action confirm, System.Action cancel)
+	{
+		StartCoroutine(ShowPatternEditor(pattern, confirm, cancel));
+	}
+
+	IEnumerator ShowPatternEditor(DesignPattern pattern, System.Action confirm, System.Action cancel)
+	{
+		if (Popup.IsOpened)
+		{
+			Popup.Close();
+			yield return new WaitForSeconds(0.5f);
+		}
+		HideTooltip();
+		TransitionAnimator.SetTrigger("PlayTransitionIn");
+		yield return new WaitForSeconds(0.2f);
+		HideTooltip();
+		PlaySound(AppOpenSound, 0f);
+		yield return new WaitForSeconds(0.3f);
+		if (CurrentState == State.ClothSelector)
+			ClothSelector.gameObject.SetActive(false);
+		if (CurrentState == State.PatternSelection)
+			PatternSelector.gameObject.SetActive(false);
+		CurrentState = State.PatternEditor;
+		PatternEditor.gameObject.SetActive(true);
+		PatternEditor.Show(pattern, confirm, cancel);
+	}
+
+	public void SwitchToClothSelector(System.Action<DesignPattern.TypeEnum> confirm, System.Action cancel)
+	{
+		StartCoroutine(ShowClothSelector(confirm, cancel));
+	}
+
+	IEnumerator ShowClothSelector(System.Action<DesignPattern.TypeEnum> confirm, System.Action cancel)
 	{
 		if (Popup.IsOpened)
 		{
@@ -179,9 +232,10 @@ public class Controller : MonoBehaviour
 		yield return new WaitForSeconds(0.3f);
 		if (CurrentState == State.PatternSelection)
 			PatternSelector.gameObject.SetActive(false);
-		CurrentState = State.PatternEditor;
-		PatternEditor.gameObject.SetActive(true);
-		PatternEditor.Show(confirm, cancel);
+		PatternEditor.gameObject.SetActive(false);
+		CurrentState = State.ClothSelector;
+		ClothSelector.gameObject.SetActive(true);
+		ClothSelector.Show(confirm, cancel);
 	}
 
 	public void SwitchToNameInput(System.Action confirm, System.Action cancel)
@@ -191,13 +245,22 @@ public class Controller : MonoBehaviour
 
 	IEnumerator ShowNameInput(System.Action confirm, System.Action cancel)
 	{
+		HideTooltip();
 		if (CurrentState == State.PatternEditor)
 		{
 			PatternEditor.Hide();
 			yield return new WaitForSeconds(0.2f);
 		}
+		if (CurrentState == State.Importer)
+		{
+			Importer.Hide();
+			yield return new WaitForSeconds(0.2f);
+		}
 
 		CurrentState = State.NameInput;
+		ClothSelector.gameObject.SetActive(false);
+		PatternSelector.gameObject.SetActive(false);
+		HideTooltip();
 		NameInput.gameObject.SetActive(true);
 		NameInput.Show(confirm, cancel);
 	}
@@ -226,6 +289,9 @@ public class Controller : MonoBehaviour
 			TransitionAnimator.SetTrigger("PlayTransitionOut");
 			yield return new WaitForSeconds(0.25f);
 			NameInput.gameObject.SetActive(false);
+			ClothSelector.gameObject.SetActive(false);
+			Importer.gameObject.SetActive(false);
+			PatternEditor.Hide();
 			PatternEditor.gameObject.SetActive(false);
 			PatternSelector.gameObject.SetActive(true);
 			PatternSelector.Open();

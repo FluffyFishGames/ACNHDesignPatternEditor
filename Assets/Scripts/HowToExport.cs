@@ -22,19 +22,19 @@ public class HowToExport : MonoBehaviour
 	public void StartTutorial()
 	{
 		StartCoroutine(ShowStep1());
-		Controller.Instance.Popup.SetText("First, download the homebrew <#FF6666>JSKV<#FFFFFF> for your switch.", false, () => {
+		Controller.Instance.Popup.SetText("First, download the homebrew <#FF6666>JKSV<#FFFFFF> for your switch.", false, () => {
 			StartCoroutine(ShowStep2());
-			Controller.Instance.Popup.SetText("Place the <#FF6666>JSKV.nro<#FFFFFF> in the directory called \"<#FF6666>switch<#FFFFFF>\" on your <#AAAAFF>SD card<#FFFFFF>.", false, () => {
+			Controller.Instance.Popup.SetText("Place the <#FF6666>JKSV.nro<#FFFFFF> in the directory called \"<#FF6666>switch<#FFFFFF>\" on your <#AAAAFF>SD card<#FFFFFF>.", false, () => {
 				StartCoroutine(ShowStep3());
-				Controller.Instance.Popup.SetText("Open up <#FF6666>JSKV<#FFFFFF>. In the application select \"<#FF6666>Dev Sv.<#FFFFFF>\". Then \"<#FF6666>Animal Crossing<#FFFFFF>\" and create a new backup.", false, () => {
+				Controller.Instance.Popup.SetText("Open up <#FF6666>JKSV<#FFFFFF>. In the application select \"<#FF6666>Dev Sv.<#FFFFFF>\". Then \"<#FF6666>Animal Crossing<#FFFFFF>\" and create a new backup.", false, () => {
 					StartCoroutine(ShowStep4());
-					Controller.Instance.Popup.SetText("Browse to your <#AAAAFF>SD card<#FFFFFF> again and copy the backupped savegame to your PC.", false, () => {
+					Controller.Instance.Popup.SetText("Browse to your <#AAAAFF>SD card<#FFFFFF> again and copy the backuped savegame to your PC.", false, () => {
 						StartCoroutine(ShowStep5());
 						Controller.Instance.Popup.SetText("Open the <#FF6666>savegame<#FFFFFF> in the <#1fd9b5>ACNH Design Pattern editor<#FFFFFF> and do the changes you desire.", false, () => {
 							StartCoroutine(ShowStep6());
 							Controller.Instance.Popup.SetText("After you're done copy the <#FF6666>modified savegame<#FFFFFF> to your <#AAAAFF>SD card<#FFFFFF> in a folder besides the export you've done earlier.", false, () => {
 								StartCoroutine(ShowStep7());
-								Controller.Instance.Popup.SetText("Open up <#FF6666>JSKV<#FFFFFF> again and restore the just copied <#FF6666>savegame<#FFFFFF>.<s1>\r\n<s10><align=\"center\"><#FFFF66>Congratulations! You're done!", false, () => {
+								Controller.Instance.Popup.SetText("Open up <#FF6666>JKSV<#FFFFFF> again and restore the just copied <#FF6666>savegame<#FFFFFF>.<s1>\r\n<s10><align=\"center\"><#FFFF66>Congratulations! You're done!", false, () => {
 									StartCoroutine(Close());
 									return true;
 								}); 

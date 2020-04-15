@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public interface ICrop
 {
-	void SetImage(System.Drawing.Bitmap image);
+	void SetImage(System.Drawing.Bitmap bitmap, int desiredWidth, int desiredHeight);
 	int GetHeight();
 	int GetWidth();
 }

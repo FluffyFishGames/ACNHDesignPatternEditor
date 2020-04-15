@@ -22,14 +22,21 @@ namespace MyHorizons.Data.Save
         {
             try
             {
-
-				if (new FileInfo(headerPath).Length == HEADER_FILE_SIZE)
+                if (headerPath == null)
                 {
-                    using (var reader = File.OpenRead(headerPath))
+                    _revision = new SaveRevision(0, 0, 0, 0, 0, 0, "Designer", 0, 50);
+                    return true;
+                }
+                else
+                {
+                    if (new FileInfo(headerPath).Length == HEADER_FILE_SIZE)
                     {
-                        var data = new byte[128];
-                        if (reader.Read(data, 0, 128) == 128)
-                            return (_revision = RevisionManager.GetFileRevision(data)) != null;
+                        using (var reader = File.OpenRead(headerPath))
+                        {
+                            var data = new byte[128];
+                            if (reader.Read(data, 0, 128) == 128)
+                                return (_revision = RevisionManager.GetFileRevision(data)) != null;
+                        }
                     }
                 }
             }
@@ -39,39 +46,71 @@ namespace MyHorizons.Data.Save
 
         public virtual bool Load(in string headerPath, in string filePath, IProgress<float> progress)
         {
-            _filePath = filePath;
-            return Load(File.ReadAllBytes(headerPath), File.ReadAllBytes(filePath), progress);
+            if (headerPath == null)
+            {
+                _filePath = filePath;
+                if (!File.Exists(filePath))
+                {
+                    byte[] designerFile = new byte[0x38900];
+                    return Load(null, designerFile, progress);
+                }
+                else 
+                    return Load(null, File.ReadAllBytes(filePath), progress);
+            }
+            else
+            {
+                _filePath = filePath;
+                return Load(File.ReadAllBytes(headerPath), File.ReadAllBytes(filePath), progress);
+            }
         }
 
         public virtual bool Load(in byte[] headerData, in byte[] fileData, IProgress<float> progress)
         {
-            _rawData = null;
-            try
+            if (headerData == null)
             {
-                _rawData = SaveEncryption.Decrypt(headerData, fileData);
+                _revision = new SaveRevision(0, 0, 0, 0, 0, 0, "Designer", 0, 50);
+                _rawData = fileData;
                 Loaded = true;
+                return _rawData != null;
             }
-            finally { }
-            return _rawData != null;
+            else
+            {
+                _rawData = null;
+                try
+                {
+                    _rawData = SaveEncryption.Decrypt(headerData, fileData);
+                    Loaded = true;
+                }
+                finally { }
+                return _rawData != null;
+            }
         }
 
         public virtual bool Save(in string filePath, IProgress<float> progress)
         {
             if (_rawData != null)
             {
-                try
+                if (_revision.HasValue && _revision.Value.Revision == 50)
                 {
-                    // Update hashes
-                    TryUpdateFileHashes(_rawData, _revision.Value);
-
-                    // Encrypt and save file + header
-                    var (fileData, headerData) = SaveEncryption.Encrypt(_rawData, (uint)DateTime.Now.Ticks);
-                    var headerFilePath = Path.Combine(Path.GetDirectoryName(filePath), $"{Path.GetFileNameWithoutExtension(filePath)}Header.dat");
-                    File.WriteAllBytes(filePath, fileData);
-                    File.WriteAllBytes(headerFilePath, headerData);
+                    File.WriteAllBytes(filePath, _rawData);
                     return true;
                 }
-                finally { }
+                else
+                {
+                    try
+                    {
+                        // Update hashes
+                        TryUpdateFileHashes(_rawData, _revision.Value);
+
+                        // Encrypt and save file + header
+                        var (fileData, headerData) = SaveEncryption.Encrypt(_rawData, (uint) DateTime.Now.Ticks);
+                        var headerFilePath = Path.Combine(Path.GetDirectoryName(filePath), $"{Path.GetFileNameWithoutExtension(filePath)}Header.dat");
+                        File.WriteAllBytes(filePath, fileData);
+                        File.WriteAllBytes(headerFilePath, headerData);
+                        return true;
+                    }
+                    finally { }
+                }
             }
             return false;
         }

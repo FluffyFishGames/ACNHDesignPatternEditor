@@ -35,12 +35,12 @@ public class ExportOperation : IOperation, IPatternOperation
 	public void Start()
 	{
 		var colors = Pattern.GetPixels();
-		var bitmap = new Bitmap(32, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-		for (var y = 0; y < 32; y++)
+		var bitmap = new Bitmap(Pattern.Width, Pattern.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+		for (var y = 0; y < Pattern.Width; y++)
 		{
-			for (var x = 0; x < 32; x++)
+			for (var x = 0; x < Pattern.Height; x++)
 			{
-				bitmap.SetPixel(x, y, System.Drawing.Color.FromArgb((byte) (colors[x + y * 32].a * 255f), (byte) (colors[x + y * 32].r * 255f), (byte) (colors[x + y * 32].g * 255f), (byte) (colors[x + y * 32].b * 255f)));
+				bitmap.SetPixel(x, y, System.Drawing.Color.FromArgb((byte) (colors[x + y * Pattern.Width].a * 255f), (byte) (colors[x + y * Pattern.Width].r * 255f), (byte) (colors[x + y * Pattern.Width].g * 255f), (byte) (colors[x + y * Pattern.Width].b * 255f)));
 			}
 		}
 		StandaloneFileBrowser.SaveFilePanelAsync("Export image", "", "image.png", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif" }) }, (path) =>

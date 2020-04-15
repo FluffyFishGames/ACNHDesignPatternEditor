@@ -1,4 +1,4 @@
-﻿using MyHorizons.Data;
+﻿/*using MyHorizons.Data;
 using MyHorizons.Data.Save;
 using SFB;
 using SimplePaletteQuantizer.ColorCaches;
@@ -14,17 +14,16 @@ using System.Threading.Tasks;
 using UnityEngine;
 using WebPWrapper;
 using ZXing;
+using ZXing.QrCode;
 
 public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperation
 {
 	private System.Drawing.Bitmap Image;
 	private System.Drawing.Bitmap Result;
 	private DesignPattern Pattern;
-	private DesignPattern ResultPattern;
+	private EditPattern EditPattern;
 	private bool _IsParsing;
 	private bool _IsReady;
-	private Sprite ResultPreview;
-	private UnityEngine.Color[] ResultPixels;
 	private string Name;
 	private bool _IsFinished = false;
 
@@ -84,7 +83,7 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 
 	public string Username;
 	public string Town;
-
+	public DesignPattern.TypeEnum Type = DesignPattern.TypeEnum.SimplePattern;
 	public ImportOperation(DesignPattern pattern)
 	{
 		this.Pattern = pattern;
@@ -93,8 +92,9 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 
 	public void SetBytes(byte[] bytes)
 	{
-		var qrCode = new ACFileFormat(bytes);
+		var qrCode = new ACNLFileFormat(bytes);
 		IsQRCode = true;
+		this.Type = qrCode.Type;
 		this.Image = qrCode.GetImage();
 		this.Name = qrCode.Name;
 		this.Username = qrCode.Username;
@@ -114,7 +114,7 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 			{
 				TryHarder = true,
 				CharacterSet = "ISO-8859-1",
-				PossibleFormats = new List<BarcodeFormat>() { BarcodeFormat.QR_CODE },
+				PossibleFormats = new List<BarcodeFormat>() { BarcodeFormat.QR_CODE }
 			}
 		};
 
@@ -122,32 +122,14 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 		var result = scanner.Decode(image);
 		if (result != null)
 		{
-			var resultBytes = new byte[result.RawBytes.Length - 2];
-			for (int i = 5; i < result.RawBytes.Length * 2; i++)
+			var n = (List<byte[]>) result.ResultMetadata[ResultMetadataType.BYTE_SEGMENTS];
+			if (n.Count >= 1)
 			{
-				int byteIndex = (i - 5) / 2;
-				int rawByteIndex = i / 2;
-				byte value = 0;
-				if (i % 2 == 0)
-					value = (byte) ((result.RawBytes[rawByteIndex] & 0xF0) >> 4);
-				else
-					value = (byte) (result.RawBytes[rawByteIndex] & 0x0F);
-				if ((i - 5) % 2 == 0)
-					resultBytes[byteIndex] += (byte) (value << 4);
-				else
-					resultBytes[byteIndex] += value;
-			}
-			var bytes = resultBytes;
-			if (bytes[0x69] == 0x09)
-			{
+				var bytes = n[0];
 				IsQRCode = true;
-			}
-			if (IsQRCode)
-			{
 				SetBytes(bytes);
 			}
-			else
-				this.Image = image;
+			else this.Image = image;
 		}
 		else
 			this.Image = image;
@@ -155,103 +137,22 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 
 	public void ParsePattern(ICrop crop, ISampling sampling, IColorQuantizer quantizer, IColorCache colorCache)
 	{
-		if (!this.IsParsing)
-		{
-			IsParsing = true;
-			Thread thread = new Thread(() =>
-			{
-				var bmp = new Bitmap((System.Drawing.Image) Image.Clone());
 
-				int desiredWidth = 32;
-				int desiredHeight = 32;
-				if (crop != null)
-				{
-					crop.SetImage(bmp);
-					desiredWidth = crop.GetWidth();
-					desiredHeight = crop.GetHeight();
-				}
-
-				if (quantizer is BaseColorCacheQuantizer colorCacheQuantizer)
-					colorCacheQuantizer.ChangeCacheProvider(colorCache);
-
-				var sampledBmp = sampling.Resample(bmp, desiredWidth, desiredHeight);
-				bmp.Dispose();
-				bmp = sampledBmp;
-
-				Bitmap croppedBmp = new Bitmap(32, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-				using (System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(croppedBmp))
-				{
-					graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-					graphics.DrawImage(bmp, (32 - bmp.Width) / 2, (32 - bmp.Height) / 2, bmp.Width, bmp.Height);
-				}
-
-				bmp.Dispose();
-				bmp = croppedBmp;
-
-				var transparentPixels = new bool[bmp.Width * bmp.Height];
-				for (var y = 0; y < bmp.Height; y++)
-				{
-					for (var x = 0; x < bmp.Width; x++)
-					{
-						transparentPixels[x + y * bmp.Width] = bmp.GetPixel(x, y).A != 255;
-					}
-				}
-				var targetImage = ImageBuffer.QuantizeImage(bmp, quantizer, null, 15, 1);
-
-				bmp.Dispose();
-				bmp = new Bitmap(targetImage);
-				for (var y = 0; y < bmp.Height; y++)
-				{
-					for (var x = 0; x < bmp.Width; x++)
-					{
-						if (transparentPixels[x + y * bmp.Width])
-							bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(0, 0, 0, 0));
-					}
-				}
-				Result = bmp;
-				IsReady = true;
-				IsParsing = false;
-			});
-			thread.Start();
-		}
 	}
 
-	public DesignPattern GetResultPattern()
+	public EditPattern GetEditPattern()
 	{
 		if (IsReady)
 		{
-			if (ResultPattern != null)
-			{
-				if (ResultPreview != null)
-				{
-					GameObject.DestroyImmediate(ResultPreview.texture);
-					GameObject.DestroyImmediate(ResultPreview);
-				}
-				ResultPreview = null;
-				ResultPixels = null;
-			}
-			ResultPattern = new DesignPattern();
-			ResultPattern.FromBitmap(Result);
-			ResultPattern.Name = Pattern.Name;
-			ResultPattern.PersonalID = new MyHorizons.Data.PlayerData.PersonalID() { UniqueId = 0xFFFFFFFF, TownId = Pattern.PersonalID.TownId };
-			ResultPattern.PersonalID.SetName(Pattern.PersonalID.GetName());
+			if (EditPattern != null)
+				EditPattern.Dispose();
+			EditPattern = new EditPattern(this.Result);
+			EditPattern.Pattern.Name = Pattern.Name;
+			EditPattern.Pattern.PersonalID = new MyHorizons.Data.PlayerData.PersonalID() { UniqueId = 0xFFFFFFFF, TownId = Pattern.PersonalID.TownId };
+			EditPattern.Pattern.PersonalID.SetName(Pattern.PersonalID.GetName());
 			IsReady = false;
 		}
-		return ResultPattern;
-	}
-
-	public UnityEngine.Color[] GetPixels()
-	{
-		if (ResultPixels == null && GetResultPattern() != null)
-			ResultPixels = GetResultPattern().GetPixels();
-		return ResultPixels;
-	}
-
-	public Sprite GetPreview()
-	{
-		if (ResultPreview == null && GetResultPattern() != null)
-			ResultPreview = GetResultPattern().GetPreview();
-		return ResultPreview;
+		return EditPattern;
 	}
 
 	public string GetName()
@@ -267,7 +168,7 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 	public void Start()
 	{
 		Controller.Instance.Popup.SetText("Please select any <#FF6666>Image<#FFFFFF> file to import.", false, () => {
-			StandaloneFileBrowser.OpenFilePanelAsync("Import image", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "acnl", "webp" }) }, false, (path) =>
+			StandaloneFileBrowser.OpenFilePanelAsync("Import image", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "acnl" }) }, false, (path) =>
 			{
 				if (path.Length > 0)
 				{
@@ -306,6 +207,7 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 						{
 							return true;
 						});
+						_IsFinished = true;
 						return;
 					}
 					catch (Exception e)
@@ -314,30 +216,102 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 						{
 							return true;
 						});
+						_IsFinished = true;
 						return;
 					}
+					Debug.Log(Type);
+					if (IsQRCode && Pattern.IsPro && Type == DesignPattern.TypeEnum.SimplePattern)
+					{
+						Debug.Log("Pro Pattern in simple");
+						Controller.Instance.Popup.SetText("Invalid pattern type. You can't put a simple design on a pro design spot.", false, () =>
+						{
+							return true;
+						});
+						_IsFinished = true;
+						return;
+					}
+					if (IsQRCode && !Pattern.IsPro && Type != DesignPattern.TypeEnum.SimplePattern)
+					{
+						Debug.Log("Simple Pattern in pro");
+						Controller.Instance.Popup.SetText("Invalid pattern type. You can't put a pro design on a simple design spot.", false, () =>
+						{
+							return true;
+						});
+						_IsFinished = true;
+						return;
+					}
+					if (Type == DesignPattern.TypeEnum.Unsupported)
+					{
+						Debug.Log("Unsupported");
+						Controller.Instance.Popup.SetText("Unsupported pattern type.", false, () =>
+						{
+							return true;
+						});
+						_IsFinished = true;
+						return;
+					}
+
 					Controller.Instance.PatternSelector.ActionMenu.Close();
-					Controller.Instance.SwitchToPatternEditor(
-						() =>
-						{
-							Controller.Instance.SwitchToNameInput(
-								() =>
-								{
-									ResultPattern.Name = this.Name;
-									Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index].CopyFrom(ResultPattern);
-									_IsFinished = true;
-								},
-								() =>
-								{
-									_IsFinished = true;
-								}
-							);
-						},
-						() =>
-						{
-							_IsFinished = true;
-						}
-					);
+					if (Pattern.IsPro && !IsQRCode)
+					{
+						Controller.Instance.SwitchToClothSelector(
+							(type) =>
+							{
+								Type = type;
+								Controller.Instance.SwitchToPatternEditor(
+									Pattern,
+									() =>
+									{
+										Controller.Instance.SwitchToNameInput(
+											() =>
+											{
+												EditPattern.Pattern.Name = this.Name;
+												Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index].CopyFrom(EditPattern.Pattern);
+												_IsFinished = true;
+											},
+											() =>
+											{
+												_IsFinished = true;
+											}
+										);
+									},
+									() =>
+									{
+										_IsFinished = true;
+									}
+								);
+							},
+							() =>
+							{
+								_IsFinished = true;
+							}
+						);
+					}
+					else
+					{
+						Controller.Instance.SwitchToPatternEditor(
+							Pattern,
+							() =>
+							{
+								Controller.Instance.SwitchToNameInput(
+									() =>
+									{
+										EditPattern.Pattern.Name = this.Name;
+										Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index].CopyFrom(EditPattern.Pattern);
+										_IsFinished = true;
+									},
+									() =>
+									{
+										_IsFinished = true;
+									}
+								);
+							},
+							() =>
+							{
+								_IsFinished = true;
+							}
+						);
+					}
 				}
 			});
 			return true;
@@ -358,4 +332,4 @@ public class ImportOperation : IOperation, IPatternOperation, IChangeNameOperati
 	{
 		this.Name = name;
 	}
-}
+}*/

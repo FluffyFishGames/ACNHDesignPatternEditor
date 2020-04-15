@@ -17,7 +17,8 @@ public class MenuButton : MonoBehaviour
 	private float StripsPhase = 0f;
 	public delegate void ClickDelegate();
 	public ClickDelegate OnClick;
-
+	private Color BaseColor;
+	private Color HoverColor;
 	// Start is called before the first frame update
 	void Start()
 	{
@@ -49,6 +50,11 @@ public class MenuButton : MonoBehaviour
 			this.Click();
 		});
 		Events.triggers.Add(click);
+		BaseColor = Background.color;
+		float h, s, v;
+		Color.RGBToHSV(BaseColor, out h, out s, out v);
+		v += 0.1f;
+		HoverColor = Color.HSVToRGB(h, s, v);
 	}
 
 	private void Click()
@@ -73,12 +79,12 @@ public class MenuButton : MonoBehaviour
 		Strips.anchoredPosition = new Vector2(-60 + 60 * StripsPhase, 0f);
 		if (IsMouseOver)
 		{
-			Background.color = new Color(90f / 255f, 240f / 255f, 212f / 255f);
+			Background.color = HoverColor; // new Color(90f / 255f, 240f / 255f, 212f / 255f);
 			Hover.SetActive(true);
 		}
 		else
 		{
-			Background.color = new Color(31f / 255f, 217f / 255f, 181f / 255f);
+			Background.color = BaseColor;// new Color(31f / 255f, 217f / 255f, 181f / 255f);
 			Hover.SetActive(false);
 		}
 	}

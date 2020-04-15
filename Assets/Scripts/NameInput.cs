@@ -28,11 +28,21 @@ public class NameInput : MonoBehaviour
 		};
 		InputField.onValueChanged.AddListener((value) =>
 		{
-			if (Controller.Instance.CurrentOperation is IChangeNameOperation changeNameOption)
+/*			if (Controller.Instance.CurrentOperation is IChangeNameOperation changeNameOption)
 			{
 				changeNameOption.SetName(value);
-			}
+			}*/
 		});
+	}
+
+	public string GetName()
+	{
+		return InputField.text;
+	}
+
+	public void SetName(string name)
+	{
+		InputField.text = name;
 	}
 
 	public void Show(System.Action confirm, System.Action cancel)
