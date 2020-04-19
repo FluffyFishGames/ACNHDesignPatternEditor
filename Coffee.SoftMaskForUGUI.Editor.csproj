@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{CB8B614D-623A-D046-49EC-3C5A458CA7E6}</ProjectGuid>
+    <ProjectGuid>{C424652A-3037-5C20-12D3-3688BCDF3C3C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Coffee.SoftMaskForUGUI.Editor</AssemblyName>
@@ -68,16 +68,16 @@
     <Compile Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\Scripts\Editor\Utils.cs" />
     <None Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\Scripts\Editor\Coffee.SoftMaskForUGUI.Editor.asmdef" />
     <Reference Include="UnityEditor.UI">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.TestRunner">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEditor.TestRunner.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEditor.TestRunner.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TestRunner">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEngine.TestRunner.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEngine.TestRunner.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -272,19 +272,16 @@
       <HintPath>C:/Program Files (x86)/Microsoft Visual Studio Tools for Unity/16.0/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/Plugins/System.Drawing.dll</HintPath>
-    </Reference>
-    <Reference Include="zxing">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/Plugins/zxing.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/Plugins/System.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="Ookii.Dialogs">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/PackageCache/com.unity.ext.nunit@1.0.0/net35/unity-custom/nunit.framework.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/PackageCache/com.unity.ext.nunit@1.0.0/net35/unity-custom/nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
@@ -643,7 +640,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Coffee.SoftMaskForUGUI.csproj">
-      <Project>{35F98EC8-5337-3EBC-E673-755D69B51492}</Project>
+      <Project>{FABFA7E1-EF4F-04D7-001C-5FF4FF6AD7D6}</Project>
       <Name>Coffee.SoftMaskForUGUI</Name>
     </ProjectReference>
   </ItemGroup>

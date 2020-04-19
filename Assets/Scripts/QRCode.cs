@@ -58,7 +58,7 @@ public class QRCode : MonoBehaviour
             qr1.filterMode = FilterMode.Point;
             TopLeftQRCodeImage.texture = qr1;
 
-            preview.Move(90f);
+            preview.Move(90f, 0f);
             preview.Camera.Render();
 
             var img2 = RenderImage(preview.Camera.targetTexture);
@@ -67,7 +67,7 @@ public class QRCode : MonoBehaviour
             qr2.filterMode = FilterMode.Point;
             TopRightQRCodeImage.texture = qr2;
 
-            preview.Move(90f);
+            preview.Move(90f, 0f);
             preview.Camera.Render();
 
             var img3 = RenderImage(preview.Camera.targetTexture);
@@ -76,7 +76,7 @@ public class QRCode : MonoBehaviour
             qr3.filterMode = FilterMode.Point;
             BottomLeftQRCodeImage.texture = qr3;
 
-            preview.Move(90f);
+            preview.Move(90f, 0f);
             preview.Camera.Render();
 
             var img4 = RenderImage(preview.Camera.targetTexture);

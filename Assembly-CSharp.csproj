@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{32C8094A-2FA0-6BEA-6F32-FA49710A87B3}</ProjectGuid>
+    <ProjectGuid>{CC572F42-1802-257E-4B3F-535CEF579828}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -66,16 +66,22 @@
     <Compile Include="Assets\Scripts\ActionMenu.cs" />
     <Compile Include="Assets\Scripts\ActionMenuButton.cs" />
     <Compile Include="Assets\Scripts\ArrowAnimation.cs" />
-    <Compile Include="Assets\Scripts\ColorPalette.cs" />
-    <Compile Include="Assets\Scripts\ColorPaletteButton.cs" />
+    <Compile Include="Assets\Scripts\ClothSelector.cs" />
+    <Compile Include="Assets\Scripts\ClothSelectorButton.cs" />
     <Compile Include="Assets\Scripts\ConfirmationPopup.cs" />
     <Compile Include="Assets\Scripts\Controller.cs" />
+    <Compile Include="Assets\Scripts\CursorHandler.cs" />
+    <Compile Include="Assets\Scripts\CursorManager.cs" />
     <Compile Include="Assets\Scripts\EasingFunctions.cs" />
+    <Compile Include="Assets\Scripts\EditPattern.cs" />
+    <Compile Include="Assets\Scripts\FormatPopup.cs" />
     <Compile Include="Assets\Scripts\FullscreenClickArea.cs" />
     <Compile Include="Assets\Scripts\HowToExport.cs" />
+    <Compile Include="Assets\Scripts\Importer.cs" />
     <Compile Include="Assets\Scripts\LoadingAnimation.cs" />
     <Compile Include="Assets\Scripts\MainMenu.cs" />
     <Compile Include="Assets\Scripts\MenuButton.cs" />
+    <Compile Include="Assets\Scripts\MeshPreview.cs" />
     <Compile Include="Assets\Scripts\NameInput.cs" />
     <Compile Include="Assets\Scripts\Operations\CloneOperation.cs" />
     <Compile Include="Assets\Scripts\Operations\DeleteOperation.cs" />
@@ -83,12 +89,41 @@
     <Compile Include="Assets\Scripts\Operations\ImportOperation.cs" />
     <Compile Include="Assets\Scripts\Operations\Operation.cs" />
     <Compile Include="Assets\Scripts\Operations\SwapOperation.cs" />
-    <Compile Include="Assets\Scripts\PatternEditor.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Brush.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\ColorEditor.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\ColorPalette.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\ColorPaletteButton.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\History.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\IBrushDrawable.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\ITransformable.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Layer.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\LayerComponent.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Layers.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Pattern.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\PatternEditor.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Pixel.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\PixelGrid.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\ProtocolEntry.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\RasterLayer.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\SmartObjectLayer.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\SubPattern.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools\BrushTool.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools\BucketFillTool.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools\ColorPickerTool.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools\EraseTool.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools\ITool.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools\LineTool.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools\RectTool.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\Tools\TransformTool.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\TransformToolContainer.cs" />
+    <Compile Include="Assets\Scripts\PatternEditor\_3DPreview.cs" />
     <Compile Include="Assets\Scripts\PatternSelector.cs" />
     <Compile Include="Assets\Scripts\PatternSelectorPattern.cs" />
-    <Compile Include="Assets\Scripts\Pixel.cs" />
     <Compile Include="Assets\Scripts\Pop.cs" />
     <Compile Include="Assets\Scripts\Popup.cs" />
+    <Compile Include="Assets\Scripts\Previews.cs" />
+    <Compile Include="Assets\Scripts\QRCode.cs" />
     <Compile Include="Assets\Scripts\TextProOnACircle.cs" />
     <Compile Include="Assets\Scripts\TextProOnACurve.cs" />
     <Compile Include="Assets\Scripts\TextProOnAExp.cs" />
@@ -96,6 +131,8 @@
     <Compile Include="Assets\Scripts\ToolButtonGroup.cs" />
     <Compile Include="Assets\Scripts\Tooltip.cs" />
     <Compile Include="Assets\Scripts\TooltipContent.cs" />
+    <Compile Include="Assets\Scripts\TooltipHandler.cs" />
+    <Compile Include="Assets\Scripts\Version.cs" />
     <Compile Include="Assets\StandaloneFileBrowser\IStandaloneFileBrowser.cs" />
     <Compile Include="Assets\StandaloneFileBrowser\StandaloneFileBrowser.cs" />
     <Compile Include="Assets\StandaloneFileBrowser\StandaloneFileBrowserEditor.cs" />
@@ -106,6 +143,7 @@
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\SoftMask.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\Meshs\Clothing.shader" />
     <None Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\Shaders\TMP_SDF (SoftMaskable).shader" />
     <None Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\Shaders\TMP_Sprite (SoftMaskable).shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
@@ -120,41 +158,43 @@
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+    <None Include="Assets\Meshs\StandardShader-DoubleSided.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\Meshs\ClothingNoNormal.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
     <Reference Include="Unity.Timeline.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Sprite.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -331,16 +371,13 @@
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/Plugins/System.Drawing.dll</HintPath>
-    </Reference>
-    <Reference Include="zxing">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/Plugins/zxing.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/Plugins/System.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="Ookii.Dialogs">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
@@ -699,15 +736,19 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{9EF81448-1692-57A8-A6D9-BA213C05110A}</Project>
+      <Project>{B08EB9FC-59B7-0D5D-54F0-405CDEDFCE59}</Project>
       <Name>Assembly-CSharp-firstpass</Name>
     </ProjectReference>
+    <ProjectReference Include="unity.webp.csproj">
+      <Project>{36D056E6-CE89-DC0A-E7DD-3DA9CEEFEB14}</Project>
+      <Name>unity.webp</Name>
+    </ProjectReference>
     <ProjectReference Include="Coffee.SoftMaskForUGUI.csproj">
-      <Project>{35F98EC8-5337-3EBC-E673-755D69B51492}</Project>
+      <Project>{FABFA7E1-EF4F-04D7-001C-5FF4FF6AD7D6}</Project>
       <Name>Coffee.SoftMaskForUGUI</Name>
     </ProjectReference>
     <ProjectReference Include="Coffee.SoftMaskForUGUI.Editor.csproj">
-      <Project>{A7708CEE-F98B-A360-3EA2-192682A22981}</Project>
+      <Project>{243B7249-3DF1-D5B8-9A9C-0298EB747A0A}</Project>
       <Name>Coffee.SoftMaskForUGUI.Editor</Name>
     </ProjectReference>
   </ItemGroup>

@@ -12,7 +12,8 @@ public class MeshPreview : MonoBehaviour
 	public Transform ObjectContainer;
 	public Camera Camera;
 	public bool Rerender = false;
-	private float Angle = 0f;
+	private float AngleX = 0f;
+	private float AngleY = 0f;
 
 	public void SetTexture(Texture2D texture)
 	{
@@ -23,14 +24,19 @@ public class MeshPreview : MonoBehaviour
 
 	public void ResetPosition()
 	{
-		Angle = 0f;
-		ObjectContainer.rotation = Quaternion.AngleAxis(Angle, new Vector3(0f, 1f, 0f));
+		AngleX = 0f;
+		AngleY = 0f;
+		ObjectContainer.rotation = Quaternion.AngleAxis(AngleX, new Vector3(0f, 1f, 0f));
 	}
 
-	public void Move(float delta)
+	public void Move(float deltaX, float deltaY)
 	{
-		Angle += delta;
-		ObjectContainer.rotation = Quaternion.AngleAxis(Angle, new Vector3(0f, 1f, 0f));
+		AngleX += deltaX;
+		AngleY += deltaY;
+		if (AngleY < -45f) AngleY = -45f;
+		if (AngleY > 0f) AngleY = 0f;
+		var rotation = Quaternion.AngleAxis(AngleY, new Vector3(1f, 0f, 0f)) * Quaternion.AngleAxis(AngleX, new Vector3(0f, 1f, 0f));
+		ObjectContainer.rotation = rotation;
 	}
 
 	public void Render()

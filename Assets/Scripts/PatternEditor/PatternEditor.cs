@@ -118,9 +118,9 @@ public class PatternEditor : MonoBehaviour
 		}
 	}
 
-	public void MovePreview(float delta)
+	public void MovePreview(float deltaX, float deltaY)
 	{
-		Previews.AllPreviews[CurrentPattern.Type].Move(delta);
+		Previews.AllPreviews[CurrentPattern.Type].Move(deltaX, deltaY);
 		Previews.AllPreviews[CurrentPattern.Type].Render();
 	}
 

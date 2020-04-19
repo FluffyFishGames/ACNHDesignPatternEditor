@@ -15,6 +15,7 @@
             LOD 300
             ZWrite On
             AlphaToMask On
+            Cull Off
 
             CGPROGRAM
             // Physically based Standard lighting model, and enable shadows on all light types

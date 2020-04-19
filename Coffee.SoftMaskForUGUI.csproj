@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{53A10584-E0FA-916D-CE9D-3AB5D19420EF}</ProjectGuid>
+    <ProjectGuid>{74212B37-FAE0-118B-E527-CEF37AF9A90E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Coffee.SoftMaskForUGUI</AssemblyName>
@@ -67,10 +67,10 @@
     <Compile Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\Scripts\SoftMaskable.cs" />
     <None Include="Assets\Coffee\UIExtensions\SoftMaskForUGUI\Scripts\Coffee.SoftMaskForUGUI.asmdef" />
     <Reference Include="UnityEditor.UI">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -265,16 +265,13 @@
       <HintPath>C:/Program Files (x86)/Microsoft Visual Studio Tools for Unity/16.0/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/Plugins/System.Drawing.dll</HintPath>
-    </Reference>
-    <Reference Include="zxing">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/Plugins/zxing.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/Plugins/System.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="Ookii.Dialogs">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>

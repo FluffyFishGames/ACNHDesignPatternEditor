@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{678DFD19-FBFF-BC43-127F-D5DE78D8BB79}</ProjectGuid>
+    <ProjectGuid>{3DB11E53-AE75-86EF-4823-1D0615AAEF43}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
@@ -63,16 +63,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Plugins\ACFileFormat.cs" />
+    <Compile Include="Assets\Plugins\ACNHDesignExtractor.cs" />
+    <Compile Include="Assets\Plugins\ACNHFileFormat.cs" />
+    <Compile Include="Assets\Plugins\ACNLFileFormat.cs" />
+    <Compile Include="Assets\Plugins\BitmapExtensions.cs" />
+    <Compile Include="Assets\Plugins\ColorExtensions.cs" />
     <Compile Include="Assets\Plugins\Crop\Cover.cs" />
     <Compile Include="Assets\Plugins\Crop\Fit.cs" />
     <Compile Include="Assets\Plugins\Crop\ICrop.cs" />
     <Compile Include="Assets\Plugins\DesignPatternExtension.cs" />
+    <Compile Include="Assets\Plugins\DesignPatternInformation.cs" />
+    <Compile Include="Assets\Plugins\GridCreator.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Data\DesignPattern.cs" />
+    <Compile Include="Assets\Plugins\MyHorizons\Data\IDesignPatternContainer.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Data\Item.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Data\ItemCollection.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Data\PlayerData\PersonalID.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Data\PlayerData\Player.cs" />
+    <Compile Include="Assets\Plugins\MyHorizons\Data\Save\IDesignPatternContainer.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Data\Save\ISaveFile.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Data\Save\MainSaveFile.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Data\Save\PersonalSaveFile.cs" />
@@ -93,6 +101,7 @@
     <Compile Include="Assets\Plugins\MyHorizons\History\IUndoable.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\SEADRandom.cs" />
     <Compile Include="Assets\Plugins\MyHorizons\Utility\FileUtils.cs" />
+    <Compile Include="Assets\Plugins\QRCodeExtractor.cs" />
     <Compile Include="Assets\Plugins\Quantization\ColorCaches\BaseColorCache.cs" />
     <Compile Include="Assets\Plugins\Quantization\ColorCaches\Common\ColorModel.cs" />
     <Compile Include="Assets\Plugins\Quantization\ColorCaches\EuclideanDistance\EuclideanDistanceColorCache.cs" />
@@ -145,45 +154,353 @@
     <Compile Include="Assets\Plugins\Quantization\Quantizers\Popularity\PopularityQuantizer.cs" />
     <Compile Include="Assets\Plugins\Quantization\Quantizers\XiaolinWu\WuColorCube.cs" />
     <Compile Include="Assets\Plugins\Quantization\Quantizers\XiaolinWu\WuColorQuantizer.cs" />
+    <Compile Include="Assets\Plugins\Sampling\BellSampling.cs" />
     <Compile Include="Assets\Plugins\Sampling\BicubicSampling.cs" />
     <Compile Include="Assets\Plugins\Sampling\BillinearSampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\CatmullRomSampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\CosineSampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\CubicBSplineSampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\CubicConvolutionSampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\HermiteSampling.cs" />
     <Compile Include="Assets\Plugins\Sampling\ISampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\Lanczos3Sampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\Lanczos8Sampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\MitchellSampling.cs" />
     <Compile Include="Assets\Plugins\Sampling\NearestNeighbourSampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\QuadraticBSplineSampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\QuadraticSampling.cs" />
+    <Compile Include="Assets\Plugins\Sampling\ResamplingService.cs" />
     <Compile Include="Assets\Plugins\Savegame.cs" />
     <Compile Include="Assets\Plugins\WebP.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BarcodeFormat.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BarcodeReader.Bitmap.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BarcodeReaderCustom.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BarcodeReaderGeneric.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BarcodeWriter.Bitmap.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BarcodeWriterCustom.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BarcodeWriterGeneric.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BaseLuminanceSource.cs" />
+    <Compile Include="Assets\Plugins\ZXing\Binarizer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BinaryBitmap.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BitmapLuminanceSource.cs" />
+    <Compile Include="Assets\Plugins\ZXing\DecodeHintType.cs" />
+    <Compile Include="Assets\Plugins\ZXing\Dimension.cs" />
+    <Compile Include="Assets\Plugins\ZXing\EncodeHintType.cs" />
+    <Compile Include="Assets\Plugins\ZXing\FormatException.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeReader.Bitmap.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeReader.Multiple.Bitmap.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeReader.Multiple.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeReaderCustom.Multiple.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeReaderCustom.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeReaderGeneric.Multiple.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeReaderGeneric.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeWriter.Bitmap.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeWriterCustom.cs" />
+    <Compile Include="Assets\Plugins\ZXing\IBarcodeWriterGeneric.cs" />
+    <Compile Include="Assets\Plugins\ZXing\InvertedLuminanceSource.cs" />
+    <Compile Include="Assets\Plugins\ZXing\LuminanceSource.cs" />
+    <Compile Include="Assets\Plugins\ZXing\MultiFormatReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\MultiFormatWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\PlanarYUVLuminanceSource.cs" />
+    <Compile Include="Assets\Plugins\ZXing\RGBLuminanceSource.cs" />
+    <Compile Include="Assets\Plugins\ZXing\Reader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\ReaderException.cs" />
+    <Compile Include="Assets\Plugins\ZXing\Result.cs" />
+    <Compile Include="Assets\Plugins\ZXing\ResultMetadataType.cs" />
+    <Compile Include="Assets\Plugins\ZXing\ResultPoint.cs" />
+    <Compile Include="Assets\Plugins\ZXing\ResultPointCallback.cs" />
+    <Compile Include="Assets\Plugins\ZXing\SupportClass.cs" />
+    <Compile Include="Assets\Plugins\ZXing\Writer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\WriterException.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\AztecDetectorResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\AztecReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\AztecResultMetadata.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\AztecWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\decoder\Decoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\detector\Detector.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\encoder\AztecCode.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\encoder\AztecEncodingOptions.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\encoder\BinaryShiftToken.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\encoder\Encoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\encoder\HighLevelEncoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\encoder\SimpleToken.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\encoder\State.cs" />
+    <Compile Include="Assets\Plugins\ZXing\aztec\encoder\Token.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\AbstractDoCoMoResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\AddressBookAUResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\AddressBookDoCoMoResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\AddressBookParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\BizcardResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\BookmarkDoCoMoResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\CalendarParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\EmailAddressParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\EmailAddressResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\EmailDoCoMoResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ExpandedProductParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ExpandedProductResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\GeoParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\GeoResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ISBNParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ISBNResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ParsedResultType.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ProductParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ProductResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\ResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\SMSMMSResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\SMSParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\SMSTOMMSTOResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\SMTPResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\TelParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\TelResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\TextParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\URIParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\URIResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\URLTOResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\VCardResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\VEventResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\VINParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\VINResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\WifiParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\client\result\WifiResultParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\BigInteger\Base10BigInteger.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\BigInteger\BigInteger.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\BigInteger\BigIntegerException.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\BigInteger\Sign.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\BitArray.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\BitMatrix.Drawing.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\BitMatrix.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\BitSource.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\CharacterSetECI.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\DecoderResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\DecodingOptions.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\DefaultGridSampler.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\DetectorResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\ECI.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\EncodingOptions.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\GlobalHistogramBinarizer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\GridSampler.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\HybridBinarizer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\PerspectiveTransform.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\StringUtils.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\detector\MathUtils.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\detector\MonochromeRectangleDetector.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\detector\WhiteRectangleDetector.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\reedsolomon\GenericGF.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\reedsolomon\GenericGFPoly.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\reedsolomon\ReedSolomonDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\common\reedsolomon\ReedSolomonEncoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\DataMatrixReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\DataMatrixWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\decoder\BitMatrixParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\decoder\DataBlock.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\decoder\DecodedBitStreamParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\decoder\Decoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\decoder\Version.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\detector\Detector.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\ASCIIEncoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\Base256Encoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\C40Encoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\DataMatrixSymbolInfo144.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\DatamatrixEncodingOptions.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\DefaultPlacement.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\EdifactEncoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\Encodation.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\Encoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\EncoderContext.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\ErrorCorrection.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\HighLevelEncoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\SymbolInfo.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\SymbolShapeHint.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\TextEncoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\X12Encoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\imb\IMBReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\maxicode\MaxiCodeReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\maxicode\decoder\BitMatrixParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\maxicode\decoder\DecodedBitStreamParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\maxicode\decoder\Decoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\multi\ByQuadrantReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\multi\GenericMultipleBarcodeReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\multi\MultipleBarcodeReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\multi\qrcode\QRCodeMultiReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\multi\qrcode\detector\MultiDetector.cs" />
+    <Compile Include="Assets\Plugins\ZXing\multi\qrcode\detector\MultiFinderPatternFinder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\CodaBarReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\CodaBarWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\Code128EncodingOptions.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\Code128Reader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\Code128Writer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\Code39Reader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\Code39Writer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\Code93Reader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\Code93Writer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\EAN13Reader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\EAN13Writer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\EAN8Reader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\EAN8Writer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\EANManufacturerOrgSupport.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\ITFReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\ITFWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\MSIReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\MSIWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\MultiFormatOneDReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\MultiFormatUPCEANReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\OneDReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\OneDimensionalCodeWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\PharmaCodeReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\PlesseyWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCAReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCAWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCEANExtension2Support.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCEANExtension5Support.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCEANExtensionSupport.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCEANReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCEANWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCEReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\UPCEWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\AbstractRSSReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\DataCharacter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\FinderPattern.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\Pair.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\RSS14Reader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\RSSUtils.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\BitArrayBuilder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\ExpandedPair.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\ExpandedRow.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\RSSExpandedReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI013103decoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI01320xDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI01392xDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI01393xDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI013x0x1xDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI013x0xDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI01AndOtherAIs.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI01decoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AI01weightDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AbstractExpandedDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\AnyAIDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\BlockParsedResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\CurrentParsingState.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\DecodedChar.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\DecodedInformation.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\DecodedNumeric.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\DecodedObject.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\FieldParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\decoders\GeneralAppIdDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\PDF417Common.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\PDF417MacroMetadata.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\PDF417Reader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\PDF417ResultMetadata.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\PDF417Writer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\BarcodeMetadata.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\BarcodeValue.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\BoundingBox.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\Codeword.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\DecodedBitStreamParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\DetectionResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\DetectionResultColumn.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\DetectionResultRowIndicatorColumn.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\PDF417CodewordDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\PDF417ScanningDecoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\ec\ErrorCorrection.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\ec\ModulusGF.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\ec\ModulusPoly.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\detector\Detector.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\detector\PDF417DetectorResult.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\BarcodeMatrix.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\BarcodeRow.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\Compaction.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\Dimensions.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\PDF417.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\PDF417AspectRatio.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\PDF417EncodingOptions.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\PDF417ErrorCorrection.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\PDF417HighLevelEncoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\PDF417OptionalMacroFields.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\QRCodeReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\QRCodeWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\BitMatrixParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\DataBlock.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\DataMask.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\DecodedBitStreamParser.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\Decoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\ErrorCorrectionLevel.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\FormatInformation.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\Mode.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\QRCodeDecoderMetaData.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\Version.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\detector\AlignmentPattern.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\detector\AlignmentPatternFinder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\detector\Detector.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\detector\FinderPattern.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\detector\FinderPatternFinder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\detector\FinderPatternInfo.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\BlockPair.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\ByteMatrix.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\Encoder.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\MaskUtil.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\MatrixUtil.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\QRCode.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\QrCodeEncodingOptions.cs" />
+    <Compile Include="Assets\Plugins\ZXing\renderer\BitmapRenderer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\renderer\IBarcodeRenderer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\renderer\PixelData.Bitmap.cs" />
+    <Compile Include="Assets\Plugins\ZXing\renderer\PixelData.cs" />
+    <Compile Include="Assets\Plugins\ZXing\renderer\RawRenderer.cs" />
+    <Compile Include="Assets\Plugins\ZXing\renderer\SVGRenderer.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Blend\BlendInfo.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Blend\BlendResult.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Blend\BlendType.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Color\ColorDist.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Color\ColorEq.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Common\IntPair.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Common\IntPtr.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Common\Mask.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Common\RotationDegree.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Extensions\BitmapExtensions.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\ScalerCfg.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Scalers\Kernel3x3.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Scalers\Kernel4x4.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Scalers\OutputMatrix.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Scalers\Rot.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Scalers\ScaleSize.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\Scalers\ScalerImplementations.cs" />
+    <Compile Include="Assets\Plugins\xBRZ\xBRZScaler.cs" />
     <None Include="Assets\Plugins\MyHorizons\Resources\v1\Text\Items\ItemNames_en.txt" />
     <None Include="Assets\Plugins\MyHorizons\Resources\v0\Text\Items\ItemNames_en.txt" />
     <None Include="Assets\Plugins\MyHorizons\Resources\v0\Text\Villagers\VillagerNames_en.txt" />
     <None Include="Assets\Plugins\MyHorizons\Resources\v1\Text\Villagers\VillagerNames_en.txt" />
     <Reference Include="Unity.Timeline.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Sprite.Editor">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -360,16 +677,13 @@
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/Plugins/System.Drawing.dll</HintPath>
-    </Reference>
-    <Reference Include="zxing">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/Plugins/zxing.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/Plugins/System.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="Ookii.Dialogs">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/StandaloneFileBrowser/Plugins/Ookii.Dialogs.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms">
-      <HintPath>E:/Projects/ACNHDesignPatternEditorPatch/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
+      <HintPath>E:/Projects/ACNHDesignPatternEditorHotfix/Assets/StandaloneFileBrowser/Plugins/System.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.0a9/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
@@ -727,12 +1041,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="unity.webp.csproj">
+      <Project>{36D056E6-CE89-DC0A-E7DD-3DA9CEEFEB14}</Project>
+      <Name>unity.webp</Name>
+    </ProjectReference>
     <ProjectReference Include="Coffee.SoftMaskForUGUI.csproj">
-      <Project>{35F98EC8-5337-3EBC-E673-755D69B51492}</Project>
+      <Project>{FABFA7E1-EF4F-04D7-001C-5FF4FF6AD7D6}</Project>
       <Name>Coffee.SoftMaskForUGUI</Name>
     </ProjectReference>
     <ProjectReference Include="Coffee.SoftMaskForUGUI.Editor.csproj">
-      <Project>{A7708CEE-F98B-A360-3EA2-192682A22981}</Project>
+      <Project>{243B7249-3DF1-D5B8-9A9C-0298EB747A0A}</Project>
       <Name>Coffee.SoftMaskForUGUI.Editor</Name>
     </ProjectReference>
   </ItemGroup>
