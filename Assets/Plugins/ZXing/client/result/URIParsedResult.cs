@@ -43,7 +43,7 @@ namespace ZXing.Client.Result
         {
             URI = massageURI(uri);
             Title = title;
-            PossiblyMaliciousURI = URIResultParser.isPossiblyMaliciousURI(uri);
+            //PossiblyMaliciousURI = URIResultParser.isPossiblyMaliciousURI(uri);
 
             var result = new System.Text.StringBuilder(30);
             maybeAppend(Title, result);
