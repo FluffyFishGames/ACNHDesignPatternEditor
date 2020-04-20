@@ -68,8 +68,9 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 		this.Pattern = pattern;
 		this.Name = pattern.Name;
 		if (TooltipHandler == null)
-			Logger.Log(Logger.Level.ERROR, "TooltipHandler is null!");
-		TooltipHandler.Tooltip = this.Name;
+			TooltipHandler = GetComponent<TooltipHandler>();
+		if (TooltipHandler != null)
+			TooltipHandler.Tooltip = this.Name;
 		Preview = pattern.GetPreview();
 		if (ImageImage == null)
 			Logger.Log(Logger.Level.ERROR, "ImageImage is null!");
