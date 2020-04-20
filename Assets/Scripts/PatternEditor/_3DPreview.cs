@@ -10,19 +10,12 @@ public class _3DPreview : MonoBehaviour, IPointerDownHandler
 	private bool IsMouseDown = false;
 	private float LastX = 0;
 	private float LastY = 0;
-	private float Angle = 0f;
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
 		IsMouseDown = true;
 		LastX = eventData.position.x;
 		LastY = eventData.position.x;
-	}
-
-	// Start is called before the first frame update
-	void Start()
-	{
-
 	}
 
 	// Update is called once per frame

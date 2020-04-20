@@ -44,7 +44,7 @@ public class LogButton : MonoBehaviour
             e.HelpLink = ""; // do anything with this variable to silence warning about not using it
         }
 #endif
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
         bool openInsidesOfFolder = false;
 
         // try windows
@@ -75,11 +75,5 @@ public class LogButton : MonoBehaviour
             string path = Application.persistentDataPath.TrimEnd(new[] { '\\', '/' }); // Mac doesn't like trailing slash
             OpenInFileBrowser(path);
         };
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

@@ -152,14 +152,10 @@ public class Tools : MonoBehaviour
 //	private ToolButtonGroup ResamplingGroup;
 //	private ToolButtonGroup CropGroup;
 
-	private Layer TemporaryLayer;
-	private bool ShowTools = false;
-	private float ToolPhase = 0f;
-	private RectTransform CurrentTools;
 	private bool Initialized = false;
 
 	private Dictionary<Tool, Image> ToolImages;
-	private List<Tool> ActiveTools = new List<Tool>();
+	private readonly List<Tool> ActiveTools = new List<Tool>();
 
 	public void PatternChanged()
 	{

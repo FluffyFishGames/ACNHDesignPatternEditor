@@ -60,13 +60,9 @@ public class PatternEditor : MonoBehaviour
 	private float ShowPhase = 0f;
 	private System.Action CancelAction;
 	private System.Action ConfirmAction;
-	private int CurrentSubPattern = 0;
-	private int Width;
-	private int Height;
 	private Dictionary<DesignPatternInformation.PartType, GameObject> PartIcons;
 	
 	private bool Initialized = false;
-	private float[] BrushShape;
 
 	public PixelGrid PixelGrid;
 
@@ -75,9 +71,6 @@ public class PatternEditor : MonoBehaviour
 		try
 		{
 			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Changing size of editor to " + width + "x" + height);
-
-			Width = width;
-			Height = height;
 
 			PixelSize = 18;
 			var maxSize = 670;
@@ -271,11 +264,6 @@ public class PatternEditor : MonoBehaviour
 		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while initializing PatternEditor: " + e.ToString()); }
 	}
 
-	void DeleteSelectedLayer()
-	{
-
-	}
-
 	public void SubPatternChanged(DesignPatternInformation.DesignPatternPart part)
 	{
 		try
@@ -305,9 +293,6 @@ public class PatternEditor : MonoBehaviour
 		}
 		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while changing active color: " + e.ToString()); }
 	}
-
-	private int lastBrushX = -1;
-	private int lastBrushY = -1;
 
 	private Tools.Tool TempTool;
 	private bool TempToolSet;
@@ -378,9 +363,11 @@ public class PatternEditor : MonoBehaviour
 	{
 		try
 		{
-			var pattern = new DesignPattern();
-			pattern.Type = Type;
-			pattern.IsPro = Type != DesignPattern.TypeEnum.SimplePattern;
+			var pattern = new DesignPattern
+			{
+				Type = Type,
+				IsPro = Type != DesignPattern.TypeEnum.SimplePattern
+			};
 			pattern.FromBitmap(this.CurrentPattern.PreviewBitmap);
 
 			return pattern;
