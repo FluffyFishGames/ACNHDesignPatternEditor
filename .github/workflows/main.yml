@@ -48,8 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        projectPath:
-          - FluffyFishGames/ACNHDesignPatternEditor
+        projectPath: 
         unityVersion:
           - 2020.1.0b5
         targetPlatform:
@@ -63,7 +62,7 @@ jobs:
           lfs: true
       - uses: actions/cache@v1.1.0
         with:
-          path: ${{ matrix.projectPath }}/Library
+          path: Library
           key: Library-${{ matrix.projectPath }}-${{ matrix.targetPlatform }}
           restore-keys: |
             Library-${{ matrix.projectPath }}-
