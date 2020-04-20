@@ -12,6 +12,12 @@ public class ProtocolEntry : UnityEngine.MonoBehaviour, UnityEngine.EventSystems
 	public UnityEngine.UI.Image Background;
 	public System.Action OnClick;
 
+	void OnEnable()
+	{
+		this.Text = transform.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
+		Background = GetComponent<UnityEngine.UI.Image>();
+	}
+
 	public void OnPointerClick(PointerEventData eventData)
 	{
 		OnClick?.Invoke();
