@@ -56,23 +56,16 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 
 	public void SetPattern(DesignPattern pattern)
 	{
-		try
+		if (this.Pattern != null)
 		{
-			if (this.Pattern != null)
-			{
-				GameObject.DestroyImmediate(Preview.texture);
-				GameObject.DestroyImmediate(Preview);
-			}
-			this.Pattern = pattern;
-			this.Name = pattern.Name;
-			TooltipHandler.Tooltip = this.Name;
-			Preview = pattern.GetPreview();
-			ImageImage.sprite = Preview;
+			GameObject.DestroyImmediate(Preview.texture);
+			GameObject.DestroyImmediate(Preview);
 		}
-		catch (System.Exception e)
-		{
-			System.IO.File.AppendAllText("error.log", "\r\n" + e.ToString());
-		}
+		this.Pattern = pattern;
+		this.Name = pattern.Name;
+		TooltipHandler.Tooltip = this.Name;
+		Preview = pattern.GetPreview();
+		ImageImage.sprite = Preview;
 	}
 
 	public void Highlight()

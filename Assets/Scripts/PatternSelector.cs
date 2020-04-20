@@ -126,28 +126,35 @@ public class PatternSelector : MonoBehaviour
 
 	public void Open()
 	{
-		for (var i = Patterns.childCount - 1; i >= 0; i--)
-			DestroyImmediate(Patterns.GetChild(i).gameObject);
+		try
+		{
+			for (var i = Patterns.childCount - 1; i >= 0; i--)
+				DestroyImmediate(Patterns.GetChild(i).gameObject);
 
-		if (this.CurrentMenu == Menu.Designs)
-		{			
-			for (var i = 0; i < Controller.Instance.CurrentSavegame.DesignPatterns.Length; i++)
+			if (this.CurrentMenu == Menu.Designs)
 			{
-				var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
-				PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
-				PatternObjects[i].PatternSelector = this;
-				PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[i]);
+				for (var i = 0; i < Controller.Instance.CurrentSavegame.DesignPatterns.Length; i++)
+				{
+					var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
+					PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
+					PatternObjects[i].PatternSelector = this;
+					PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[i]);
+				}
+			}
+			else
+			{
+				for (var i = 0; i < Controller.Instance.CurrentSavegame.ProDesignPatterns.Length; i++)
+				{
+					var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
+					PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
+					PatternObjects[i].PatternSelector = this;
+					PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[i]);
+				}
 			}
 		}
-		else
+		catch (System.Exception e)
 		{
-			for (var i = 0; i < Controller.Instance.CurrentSavegame.ProDesignPatterns.Length; i++)
-			{
-				var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
-				PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
-				PatternObjects[i].PatternSelector = this;
-				PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[i]);
-			}
+			System.IO.File.AppendAllText("error.log", "\r\n" + e.ToString());
 		}
 
 		if (!IsOpened)
