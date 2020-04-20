@@ -81,7 +81,7 @@ public class Pattern
 	{
 		try
 		{
-			Logger.Log(Logger.Level.INFO, "[EditPattern] Creating new pattern");
+			Logger.Log(Logger.Level.INFO, "[PatternEditor/Pattern] Creating new pattern");
 			PreviewThread = new Thread(() =>
 			{
 				while (true)
@@ -89,7 +89,7 @@ public class Pattern
 					ReparseLock.WaitOne();
 					if (Disposed)
 					{
-						Logger.Log(Logger.Level.DEBUG, "[EditPattern] Preview generator thread stopped!");
+						Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Preview generator thread stopped!");
 						return;
 					}
 					ReparseLock.Reset();
@@ -111,38 +111,38 @@ public class Pattern
 					}
 					catch (System.Exception e)
 					{
-						Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while generating pattern preview: " + e.ToString());
+						Logger.Log(Logger.Level.ERROR, "[PatternEditor/Pattern] Error while generating pattern preview: " + e.ToString());
 					}
 				}
 			});
 			PreviewThread.Start();
 
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Preview generator thread started!");
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Preview generator thread started!");
 			_Type = pattern.Type;
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Pattern type: " + _Type.ToString()); 
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Pattern type: " + _Type.ToString()); 
 			Bitmap = new TextureBitmap(pattern.Width, pattern.Height);
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Created TextureBitmap " + pattern.Width + "x" + pattern.Height);
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Created TextureBitmap " + pattern.Width + "x" + pattern.Height);
 			Bitmap.Clear();
 			PreviewBitmap = new TextureBitmap(pattern.Width, pattern.Height);
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Created preview TextureBitmap " + pattern.Width + "x" + pattern.Height);
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Created preview TextureBitmap " + pattern.Width + "x" + pattern.Height);
 			PreviewBitmap.Clear();
 			PreviewSprite = UnityEngine.Sprite.Create(PreviewBitmap.Texture, new UnityEngine.Rect(0, 0, PreviewBitmap.Width, PreviewBitmap.Height), new UnityEngine.Vector2(0.5f, 0.5f));
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Created preview sprite");
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Created preview sprite");
 
 			UpscaledPreviewBitmap = new TextureBitmap(pattern.Width * 4, pattern.Height * 4);
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Created upscaled preview TextureBitmap " + (pattern.Width * 4) + "x" + (pattern.Height * 4));
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Created upscaled preview TextureBitmap " + (pattern.Width * 4) + "x" + (pattern.Height * 4));
 			UpscaledPreviewBitmap.Clear();
 
 			Quantizer = Quantizers[0];
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Selected Quantizer: " + Quantizer.GetType().ToString());
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Selected Quantizer: " + Quantizer.GetType().ToString());
 			ColorCache = ColorCaches[0];
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Selected Color Cache: " + ColorCache.GetType().ToString());
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Selected Color Cache: " + ColorCache.GetType().ToString());
 
 			Editor = editor;
 			DesignPattern = pattern;
 			var colors = pattern.GetPixels();
 
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Parsing colors of pattern...);
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Parsing colors of pattern...");
 			unsafe
 			{
 				var bitmapColors = Bitmap.GetColors();
@@ -160,33 +160,40 @@ public class Pattern
 					}
 				}
 			}
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Parsed " + (Width * Height) + " pixels.");
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Parsed " + (Width * Height) + " pixels.");
 			Info = DesignPatternInformation.Types[pattern.Type];
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Pattern information obtained.");
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Pattern information obtained.");
 		}
 		catch (System.Exception e)
 		{
-			Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while creating pattern: " + e.ToString());
+			Logger.Log(Logger.Level.ERROR, "[PatternEditor/Pattern] Error while creating pattern: " + e.ToString());
 		}
 	}
 
 	public void Load()
 	{
-		Logger.Log(Logger.Level.DEBUG, "[EditPattern] Creating sub patterns...");
-		SubPatterns = new List<SubPattern>();
-		foreach (var part in Info.Parts)
+		try
 		{
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Creating sub pattern #"+ SubPatterns.Count + " (X:"+part.X + ";Y:" + part.Y+";W:"+part.Width+";H:"+part.Height+")");
-			SubPatterns.Add(new SubPattern(this, part));
-		}
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Creating sub patterns...");
+			SubPatterns = new List<SubPattern>();
+			foreach (var part in Info.Parts)
+			{
+				Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Creating sub pattern #" + SubPatterns.Count + " (X:" + part.X + ";Y:" + part.Y + ";W:" + part.Width + ";H:" + part.Height + ")");
+				SubPatterns.Add(new SubPattern(this, part));
+			}
 
-		Editor.SetSize(CurrentSubPattern.Width, CurrentSubPattern.Height);
-		CurrentSubPattern.SelectLayer(0);
-		CurrentSubPattern.UpdateImage();
-		NeedReparse = true;
-		Editor.LayersChanged();
-		Editor.SubPatternChanged(CurrentSubPattern.Part);
-		Editor.Tools.HistoryChanged(CurrentSubPattern.History);
+			Editor.SetSize(CurrentSubPattern.Width, CurrentSubPattern.Height);
+			CurrentSubPattern.SelectLayer(0);
+			CurrentSubPattern.UpdateImage();
+			NeedReparse = true;
+			Editor.LayersChanged();
+			Editor.SubPatternChanged(CurrentSubPattern.Part);
+			Editor.Tools.HistoryChanged(CurrentSubPattern.History);
+		}
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[PatternEditor/Pattern] Error while loading: " + e.ToString());
+		}
 	}
 
 	public void ChangeQuantizer(int num)

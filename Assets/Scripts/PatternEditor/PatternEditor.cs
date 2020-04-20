@@ -72,61 +72,83 @@ public class PatternEditor : MonoBehaviour
 
 	public void SetSize(int width, int height)
 	{
-		Logger.Log(Logger.Level.DEBUG, "[EditPattern] Changing size of editor to " + width + "x" + height);
+		try
+		{
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Changing size of editor to " + width + "x" + height);
 
-		Width = width;
-		Height = height;
+			Width = width;
+			Height = height;
 
-		PixelSize = 18;
-		var maxSize = 670;
-		if (maxSize < PixelSize * width)
-			PixelSize = maxSize / width;
-		if (maxSize < PixelSize * height)
-			PixelSize = maxSize / height;
-		Logger.Log(Logger.Level.DEBUG, "[EditPattern] New pixel size: " + PixelSize);
+			PixelSize = 18;
+			var maxSize = 670;
+			if (maxSize < PixelSize * width)
+				PixelSize = maxSize / width;
+			if (maxSize < PixelSize * height)
+				PixelSize = maxSize / height;
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] New pixel size: " + PixelSize);
 
-		PixelGrid.SetSize(width, height, PixelSize);
+			PixelGrid.SetSize(width, height, PixelSize);
+		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while changing grid size: " + e.ToString()); }
 	}
 
 	public void Hide()
 	{
-		if (IsShown)
+		try
 		{
-			IsShown = false;
-			CurrentPattern.Dispose();
+			if (IsShown)
+			{
+				IsShown = false;
+				CurrentPattern.Dispose();
+			}
 		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while hiding: " + e.ToString()); }
 	}
 
 	public void OnImageUpdated()
 	{
-		PixelGrid.UpdateImage();
+		try
+		{
+			PixelGrid.UpdateImage();
+		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error on OnImageUpdated callback: " + e.ToString()); }
 	}
 
 	public void OnLayerSelected(int num, Layer layer)
 	{
-		if (layer is SmartObjectLayer smartObjectLayer)
+		try
 		{
-			//TransformTool.Transform(smartObjectLayer);
-			Tools.SwitchToolset(Tools.Toolset.SmartObjectLayer);
-			//Tools.SwitchTool(Tools.Tool.Transform);
+			if (layer is SmartObjectLayer smartObjectLayer)
+			{
+				Tools.SwitchToolset(Tools.Toolset.SmartObjectLayer);
+			}
+			else
+			{
+				Tools.SwitchToolset(Tools.Toolset.RasterLayer);
+			}
 		}
-		else
-		{
-			Tools.SwitchToolset(Tools.Toolset.RasterLayer);
-			//TransformTool.Hide();
-		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error on OnLayerSelected callback: " + e.ToString()); }
 	}
 
 	public void MovePreview(float deltaX, float deltaY)
 	{
-		Previews.AllPreviews[CurrentPattern.Type].Move(deltaX, deltaY);
-		Previews.AllPreviews[CurrentPattern.Type].Render();
+		try
+		{
+			Previews.AllPreviews[CurrentPattern.Type].Move(deltaX, deltaY);
+			Previews.AllPreviews[CurrentPattern.Type].Render();
+		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while moving preview: " + e.ToString()); }
 	}
 
 	public void BrushPreviewUpdated()
 	{
-		Tools.BrushPreviewUpdated();
-		PixelGrid.BrushPreviewUpdated();
+		try
+		{
+			Tools.BrushPreviewUpdated();
+			PixelGrid.BrushPreviewUpdated();
+		}
+
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error on BrushPreviewUpdated callback: " + e.ToString()); }
 	}
 
 	private DesignPattern.TypeEnum Type;
@@ -140,13 +162,13 @@ public class PatternEditor : MonoBehaviour
 	{
 		try
 		{
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Showing pattern editor...");
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Showing pattern editor...");
 
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Creating new brush...");
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Creating new brush...");
 			this.CurrentBrush = new Brush() { Editor = this };
 			if (pattern != null)
 			{
-				Logger.Log(Logger.Level.DEBUG, "[EditPattern] Adding pattern to editor.");
+				Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Adding pattern to editor.");
 				this.CurrentPattern = new Pattern(this, pattern);
 				this.CurrentPattern.Load();
 
@@ -157,22 +179,19 @@ public class PatternEditor : MonoBehaviour
 				Type = pattern.Type;
 			}
 
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Setting textures to previews.");
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Setting textures to previews.");
 			Preview.texture = Previews.AllPreviews[Type].Camera.targetTexture;
 			Previews.AllPreviews[Type].ResetPosition();
 			Previews.AllPreviews[Type].Render();
 
-			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Updating tools state.");
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Updating tools state.");
 			Tools.PatternChanged();
 			Tools.BrushUpdated();
 			Tools.SwitchTool(Tools.Tool.None);
 			Tools.SwitchToolset(Tools.Toolset.RasterLayer);
 			PixelGrid.PatternLoaded();
 		}
-		catch (System.Exception e)
-		{
-			Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while showing PatternEditor: " + e.ToString());
-		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while showing PatternEditor: " + e.ToString()); }
 	}
 
 	void OnEnable()
@@ -189,19 +208,27 @@ public class PatternEditor : MonoBehaviour
 
 	public void OpenColorEditor(ColorPaletteButton color)
 	{
-		ColorPalette.EditColor(color);
-		if (color != null)
-			ColorEditor.Show(color);
+		try
+		{
+			ColorPalette.EditColor(color);
+			if (color != null)
+				ColorEditor.Show(color);
+		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while opening color editor: " + e.ToString()); }
 	}
 
 	public void LayersChanged()
 	{
-		Layers.UpdateLayers();
+		try
+		{
+			Layers.UpdateLayers();
+		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error on LayersChanged callback: " + e.ToString()); }
 	}
 
 	void Initialize()
 	{
-		Logger.Log(Logger.Level.DEBUG, "[EditPattern] Initializing PatternEditor...");
+		Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Initializing PatternEditor...");
 		try
 		{
 			Initialized = true;
@@ -241,10 +268,7 @@ public class PatternEditor : MonoBehaviour
 				{ DesignPatternInformation.PartType.HatBottom, HatBottom }
 			};
 		}
-		catch (System.Exception e)
-		{
-			Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while initializing PatternEditor: " + e.ToString());
-		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while initializing PatternEditor: " + e.ToString()); }
 	}
 
 	void DeleteSelectedLayer()
@@ -254,15 +278,19 @@ public class PatternEditor : MonoBehaviour
 
 	public void SubPatternChanged(DesignPatternInformation.DesignPatternPart part)
 	{
-		bool found = false;
-		foreach (var kv in PartIcons)
+		try
 		{
-			kv.Value.SetActive(part.Type == kv.Key);
-			if (part.Type == kv.Key)
-				found = true;
+			bool found = false;
+			foreach (var kv in PartIcons)
+			{
+				kv.Value.SetActive(part.Type == kv.Key);
+				if (part.Type == kv.Key)
+					found = true;
+			}
+			SubPattern.gameObject.SetActive(found);
+			PixelGrid.SubPatternChanged();
 		}
-		SubPattern.gameObject.SetActive(found);
-		PixelGrid.SubPatternChanged();
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error in SubPatternChanged callback: " + e.ToString()); }
 	}
 
 	public void SetCurrentColor(UnityEngine.Color color)
@@ -271,7 +299,11 @@ public class PatternEditor : MonoBehaviour
 
 	public void ChangeCurrentColor(UnityEngine.Color color)
 	{
-		this.ColorPalette.SetSelectedColor(color);
+		try
+		{
+			this.ColorPalette.SetSelectedColor(color);
+		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while changing active color: " + e.ToString()); }
 	}
 
 	private int lastBrushX = -1;
@@ -283,11 +315,15 @@ public class PatternEditor : MonoBehaviour
 
 	public void ChangeTool(ITool tool)
 	{
-		if (CurrentTool != null)
-			CurrentTool.Destroyed();
-		CurrentTool = tool;
-		if (CurrentTool != null)
-			CurrentTool.SetEditor(this);
+		try
+		{
+			if (CurrentTool != null)
+				CurrentTool.Destroyed();
+			CurrentTool = tool;
+			if (CurrentTool != null)
+				CurrentTool.SetEditor(this);
+		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while changing tool: " + e.ToString()); }
 	}
 
 	// Update is called once per frame
@@ -335,20 +371,21 @@ public class PatternEditor : MonoBehaviour
 			var currentColor = ColorPalette.GetSelectedColor();
 			MyCanvasGroup.alpha = ShowPhase;
 		}
-		catch (System.Exception e)
-		{
-			Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while updating PatternEditor: " + e.ToString());
-		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while updating PatternEditor: " + e.ToString()); }
 	}
 
 	public DesignPattern Save()
 	{
-		var pattern = new DesignPattern();
-		pattern.Type = Type;
-		pattern.IsPro = Type != DesignPattern.TypeEnum.SimplePattern;
-		pattern.FromBitmap(this.CurrentPattern.PreviewBitmap);
+		try
+		{
+			var pattern = new DesignPattern();
+			pattern.Type = Type;
+			pattern.IsPro = Type != DesignPattern.TypeEnum.SimplePattern;
+			pattern.FromBitmap(this.CurrentPattern.PreviewBitmap);
 
-		return pattern;
+			return pattern;
+		}
+		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while saving pattern: " + e.ToString()); return null; }
 	}
 
 	private void OnDestroy()
