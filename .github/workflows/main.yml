@@ -49,7 +49,7 @@ jobs:
       fail-fast: false
       matrix:
         projectPath:
-          - /
+          - FluffyFishGames/ACNHDesignPatternEditor
         unityVersion:
           - 2020.1.0b5
         targetPlatform:
