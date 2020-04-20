@@ -10,19 +10,16 @@ env:
 jobs:
   buildForSomePlatforms:
     name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
         projectPath: 
           - ''
         unityVersion:
-          - 2020.1.0b5
+          - 2020.1.0a9
         targetPlatform:
           - StandaloneWindows64
-          - StandaloneWindows
-          - StandaloneOSX
-          - StandaloneLinux64
     steps:
       - uses: actions/checkout@v2
         with:
@@ -34,7 +31,7 @@ jobs:
           restore-keys: |
             Library-${{ matrix.projectPath }}-
             Library-
-      - uses: webbertakken/unity-builder@v0.10
+      - uses: FluffyFishGames/unity-builder@v0.10
         with:
           projectPath: ${{ matrix.projectPath }}
           unityVersion: ${{ matrix.unityVersion }}
