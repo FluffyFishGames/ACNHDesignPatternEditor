@@ -79,73 +79,106 @@ public class Pattern
 
 	public Pattern(PatternEditor editor, DesignPattern pattern)
 	{
-		PreviewThread = new Thread(() =>
+		try
 		{
-			while (true)
+			Logger.Log(Logger.Level.INFO, "[EditPattern] Creating new pattern");
+			PreviewThread = new Thread(() =>
 			{
-				ReparseLock.WaitOne();
-				if (Disposed) return;
-				ReparseLock.Reset();
-				if (Quantizer is BaseColorCacheQuantizer colorCacheQuantizer)
-					colorCacheQuantizer.ChangeCacheProvider(ColorCache);
-
-				this.PreviewBitmap.CopyFrom(this.Bitmap);
-				this.PreviewBitmap.Quantize(Quantizer, 16);
-
-				int[] src = this.PreviewBitmap.ConvertToInt();
-				int[] target = new int[UpscaledPreviewBitmap.Width * UpscaledPreviewBitmap.Height];
-				Scaler.ScaleImage(4, src, target, this.PreviewBitmap.Width, this.PreviewBitmap.Height, new xBRZNet.ScalerCfg(), 0, int.MaxValue);
-
-				this.UpscaledPreviewBitmap.FromInt(target);
-				IsReady = true;
-				IsParsing = false;
-			}
-		});
-		PreviewThread.Start();
-
-		_Type = pattern.Type;
-		Bitmap = new TextureBitmap(pattern.Width, pattern.Height);
-		Bitmap.Clear();
-		PreviewBitmap = new TextureBitmap(pattern.Width, pattern.Height);
-		PreviewBitmap.Clear();
-		PreviewSprite = UnityEngine.Sprite.Create(PreviewBitmap.Texture, new UnityEngine.Rect(0, 0, PreviewBitmap.Width, PreviewBitmap.Height), new UnityEngine.Vector2(0.5f, 0.5f));
-
-		UpscaledPreviewBitmap = new TextureBitmap(pattern.Width * 4, pattern.Height * 4);
-		UpscaledPreviewBitmap.Clear();
-
-		Quantizer = Quantizers[0];
-		ColorCache = ColorCaches[0];
-
-		Editor = editor;
-		DesignPattern = pattern;
-		var colors = pattern.GetPixels();
-
-		unsafe
-		{
-			var bitmapColors = Bitmap.GetColors();
-			for (int y = 0; y < Height; y++)
-			{
-				for (int x = 0; x < Width; x++)
+				while (true)
 				{
-					var col = new TextureBitmap.Color(
-						(byte) (colors[x + y * Width].r * 255f),
-						(byte) (colors[x + y * Width].g * 255f),
-						(byte) (colors[x + y * Width].b * 255f),
-						(byte) (colors[x + y * Width].a * 255f)
-					);
-					*(bitmapColors + x + (Height - 1 - y) * Width) = col;
+					ReparseLock.WaitOne();
+					if (Disposed)
+					{
+						Logger.Log(Logger.Level.DEBUG, "[EditPattern] Preview generator thread stopped!");
+						return;
+					}
+					ReparseLock.Reset();
+					try
+					{
+						if (Quantizer is BaseColorCacheQuantizer colorCacheQuantizer)
+							colorCacheQuantizer.ChangeCacheProvider(ColorCache);
+
+						this.PreviewBitmap.CopyFrom(this.Bitmap);
+						this.PreviewBitmap.Quantize(Quantizer, 16);
+
+						int[] src = this.PreviewBitmap.ConvertToInt();
+						int[] target = new int[UpscaledPreviewBitmap.Width * UpscaledPreviewBitmap.Height];
+						Scaler.ScaleImage(4, src, target, this.PreviewBitmap.Width, this.PreviewBitmap.Height, new xBRZNet.ScalerCfg(), 0, int.MaxValue);
+
+						this.UpscaledPreviewBitmap.FromInt(target);
+						IsReady = true;
+						IsParsing = false;
+					}
+					catch (System.Exception e)
+					{
+						Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while generating pattern preview: " + e.ToString());
+					}
+				}
+			});
+			PreviewThread.Start();
+
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Preview generator thread started!");
+			_Type = pattern.Type;
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Pattern type: " + _Type.ToString()); 
+			Bitmap = new TextureBitmap(pattern.Width, pattern.Height);
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Created TextureBitmap " + pattern.Width + "x" + pattern.Height);
+			Bitmap.Clear();
+			PreviewBitmap = new TextureBitmap(pattern.Width, pattern.Height);
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Created preview TextureBitmap " + pattern.Width + "x" + pattern.Height);
+			PreviewBitmap.Clear();
+			PreviewSprite = UnityEngine.Sprite.Create(PreviewBitmap.Texture, new UnityEngine.Rect(0, 0, PreviewBitmap.Width, PreviewBitmap.Height), new UnityEngine.Vector2(0.5f, 0.5f));
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Created preview sprite");
+
+			UpscaledPreviewBitmap = new TextureBitmap(pattern.Width * 4, pattern.Height * 4);
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Created upscaled preview TextureBitmap " + (pattern.Width * 4) + "x" + (pattern.Height * 4));
+			UpscaledPreviewBitmap.Clear();
+
+			Quantizer = Quantizers[0];
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Selected Quantizer: " + Quantizer.GetType().ToString());
+			ColorCache = ColorCaches[0];
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Selected Color Cache: " + ColorCache.GetType().ToString());
+
+			Editor = editor;
+			DesignPattern = pattern;
+			var colors = pattern.GetPixels();
+
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Parsing colors of pattern...);
+			unsafe
+			{
+				var bitmapColors = Bitmap.GetColors();
+				for (int y = 0; y < Height; y++)
+				{
+					for (int x = 0; x < Width; x++)
+					{
+						var col = new TextureBitmap.Color(
+							(byte) (colors[x + y * Width].r * 255f),
+							(byte) (colors[x + y * Width].g * 255f),
+							(byte) (colors[x + y * Width].b * 255f),
+							(byte) (colors[x + y * Width].a * 255f)
+						);
+						*(bitmapColors + x + (Height - 1 - y) * Width) = col;
+					}
 				}
 			}
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Parsed " + (Width * Height) + " pixels.");
+			Info = DesignPatternInformation.Types[pattern.Type];
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Pattern information obtained.");
 		}
-		Info = DesignPatternInformation.Types[pattern.Type];
-
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while creating pattern: " + e.ToString());
+		}
 	}
 
 	public void Load()
 	{
+		Logger.Log(Logger.Level.DEBUG, "[EditPattern] Creating sub patterns...");
 		SubPatterns = new List<SubPattern>();
 		foreach (var part in Info.Parts)
+		{
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Creating sub pattern #"+ SubPatterns.Count + " (X:"+part.X + ";Y:" + part.Y+";W:"+part.Width+";H:"+part.Height+")");
 			SubPatterns.Add(new SubPattern(this, part));
+		}
 
 		Editor.SetSize(CurrentSubPattern.Width, CurrentSubPattern.Height);
 		CurrentSubPattern.SelectLayer(0);

@@ -13,7 +13,7 @@ public class Logger
 	private static string Cache;
 	private static object CacheLock = new object();
 	private static bool Closing = false;
-	private static string Path = System.IO.Path.Combine(UnityEngine.Application.dataPath, "log.txt");
+	private static string Path = System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "log.txt");
 	
 	static Logger()
 	{

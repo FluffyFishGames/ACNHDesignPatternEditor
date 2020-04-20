@@ -72,6 +72,8 @@ public class PatternEditor : MonoBehaviour
 
 	public void SetSize(int width, int height)
 	{
+		Logger.Log(Logger.Level.DEBUG, "[EditPattern] Changing size of editor to " + width + "x" + height);
+
 		Width = width;
 		Height = height;
 
@@ -81,6 +83,7 @@ public class PatternEditor : MonoBehaviour
 			PixelSize = maxSize / width;
 		if (maxSize < PixelSize * height)
 			PixelSize = maxSize / height;
+		Logger.Log(Logger.Level.DEBUG, "[EditPattern] New pixel size: " + PixelSize);
 
 		PixelGrid.SetSize(width, height, PixelSize);
 	}
@@ -135,28 +138,41 @@ public class PatternEditor : MonoBehaviour
 
 	public void Show(DesignPattern pattern, System.Action confirm, System.Action cancel)
 	{
-		this.CurrentBrush = new Brush() { Editor = this };
-		if (pattern != null)
+		try
 		{
-			this.CurrentPattern = new Pattern(this, pattern);
-			this.CurrentPattern.Load();
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Showing pattern editor...");
 
-			IsShown = true;
-			ConfirmAction = confirm;
-			CancelAction = cancel;
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Creating new brush...");
+			this.CurrentBrush = new Brush() { Editor = this };
+			if (pattern != null)
+			{
+				Logger.Log(Logger.Level.DEBUG, "[EditPattern] Adding pattern to editor.");
+				this.CurrentPattern = new Pattern(this, pattern);
+				this.CurrentPattern.Load();
 
-			Type = pattern.Type;
+				IsShown = true;
+				ConfirmAction = confirm;
+				CancelAction = cancel;
+
+				Type = pattern.Type;
+			}
+
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Setting textures to previews.");
+			Preview.texture = Previews.AllPreviews[Type].Camera.targetTexture;
+			Previews.AllPreviews[Type].ResetPosition();
+			Previews.AllPreviews[Type].Render();
+
+			Logger.Log(Logger.Level.DEBUG, "[EditPattern] Updating tools state.");
+			Tools.PatternChanged();
+			Tools.BrushUpdated();
+			Tools.SwitchTool(Tools.Tool.None);
+			Tools.SwitchToolset(Tools.Toolset.RasterLayer);
+			PixelGrid.PatternLoaded();
 		}
-
-		Preview.texture = Previews.AllPreviews[Type].Camera.targetTexture;
-		Previews.AllPreviews[Type].ResetPosition();
-		Previews.AllPreviews[Type].Render();
-
-		Tools.PatternChanged();
-		Tools.BrushUpdated();
-		Tools.SwitchTool(Tools.Tool.None);
-		Tools.SwitchToolset(Tools.Toolset.RasterLayer);
-		PixelGrid.PatternLoaded();
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while showing PatternEditor: " + e.ToString());
+		}
 	}
 
 	void OnEnable()
@@ -185,42 +201,52 @@ public class PatternEditor : MonoBehaviour
 
 	void Initialize()
 	{
-		Initialized = true;
-		Loading.gameObject.SetActive(false);
-		MyCanvasGroup = GetComponent<CanvasGroup>();
-
-		CancelButton.OnClick += () => {
-			//Debug.Log("CANCEL " + CancelAction);
-			CancelAction?.Invoke();
-			this.CurrentPattern.Dispose();
-		};
-
-		SaveButton.OnClick += () => {
-			//Debug.Log("CANCEL " + ConfirmAction);
-			ConfirmAction?.Invoke();
-			this.CurrentPattern.Dispose();
-		};
-
-		SubPattern.onClick.AddListener(() => {
-			CurrentPattern.NextSubPattern();
-		});
-
-		PartIcons = new Dictionary<DesignPatternInformation.PartType, GameObject>()
+		Logger.Log(Logger.Level.DEBUG, "[EditPattern] Initializing PatternEditor...");
+		try
 		{
-			{ DesignPatternInformation.PartType.ShirtFront, ShirtFront },
-			{ DesignPatternInformation.PartType.ShirtBack, ShirtBack },
-			{ DesignPatternInformation.PartType.ShirtLeftArm, ShirtLeftArm },
-			{ DesignPatternInformation.PartType.ShirtRightArm, ShirtRightArm },
-			{ DesignPatternInformation.PartType.CapFront, CapFront },
-			{ DesignPatternInformation.PartType.CapBack, CapBack },
-			{ DesignPatternInformation.PartType.CapBrim, CapBrim },
-			{ DesignPatternInformation.PartType.HatTop, HatTop },
-			{ DesignPatternInformation.PartType.HatMiddle, HatMiddle },
-			{ DesignPatternInformation.PartType.HatBottom, HatBottom }
-		};
+			Initialized = true;
+			Loading.gameObject.SetActive(false);
+			MyCanvasGroup = GetComponent<CanvasGroup>();
+
+			CancelButton.OnClick += () =>
+			{
+				//Debug.Log("CANCEL " + CancelAction);
+				CancelAction?.Invoke();
+				this.CurrentPattern.Dispose();
+			};
+
+			SaveButton.OnClick += () =>
+			{
+				//Debug.Log("CANCEL " + ConfirmAction);
+				ConfirmAction?.Invoke();
+				this.CurrentPattern.Dispose();
+			};
+
+			SubPattern.onClick.AddListener(() =>
+			{
+				CurrentPattern.NextSubPattern();
+			});
+
+			PartIcons = new Dictionary<DesignPatternInformation.PartType, GameObject>()
+			{
+				{ DesignPatternInformation.PartType.ShirtFront, ShirtFront },
+				{ DesignPatternInformation.PartType.ShirtBack, ShirtBack },
+				{ DesignPatternInformation.PartType.ShirtLeftArm, ShirtLeftArm },
+				{ DesignPatternInformation.PartType.ShirtRightArm, ShirtRightArm },
+				{ DesignPatternInformation.PartType.CapFront, CapFront },
+				{ DesignPatternInformation.PartType.CapBack, CapBack },
+				{ DesignPatternInformation.PartType.CapBrim, CapBrim },
+				{ DesignPatternInformation.PartType.HatTop, HatTop },
+				{ DesignPatternInformation.PartType.HatMiddle, HatMiddle },
+				{ DesignPatternInformation.PartType.HatBottom, HatBottom }
+			};
+		}
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while initializing PatternEditor: " + e.ToString());
+		}
 	}
 
-	
 	void DeleteSelectedLayer()
 	{
 
@@ -267,45 +293,52 @@ public class PatternEditor : MonoBehaviour
 	// Update is called once per frame
 	void Update()
     {
-		if (CurrentPattern != null)
+		try
 		{
-			PreviewImage.sprite = CurrentPattern.GetPreviewSprite();
-
-			if (CurrentPattern.Update())
+			if (CurrentPattern != null)
 			{
 				PreviewImage.sprite = CurrentPattern.GetPreviewSprite();
-				Previews.AllPreviews[CurrentPattern.Type].SetTexture(CurrentPattern.GetUpscaledPreview());
-			}
-			if (Tools.IsToolActive(Tools.Tool.ColorPicker))
-			{
-				if (Input.GetKey(KeyCode.LeftAlt))
-				{
-					if (!TempToolSet)
-					{
-						TempToolSet = true;
-						TempTool = Tools.CurrentTool;
-						Tools.SwitchTool(Tools.Tool.ColorPicker);
-					}
-				}
-				else
-				{
-					if (TempToolSet)
-					{
-						TempToolSet = false;
-						Tools.SwitchTool(TempTool);
-						TempTool = Tools.Tool.None;
-					}
-				}
-			}
-		}
 
-		if (IsShown && ShowPhase < 1f)
-			ShowPhase = Mathf.Min(1f, ShowPhase + 1f);
-		if (!IsShown && ShowPhase > 0f)
-			ShowPhase = Mathf.Max(0f, ShowPhase - Time.deltaTime * 4f);
-		
-		var currentColor = ColorPalette.GetSelectedColor();
-		MyCanvasGroup.alpha = ShowPhase;
+				if (CurrentPattern.Update())
+				{
+					PreviewImage.sprite = CurrentPattern.GetPreviewSprite();
+					Previews.AllPreviews[CurrentPattern.Type].SetTexture(CurrentPattern.GetUpscaledPreview());
+				}
+				if (Tools.IsToolActive(Tools.Tool.ColorPicker))
+				{
+					if (Input.GetKey(KeyCode.LeftAlt))
+					{
+						if (!TempToolSet)
+						{
+							TempToolSet = true;
+							TempTool = Tools.CurrentTool;
+							Tools.SwitchTool(Tools.Tool.ColorPicker);
+						}
+					}
+					else
+					{
+						if (TempToolSet)
+						{
+							TempToolSet = false;
+							Tools.SwitchTool(TempTool);
+							TempTool = Tools.Tool.None;
+						}
+					}
+				}
+			}
+
+			if (IsShown && ShowPhase < 1f)
+				ShowPhase = Mathf.Min(1f, ShowPhase + 1f);
+			if (!IsShown && ShowPhase > 0f)
+				ShowPhase = Mathf.Max(0f, ShowPhase - Time.deltaTime * 4f);
+
+			var currentColor = ColorPalette.GetSelectedColor();
+			MyCanvasGroup.alpha = ShowPhase;
+		}
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[EditPattern] Error while updating PatternEditor: " + e.ToString());
+		}
 	}
 
 	public DesignPattern Save()
