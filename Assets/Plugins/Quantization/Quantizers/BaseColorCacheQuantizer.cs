@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Collections.Generic;
 using SimplePaletteQuantizer.ColorCaches;
 using SimplePaletteQuantizer.Helpers;
@@ -41,7 +40,7 @@ namespace SimplePaletteQuantizer.Quantizers
         /// Caches the palette.
         /// </summary>
         /// <param name="palette">The palette.</param>
-        public void CachePalette(IList<Color> palette)
+        public void CachePalette(IList<TextureBitmap.Color> palette)
         {
             GetColorCache().CachePalette(palette);
         }
@@ -79,7 +78,7 @@ namespace SimplePaletteQuantizer.Quantizers
         /// <summary>
         /// Redirection to retrieve palette to be cached, if palette is not available yet.
         /// </summary>
-        protected abstract List<Color> OnGetPaletteToCache(Int32 colorCount);
+        protected abstract List<TextureBitmap.Color> OnGetPaletteToCache(Int32 colorCount);
 
         #endregion
 
@@ -88,7 +87,7 @@ namespace SimplePaletteQuantizer.Quantizers
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnPrepare"/> for more details.
         /// </summary>
-        protected override void OnPrepare(ImageBuffer image)
+        protected override void OnPrepare(TextureBitmap image)
         {
             base.OnPrepare(image);
 
@@ -98,10 +97,10 @@ namespace SimplePaletteQuantizer.Quantizers
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnGetPalette"/> for more details.
         /// </summary>
-        protected sealed override List<Color> OnGetPalette(Int32 colorCount)
+        protected sealed override List<TextureBitmap.Color> OnGetPalette(Int32 colorCount)
         {
             // use optimization, or calculate new palette if color count is lower than unique color count
-            List<Color> palette = base.OnGetPalette(colorCount) ?? OnGetPaletteToCache(colorCount);
+            List<TextureBitmap.Color> palette = base.OnGetPalette(colorCount) ?? OnGetPaletteToCache(colorCount);
             GetColorCache().CachePalette(palette);
             return palette;
         }
@@ -109,7 +108,7 @@ namespace SimplePaletteQuantizer.Quantizers
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnGetPaletteIndex"/> for more details.
         /// </summary>
-        protected override void OnGetPaletteIndex(Color color, Int32 key, Int32 x, Int32 y, out int paletteIndex)
+        protected override void OnGetPaletteIndex(TextureBitmap.Color color, Int32 key, Int32 x, Int32 y, out int paletteIndex)
         {
             base.OnGetPaletteIndex(color, key, x, y, out paletteIndex);
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 public class SubPattern
-{
+{/*
 	public class SubPatternColors
 	{
 		public SubPattern SubPattern;
@@ -14,13 +14,13 @@ public class SubPattern
 			SubPattern = subPattern;
 		}
 
-		public UnityEngine.Color this[int index]
+		public TextureBitmap.Color this[int index]
 		{
 			get
 			{
 				int x = index % SubPattern.Width;
 				int y = (index - x) / SubPattern.Width;
-				return SubPattern.Pattern.Colors[SubPattern.Part.X + x + (SubPattern.Part.Y + y) * SubPattern.Pattern.Width];
+				return Pattern.Bitmap.Colors[SubPattern.Part.X + x + (SubPattern.Part.Y + y) * SubPattern.Pattern.Width];
 			}
 			set
 			{
@@ -30,7 +30,7 @@ public class SubPattern
 			}
 		}
 	}
-
+	*/
 	public int Width
 	{
 		get
@@ -47,19 +47,19 @@ public class SubPattern
 		}
 	}
 
-	public SubPatternColors Colors;
+	//public SubPatternColors Colors;
 	public Pattern Pattern;
 	public List<Layer> Layers;
 	public DesignPatternInformation.DesignPatternPart Part;
 	public Layer TemporaryLayer;
 	public History History;
+	public TextureBitmap Bitmap;
 
 	private int _SelectedLayer = 0;
 
 	public void CreateTemporaryLayer()
 	{
 		TemporaryLayer = new RasterLayer(this, "Temporary Layer");
-		TemporaryLayer.Colors = new UnityEngine.Color[this.Width * this.Height];
 	}
 
 	public void RemoveTemporaryLayer()
@@ -124,24 +124,22 @@ public class SubPattern
 
 	public void UpdateImage(bool updatePreview = true)
 	{
-		for (int y = 0; y < Height; y++)
+		Bitmap.Clear();
+		for (int j = 0; j < Layers.Count; j++)
 		{
-			for (int x = 0; x < Width; x++)
-			{
-				int pi = x + y * Width;
-				//int ci = info.Parts[CurrentSubPattern].X + x + (info.Parts[CurrentSubPattern].Y + y) * CurrentPattern.Width;
-				var resultC = new UnityEngine.Color(1f, 1f, 1f, 0f);
-				for (int j = 0; j < Layers.Count; j++)
-				{
-					resultC = resultC.AlphaComposite(Layers[j].Colors[pi]);
-					if (j == _SelectedLayer && TemporaryLayer != null)
-						resultC = resultC.AlphaComposite(TemporaryLayer.Colors[pi]);
-				}
-				Colors[pi] = resultC;
-			}
+			if (Layers[j] is SmartObjectLayer sol)
+				Bitmap.AlphaComposite(Layers[j].Texture, new TextureBitmap.Color(255, 255, 255, 255), new TextureBitmap.Point(sol.ObjectX, sol.ObjectY));
+			else 
+				Bitmap.AlphaComposite(Layers[j].Texture, new TextureBitmap.Color(255, 255, 255, 255));
+			if (TemporaryLayer != null && j == SelectedLayerIndex)
+				Bitmap.AlphaComposite(TemporaryLayer.Texture, new TextureBitmap.Color(255, 255, 255, 255));
 		}
+		Bitmap.Apply();
 		if (updatePreview)
 			Pattern.RegeneratePreview();
+
+		Pattern.Bitmap.Replace(this.Bitmap, new TextureBitmap.Color(255, 255, 255, 255), new TextureBitmap.Point(Part.X, Part.Y));
+		Pattern.Bitmap.Apply();
 		Pattern.Editor.OnImageUpdated();
 	}
 
@@ -161,9 +159,7 @@ public class SubPattern
 
 	public void CreateLayer()
 	{
-		var newLayer = new RasterLayer(this, "Layer " + Layers.Count) { Colors = new UnityEngine.Color[Width * Height] };
-		for (int i = 0; i < newLayer.Colors.Length; i++)
-			newLayer.Colors[i] = new UnityEngine.Color(0f, 0f, 0f, 0f);
+		var newLayer = new RasterLayer(this, "Layer " + Layers.Count);
 		newLayer.UpdateTexture();
 		Layers.Insert(_SelectedLayer + 1, newLayer);
 		SelectedLayer = newLayer;
@@ -205,7 +201,9 @@ public class SubPattern
 
 	public SubPattern(Pattern pattern, DesignPatternInformation.DesignPatternPart part, bool import = false)
 	{
-		Colors = new SubPatternColors(this);
+		Bitmap = new TextureBitmap(part.Width, part.Height);
+		Bitmap.Clear();
+		Bitmap.Texture.filterMode = UnityEngine.FilterMode.Point;
 		Pattern = pattern;
 		Part = part;
 		Layers = new List<Layer>();
@@ -216,14 +214,17 @@ public class SubPattern
 		if (!import)
 		{
 			var backgroundLayer = new RasterLayer(this, "Background");
-			backgroundLayer.Colors = new UnityEngine.Color[Width * Height];
-			for (int y = 0; y < Height; y++)
-				for (int x = 0; x < Width; x++)
-					backgroundLayer.Colors[x + y * Width] = Colors[x + y * Width];
 
-			backgroundLayer.UpdateTexture();
+			unsafe
+			{
+				var colors = pattern.Bitmap.GetColors();
+				var layerColors = backgroundLayer.Texture.GetColors();
+				for (int y = 0; y < Height; y++)
+					for (int x = 0; x < Width; x++)
+						layerColors[x + (Height - 1 - y) * Width] = colors[Part.X + x + (pattern.Height - 1 - (Part.Y + y)) * pattern.Width];
+						//backgroundLayer.Texture.SetPixel(x, y, pattern.Bitmap.GetPixel(Part.X + x, (pattern.Height - 1 - Part.Y) + y));
+			}
 			Layers.Add(backgroundLayer);
-
 			History.AddEvent(new History.LayerCreatedAction("Opened", 0, backgroundLayer));
 		}
 	}

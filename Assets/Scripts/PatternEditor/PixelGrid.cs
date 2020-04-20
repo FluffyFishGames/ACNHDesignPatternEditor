@@ -79,17 +79,20 @@ public class PixelGrid : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 	public void UpdateImage()
 	{
 		var subPattern = Editor.CurrentPattern.CurrentSubPattern;
-		for (int y = 0; y < subPattern.Height; y++)
+		PixelTexture = Editor.CurrentPattern.CurrentSubPattern.Bitmap.Texture;
+		PixelImage.texture = PixelTexture;
+
+		/*for (int y = 0; y < subPattern.Height; y++)
 		{
 			for (int x = 0; x < subPattern.Width; x++)
 			{
 				int idx = x + y * subPattern.Width;
-				var col = subPattern.Colors[idx];
-				col.a = col.a * (Editor.CurrentPattern.CurrentSubPattern.IsVisible(x, y) ? 1f : 0.5f);
-				Pixels[idx].SetColor(col);
+				var col = subPattern.Bitmap.GetPixel(x, y);
+				col.A = (byte) (col.A * (Editor.CurrentPattern.CurrentSubPattern.IsVisible(x, y) ? 1f : 0.5f));
+				Pixels[idx].SetColor(new UnityEngine.Color(col.R / 255f, col.G / 255f, col.B / 255f, col.A / 255f));
 			}
 		}
-		PixelTexture.Apply();
+		PixelTexture.Apply();*/
 	}
 
 	public void SubPatternChanged()
@@ -236,8 +239,8 @@ public class PixelGrid : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
 			LastMouseDown = MouseDown;
 		}
-
+		/*
 		if (PixelsUpdated)
-			PixelTexture.Apply();
+			PixelTexture.Apply();*/
 	}
 }

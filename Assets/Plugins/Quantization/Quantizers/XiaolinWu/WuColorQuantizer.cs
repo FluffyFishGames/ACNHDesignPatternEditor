@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Collections.Generic;
 using SimplePaletteQuantizer.Helpers;
 
@@ -34,11 +33,11 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
         private Int32[] sums;
         private Int32[] indices;
 
-        private Int64[,,] weights;
-        private Int64[,,] momentsRed;
-        private Int64[,,] momentsGreen;
-        private Int64[,,] momentsBlue;
-        private Single[,,] moments;
+        private Int64[] weights;
+        private Int64[] momentsRed;
+        private Int64[] momentsGreen;
+        private Int64[] momentsBlue;
+        private Single[] moments;
 
         private Int32[] tag;
         private Int32[] quantizedPixels;
@@ -87,11 +86,13 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
 
                     for (Int32 blueIndex = 1; blueIndex <= MaxSideIndex; ++blueIndex)
                     {
-                        line += weights[redIndex, greenIndex, blueIndex];
-                        lineRed += momentsRed[redIndex, greenIndex, blueIndex];
-                        lineGreen += momentsGreen[redIndex, greenIndex, blueIndex];
-                        lineBlue += momentsBlue[redIndex, greenIndex, blueIndex];
-                        line2 += moments[redIndex, greenIndex, blueIndex];
+                        // x + y * width + z * width * height
+                        int index = redIndex + greenIndex * SideSize + blueIndex * SideSize * SideSize;
+                        line += weights[index];
+                        lineRed += momentsRed[index];
+                        lineGreen += momentsGreen[index];
+                        lineBlue += momentsBlue[index];
+                        line2 += moments[index];
 
                         area[blueIndex] += line;
                         areaRed[blueIndex] += lineRed;
@@ -99,11 +100,11 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
                         areaBlue[blueIndex] += lineBlue;
                         area2[blueIndex] += line2;
 
-                        weights[redIndex, greenIndex, blueIndex] = weights[redIndex - 1, greenIndex, blueIndex] + area[blueIndex];
-                        momentsRed[redIndex, greenIndex, blueIndex] = momentsRed[redIndex - 1, greenIndex, blueIndex] + areaRed[blueIndex];
-                        momentsGreen[redIndex, greenIndex, blueIndex] = momentsGreen[redIndex - 1, greenIndex, blueIndex] + areaGreen[blueIndex];
-                        momentsBlue[redIndex, greenIndex, blueIndex] = momentsBlue[redIndex - 1, greenIndex, blueIndex] + areaBlue[blueIndex];
-                        moments[redIndex, greenIndex, blueIndex] = moments[redIndex - 1, greenIndex, blueIndex] + area2[blueIndex];
+                        weights[index] = weights[index - 1] + area[blueIndex];
+                        momentsRed[index] = momentsRed[index - 1] + areaRed[blueIndex];
+                        momentsGreen[index] = momentsGreen[index - 1] + areaGreen[blueIndex];
+                        momentsBlue[index] = momentsBlue[index - 1] + areaBlue[blueIndex];
+                        moments[index] = moments[index - 1] + area2[blueIndex];
                     }
                 }
             }
@@ -112,57 +113,57 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
         /// <summary>
         /// Computes the volume of the cube in a specific moment.
         /// </summary>
-        private static Int64 Volume(WuColorCube cube, Int64[,,] moment)
+        private static Int64 Volume(WuColorCube cube, Int64[] moment)
         {
-            return moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] -
-                   moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] -
-                   moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
-                   moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] -
-                   moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
-                   moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
-                   moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-                   moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum];
+            return moment[cube.RedMaximum + cube.GreenMaximum * SideSize + cube.BlueMaximum * SideSize * SideSize] -
+                   moment[cube.RedMaximum + cube.GreenMaximum * SideSize + cube.BlueMinimum * SideSize * SideSize] -
+                   moment[cube.RedMaximum + cube.GreenMinimum * SideSize + cube.BlueMaximum * SideSize * SideSize] +
+                   moment[cube.RedMaximum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize] -
+                   moment[cube.RedMinimum + cube.GreenMaximum * SideSize + cube.BlueMaximum * SideSize * SideSize] +
+                   moment[cube.RedMinimum + cube.GreenMaximum * SideSize + cube.BlueMinimum * SideSize * SideSize] +
+                   moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMaximum * SideSize * SideSize] -
+                   moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize];
         }
 
         /// <summary>
         /// Computes the volume of the cube in a specific moment. For the floating-point values.
         /// </summary>
-        private static Single VolumeFloat(WuColorCube cube, Single[,,] moment)
+        private static Single VolumeFloat(WuColorCube cube, Single[] moment)
         {
-            return moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] -
-                   moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] -
-                   moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
-                   moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] -
-                   moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
-                   moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
-                   moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-                   moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum];
+            return moment[cube.RedMaximum + cube.GreenMaximum * SideSize + cube.BlueMaximum * SideSize * SideSize] -
+                   moment[cube.RedMaximum + cube.GreenMaximum * SideSize + cube.BlueMinimum * SideSize * SideSize] -
+                   moment[cube.RedMaximum + cube.GreenMinimum * SideSize + cube.BlueMaximum * SideSize * SideSize] +
+                   moment[cube.RedMaximum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize] -
+                   moment[cube.RedMinimum + cube.GreenMaximum * SideSize + cube.BlueMaximum * SideSize * SideSize] +
+                   moment[cube.RedMinimum + cube.GreenMaximum * SideSize + cube.BlueMinimum * SideSize * SideSize] +
+                   moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMaximum * SideSize * SideSize] -
+                   moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize];
         }
 
         /// <summary>
         /// Splits the cube in given position, and color direction.
         /// </summary>
-        private static Int64 Top(WuColorCube cube, Int32 direction, Int32 position, Int64[,,] moment)
+        private static Int64 Top(WuColorCube cube, Int32 direction, Int32 position, Int64[] moment)
         {
             switch (direction)
             {
                 case Red:
-                    return (moment[position, cube.GreenMaximum, cube.BlueMaximum] -
-                            moment[position, cube.GreenMaximum, cube.BlueMinimum] -
-                            moment[position, cube.GreenMinimum, cube.BlueMaximum] +
-                            moment[position, cube.GreenMinimum, cube.BlueMinimum]);
+                    return (moment[position + cube.GreenMaximum * SideSize + cube.BlueMaximum * SideSize * SideSize] -
+                            moment[position + cube.GreenMaximum * SideSize + cube.BlueMinimum * SideSize * SideSize] -
+                            moment[position + cube.GreenMinimum * SideSize + cube.BlueMaximum * SideSize * SideSize] +
+                            moment[position + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize]);
 
                 case Green:
-                    return (moment[cube.RedMaximum, position, cube.BlueMaximum] -
-                            moment[cube.RedMaximum, position, cube.BlueMinimum] -
-                            moment[cube.RedMinimum, position, cube.BlueMaximum] +
-                            moment[cube.RedMinimum, position, cube.BlueMinimum]);
+                    return (moment[cube.RedMaximum + position * SideSize + cube.BlueMaximum * SideSize * SideSize] -
+                            moment[cube.RedMaximum + position * SideSize + cube.BlueMinimum * SideSize * SideSize] -
+                            moment[cube.RedMinimum + position * SideSize + cube.BlueMaximum * SideSize * SideSize] +
+                            moment[cube.RedMinimum + position * SideSize + cube.BlueMinimum * SideSize * SideSize]);
 
                 case Blue:
-                    return (moment[cube.RedMaximum, cube.GreenMaximum, position] -
-                            moment[cube.RedMaximum, cube.GreenMinimum, position] -
-                            moment[cube.RedMinimum, cube.GreenMaximum, position] +
-                            moment[cube.RedMinimum, cube.GreenMinimum, position]);
+                    return (moment[cube.RedMaximum + cube.GreenMaximum * SideSize + position * SideSize * SideSize] -
+                            moment[cube.RedMaximum + cube.GreenMinimum * SideSize + position * SideSize * SideSize] -
+                            moment[cube.RedMinimum + cube.GreenMaximum * SideSize + position * SideSize * SideSize] +
+                            moment[cube.RedMinimum + cube.GreenMinimum * SideSize + position * SideSize * SideSize]);
 
                 default:
                     return 0;
@@ -172,27 +173,27 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
         /// <summary>
         /// Splits the cube in a given color direction at its minimum.
         /// </summary>
-        private static Int64 Bottom(WuColorCube cube, Int32 direction, Int64[,,] moment)
+        private static Int64 Bottom(WuColorCube cube, Int32 direction, Int64[] moment)
         {
             switch (direction)
             {
                 case Red:
-                    return (-moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
-                             moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
-                             moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-                             moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
+                    return (-moment[cube.RedMinimum + cube.GreenMaximum * SideSize + cube.BlueMaximum * SideSize * SideSize] +
+                             moment[cube.RedMinimum + cube.GreenMaximum * SideSize + cube.BlueMinimum * SideSize * SideSize] +
+                             moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMaximum * SideSize * SideSize] -
+                             moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize]);
 
                 case Green:
-                    return (-moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
-                             moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
-                             moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-                             moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
+                    return (-moment[cube.RedMaximum + cube.GreenMinimum * SideSize + cube.BlueMaximum * SideSize * SideSize] +
+                             moment[cube.RedMaximum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize] +
+                             moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMaximum * SideSize * SideSize] -
+                             moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize]);
 
                 case Blue:
-                    return (-moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] +
-                             moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
-                             moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] -
-                             moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
+                    return (-moment[cube.RedMaximum + cube.GreenMaximum * SideSize + cube.BlueMinimum * SideSize * SideSize] +
+                             moment[cube.RedMaximum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize] +
+                             moment[cube.RedMinimum + cube.GreenMaximum * SideSize + cube.BlueMinimum * SideSize * SideSize] -
+                             moment[cube.RedMinimum + cube.GreenMinimum * SideSize + cube.BlueMinimum * SideSize * SideSize]);
                 default:
                     return 0;
             }
@@ -360,7 +361,7 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnPrepare"/> for more details.
         /// </summary>
-        protected override void OnPrepare(ImageBuffer image)
+        protected override void OnPrepare(TextureBitmap image)
         {
             // creates all the cubes
             cubes = new WuColorCube[MaxColor];
@@ -381,11 +382,11 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
             cubes[0].GreenMaximum = MaxSideIndex;
             cubes[0].BlueMaximum = MaxSideIndex;
 
-            weights = new Int64[SideSize, SideSize, SideSize];
-            momentsRed = new Int64[SideSize, SideSize, SideSize];
-            momentsGreen = new Int64[SideSize, SideSize, SideSize];
-            momentsBlue = new Int64[SideSize, SideSize, SideSize];
-            moments = new Single[SideSize, SideSize, SideSize];
+            weights = new Int64[SideSize * SideSize * SideSize];
+            momentsRed = new Int64[SideSize * SideSize * SideSize];
+            momentsGreen = new Int64[SideSize * SideSize * SideSize];
+            momentsBlue = new Int64[SideSize * SideSize * SideSize];
+            moments = new Single[SideSize * SideSize * SideSize];
 
             table = new Int32[256];
 
@@ -405,27 +406,28 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
         /// <summary>
         /// See <see cref="BaseColorQuantizer.AddColor"/> for more details.
         /// </summary>
-        protected override void OnAddColor(Color color, Int32 key, Int32 x, Int32 y)
+        protected override void OnAddColor(TextureBitmap.Color color, Int32 key, Int32 x, Int32 y)
         {
             Int32 indexRed = (color.R >> 3) + 1;
             Int32 indexGreen = (color.G >> 3) + 1;
             Int32 indexBlue = (color.B >> 3) + 1;
 
-            weights[indexRed, indexGreen, indexBlue]++;
-            momentsRed[indexRed, indexGreen, indexBlue] += color.R;
-            momentsGreen[indexRed, indexGreen, indexBlue] += color.G;
-            momentsBlue[indexRed, indexGreen, indexBlue] += color.B;
-            moments[indexRed, indexGreen, indexBlue] += table[color.R] + table[color.G] + table[color.B];
+            int index = indexRed + indexGreen * SideSize + indexBlue * SideSize * SideSize;
+            weights[index]++;
+            momentsRed[index] += color.R;
+            momentsGreen[index] += color.G;
+            momentsBlue[index] += color.B;
+            moments[index] += table[color.R] + table[color.G] + table[color.B];
 
             quantizedPixels[pixelIndex] = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
-            pixels[pixelIndex] = color.ToArgb();
+            pixels[pixelIndex] = color.ToARGB();
             pixelIndex++;
         }
 
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnGetPalette"/> for more details.
         /// </summary>
-        protected override List<Color> OnGetPalette(Int32 colorCount)
+        protected override List<TextureBitmap.Color> OnGetPalette(Int32 colorCount)
         {
             // preprocess the colors
             CalculateMoments();
@@ -509,7 +511,7 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
             // scans and adds colors
             for (Int32 index = 0; index < imageSize; index++)
             {
-                Color color = Color.FromArgb(pixels[index]);
+                TextureBitmap.Color color = TextureBitmap.Color.FromARGB(pixels[index]);
 
                 Int32 match = quantizedPixels[index];
                 Int32 bestMatch = match;
@@ -541,7 +543,7 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
                 indices[index] = bestMatch;
             }
 
-            List<Color> result = new List<Color>();
+            List<TextureBitmap.Color> result = new List<TextureBitmap.Color>();
 
             // generates palette
             for (Int32 paletteIndex = 0; paletteIndex < colorCount; paletteIndex++)
@@ -553,7 +555,7 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
                     blues[paletteIndex] /= sums[paletteIndex];
                 }
 
-                Color color = Color.FromArgb(255, reds[paletteIndex], greens[paletteIndex], blues[paletteIndex]);
+                TextureBitmap.Color color = new TextureBitmap.Color((byte) reds[paletteIndex], (byte) greens[paletteIndex], (byte) blues[paletteIndex], 255);
                 result.Add(color);
             }
 
@@ -564,7 +566,7 @@ namespace SimplePaletteQuantizer.Quantizers.XiaolinWu
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnGetPaletteIndex"/> for more details.
         /// </summary>
-        protected override void OnGetPaletteIndex(Color color, Int32 key, Int32 x, Int32 y, out Int32 paletteIndex)
+        protected override void OnGetPaletteIndex(TextureBitmap.Color color, Int32 key, Int32 x, Int32 y, out Int32 paletteIndex)
         {
             paletteIndex = indices[x + y*imageWidth];
         }

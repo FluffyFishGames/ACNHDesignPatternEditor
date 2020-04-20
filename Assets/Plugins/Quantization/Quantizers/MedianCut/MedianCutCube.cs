@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using SimplePaletteQuantizer.ColorCaches.Common;
 using SimplePaletteQuantizer.Helpers;
@@ -90,7 +89,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
         /// Gets the average color from the colors contained in this cube.
         /// </summary>
         /// <value>The average color.</value>
-        public Color Color
+        public TextureBitmap.Color Color
         {
             get
             {
@@ -98,7 +97,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
 
                 foreach (Int32 argb in colorList)
                 {
-                    Color color = Color.FromArgb(argb);
+                    TextureBitmap.Color color = TextureBitmap.Color.FromARGB(argb);
                     red += ColorModelHelper.GetComponentA(ColorModel, color);
                     green += ColorModelHelper.GetComponentB(ColorModel, color);
                     blue += ColorModelHelper.GetComponentC(ColorModel, color);
@@ -110,7 +109,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
 
                 // ColorModelHelper.HSBtoRGB(Convert.ToInt32(red/ColorModelHelper.HueFactor), green / 255.0f, blue / 255.0f);
 
-                Color result = Color.FromArgb(255, red, green, blue);
+                TextureBitmap.Color result = new TextureBitmap.Color((byte)red, (byte)green, (byte)blue, 255);
                 return result;
             }
         }
@@ -129,7 +128,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
 
             foreach (Int32 argb in colorList)
             {
-                Color color = Color.FromArgb(argb);
+                TextureBitmap.Color color = TextureBitmap.Color.FromARGB(argb);
 
                 Int32 red = ColorModelHelper.GetComponentA(ColorModel, color);
                 Int32 green = ColorModelHelper.GetComponentB(ColorModel, color);
@@ -158,17 +157,17 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
             {
                 // red colors
                 case 0:
-                    colors = colorList.OrderBy(argb => ColorModelHelper.GetComponentA(ColorModel, Color.FromArgb(argb))).ToList();
+                    colors = colorList.OrderBy(argb => ColorModelHelper.GetComponentA(ColorModel, TextureBitmap.Color.FromARGB(argb))).ToList();
                     break;
 
                 // green colors
                 case 1:
-                    colors = colorList.OrderBy(argb => ColorModelHelper.GetComponentB(ColorModel, Color.FromArgb(argb))).ToList();
+                    colors = colorList.OrderBy(argb => ColorModelHelper.GetComponentB(ColorModel, TextureBitmap.Color.FromARGB(argb))).ToList();
                     break;
 
                 // blue colors
                 case 2:
-                    colors = colorList.OrderBy(argb => ColorModelHelper.GetComponentC(ColorModel, Color.FromArgb(argb))).ToList();
+                    colors = colorList.OrderBy(argb => ColorModelHelper.GetComponentC(ColorModel, TextureBitmap.Color.FromARGB(argb))).ToList();
                     break;
 
                 default:
@@ -198,7 +197,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
         /// </summary>
         /// <param name="color">The color to be checked, if it's contained in this cube.</param>
         /// <returns>if true a color is in the space of this cube, otherwise returns false.</returns>
-        public Boolean IsColorIn(Color color)
+        public Boolean IsColorIn(TextureBitmap.Color color)
         {
             Int32 red = ColorModelHelper.GetComponentA(ColorModel, color);
             Int32 green = ColorModelHelper.GetComponentB(ColorModel, color);

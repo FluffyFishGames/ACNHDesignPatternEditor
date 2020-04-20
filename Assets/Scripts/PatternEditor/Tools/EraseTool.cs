@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class EraseTool : ITool
@@ -11,12 +13,17 @@ public class EraseTool : ITool
         this.Editor = editor;
     }
 
-    private UnityEngine.Color[] OldColors;
+    private IntPtr OldColors;
 
     public void MouseDown(int x, int y)
     {
-        OldColors = new UnityEngine.Color[Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors.Length];
-        System.Array.Copy(Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors, OldColors, OldColors.Length);
+        var layer = Editor.CurrentPattern.CurrentSubPattern.SelectedLayer;
+        var size = layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize;
+        OldColors = Marshal.AllocHGlobal(size);
+        unsafe
+        {
+            System.Buffer.MemoryCopy(layer.Texture.Bytes.ToPointer(), OldColors.ToPointer(), size, size);
+        }
 
         MouseDrag(x, y, x, y);
     }
@@ -37,6 +44,13 @@ public class EraseTool : ITool
 
     public void MouseUp(int x, int y)
     {
-        Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.ChangedLayerAction("Erase", Editor.CurrentPattern.CurrentSubPattern.SelectedLayerIndex, OldColors, Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors));
+        var layer = Editor.CurrentPattern.CurrentSubPattern.SelectedLayer;
+        var size = layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize;
+        var newColors = Marshal.AllocHGlobal(size);
+        unsafe
+        {
+            System.Buffer.MemoryCopy(layer.Texture.Bytes.ToPointer(), newColors.ToPointer(), size, size);
+        }
+        Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.ChangedLayerAction("Erase", Editor.CurrentPattern.CurrentSubPattern.SelectedLayerIndex, OldColors, newColors));
     }
 }

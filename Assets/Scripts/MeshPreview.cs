@@ -17,7 +17,7 @@ public class MeshPreview : MonoBehaviour
 
 	public void SetTexture(Texture2D texture)
 	{
-		for (int i = 0; i< Materials.Length; i++)
+		for (int i = 0; i < Materials.Length; i++)
 			Materials[i].SetTexture("_MainTex", texture);
 		Camera.Render();
 	}
@@ -46,15 +46,15 @@ public class MeshPreview : MonoBehaviour
 
 	// Start is called before the first frame update
 	void Start()
-    {
-//		Camera.enabled = false;
+	{
+		//		Camera.enabled = false;
 		//Camera.Render();
-    }
+	}
 
-    // Update is called once per frame
-    void Update()
-    {
+	// Update is called once per frame
+	void Update()
+	{
 		if (Rerender)
 			Camera.Render();
-    }
+	}
 }

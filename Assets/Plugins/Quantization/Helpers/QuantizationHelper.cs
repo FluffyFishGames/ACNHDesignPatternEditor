@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Drawing;
 
 namespace SimplePaletteQuantizer.Helpers
 {
     public class QuantizationHelper
     {
         private const int Alpha = 255 << 24;
-        private static readonly Color BackgroundColor;
+        private static readonly TextureBitmap.Color BackgroundColor;
         private static readonly Double[] Factors;
 
         static QuantizationHelper()
         {
-            BackgroundColor = SystemColors.Control;
+            BackgroundColor = new TextureBitmap.Color(255, 255, 255, 255);
             Factors = PrecalculateFactors();
         }
 
@@ -35,7 +34,7 @@ namespace SimplePaletteQuantizer.Helpers
         /// </summary>
         /// <param name="color">The alpha blended color (ARGB).</param>
         /// <returns>The non-alpha blended color (RGB).</returns>
-        internal static Color ConvertAlpha(Color color)
+        internal static TextureBitmap.Color ConvertAlpha(TextureBitmap.Color color)
         {
             Int32 argb;
             return ConvertAlpha(color, out argb);
@@ -44,9 +43,9 @@ namespace SimplePaletteQuantizer.Helpers
         /// <summary>
         /// Converts the alpha blended color to a non-alpha blended color.
         /// </summary>
-        internal static Color ConvertAlpha(Color color, out Int32 argb)
+        internal static TextureBitmap.Color ConvertAlpha(TextureBitmap.Color color, out Int32 argb)
         {
-            Color result = color;
+            TextureBitmap.Color result = color;
 
             if (color.A < 255)
             {
@@ -57,8 +56,8 @@ namespace SimplePaletteQuantizer.Helpers
                 Int32 green = (Int32) (color.G*colorFactor + BackgroundColor.G*backgroundFactor);
                 Int32 blue = (Int32) (color.B*colorFactor + BackgroundColor.B*backgroundFactor);
                 argb = red << 16 | green << 8 | blue;
-                Color.FromArgb(red, green, blue);
-                result = Color.FromArgb(Alpha | argb);
+                //TextureBitmap.Color.FromArgb(red, green, blue);
+                result = TextureBitmap.Color.FromARGB(Alpha | argb);
             }
             else
             {

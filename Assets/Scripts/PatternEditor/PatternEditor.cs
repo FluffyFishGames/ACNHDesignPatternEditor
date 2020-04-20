@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 using MyHorizons.Data;
-using UnityEngine.EventSystems;
-using SFB;
 
 public class PatternEditor : MonoBehaviour
 {
@@ -196,11 +192,13 @@ public class PatternEditor : MonoBehaviour
 		CancelButton.OnClick += () => {
 			//Debug.Log("CANCEL " + CancelAction);
 			CancelAction?.Invoke();
+			this.CurrentPattern.Dispose();
 		};
 
 		SaveButton.OnClick += () => {
 			//Debug.Log("CANCEL " + ConfirmAction);
 			ConfirmAction?.Invoke();
+			this.CurrentPattern.Dispose();
 		};
 
 		SubPattern.onClick.AddListener(() => {
@@ -230,8 +228,14 @@ public class PatternEditor : MonoBehaviour
 
 	public void SubPatternChanged(DesignPatternInformation.DesignPatternPart part)
 	{
+		bool found = false;
 		foreach (var kv in PartIcons)
+		{
 			kv.Value.SetActive(part.Type == kv.Key);
+			if (part.Type == kv.Key)
+				found = true;
+		}
+		SubPattern.gameObject.SetActive(found);
 		PixelGrid.SubPatternChanged();
 	}
 
@@ -265,6 +269,8 @@ public class PatternEditor : MonoBehaviour
     {
 		if (CurrentPattern != null)
 		{
+			PreviewImage.sprite = CurrentPattern.GetPreviewSprite();
+
 			if (CurrentPattern.Update())
 			{
 				PreviewImage.sprite = CurrentPattern.GetPreviewSprite();
@@ -307,7 +313,20 @@ public class PatternEditor : MonoBehaviour
 		var pattern = new DesignPattern();
 		pattern.Type = Type;
 		pattern.IsPro = Type != DesignPattern.TypeEnum.SimplePattern;
-		pattern.FromTexture(this.CurrentPattern.GetPreviewSprite().texture);
+		pattern.FromBitmap(this.CurrentPattern.PreviewBitmap);
+
 		return pattern;
+	}
+
+	private void OnDestroy()
+	{
+		if (CurrentPattern != null)
+			CurrentPattern.Dispose();
+	}
+
+	private void OnApplicationQuit()
+	{
+		if (CurrentPattern != null)
+			CurrentPattern.Dispose();
 	}
 }

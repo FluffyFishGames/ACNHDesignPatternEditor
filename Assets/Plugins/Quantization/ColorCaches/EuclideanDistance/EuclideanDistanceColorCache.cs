@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Collections.Generic;
 using SimplePaletteQuantizer.Helpers;
 using SimplePaletteQuantizer.ColorCaches.Common;
@@ -10,7 +9,7 @@ namespace SimplePaletteQuantizer.ColorCaches.EuclideanDistance
     {
         #region | Fields |
 
-        private IList<Color> palette;
+        private IList<TextureBitmap.Color> palette;
 
         #endregion
 
@@ -55,7 +54,7 @@ namespace SimplePaletteQuantizer.ColorCaches.EuclideanDistance
         /// <summary>
         /// See <see cref="BaseColorCache.OnCachePalette"/> for more details.
         /// </summary>
-        protected override void OnCachePalette(IList<Color> palette)
+        protected override void OnCachePalette(IList<TextureBitmap.Color> palette)
         {
             this.palette = palette;
         }
@@ -63,7 +62,7 @@ namespace SimplePaletteQuantizer.ColorCaches.EuclideanDistance
         /// <summary>
         /// See <see cref="BaseColorCache.OnGetColorPaletteIndex"/> for more details.
         /// </summary>
-        protected override void OnGetColorPaletteIndex(Color color, out Int32 paletteIndex)
+        protected override void OnGetColorPaletteIndex(TextureBitmap.Color color, out Int32 paletteIndex)
         {
             paletteIndex = ColorModelHelper.GetEuclideanDistance(color, ColorModel, palette);
         }

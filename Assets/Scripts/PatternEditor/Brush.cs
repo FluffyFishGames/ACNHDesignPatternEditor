@@ -11,9 +11,9 @@ public class Brush
 	public float Hardness = 100f;
 	public float[] Alphas;
 	public Texture2D BrushOverlayTexture;
-	public Texture2D BrushTexture;
 	public Sprite BrushSprite;
 	public PatternEditor Editor;
+	protected TextureBitmap BrushTexture;
 
 	public void RecalculateBrush()
 	{
@@ -34,14 +34,12 @@ public class Brush
 		}
 		else
 		{
-			this.BrushTexture = new Texture2D(this.Size, this.Size, TextureFormat.ARGB32, false);
-			BrushTexture.filterMode = FilterMode.Point;
+			this.BrushTexture = new TextureBitmap(this.Size, this.Size);
 		}
 
 		Vector2 center = new Vector2(0.5f, 0.5f);
 		Alphas = new float[Size * Size];
 
-		UnityEngine.Color[] brushColors = new UnityEngine.Color[BrushTexture.width * BrushTexture.height];
 		for (int y = 0; y < Size; y++)
 		{
 			for (int x = 0; x < Size; x++)
@@ -50,13 +48,13 @@ public class Brush
 				Vector2 c = new Vector2(
 					((float) x) / ((float) Size) + 0.5f / ((float) Size),
 					((float) y) / ((float) Size) + 0.5f / ((float) Size));
-				Alphas[index] = Mathf.Max(0f, Mathf.Min(1f, (0.5f - Vector2.Distance(c, new Vector2(0.5f, 0.5f))) * (Hardness * Hardness * Size)));
-				brushColors[index] = new UnityEngine.Color(1f, 1f, 1f, Alphas[index]);
+				float alpha = Mathf.Max(0f, Mathf.Min(1f, (0.5f - Vector2.Distance(c, new Vector2(0.5f, 0.5f))) * (Hardness * Hardness * Size)));
+				Alphas[x + y * Size] = alpha;
+				this.BrushTexture.SetPixel(x, y, new TextureBitmap.Color(255, 255, 255, (byte) (alpha * 255f)));
 			}
 		}
-		BrushTexture.SetPixels(brushColors);
-		BrushTexture.Apply();
-		BrushSprite = Sprite.Create(BrushTexture, new UnityEngine.Rect(0, 0, BrushTexture.width, BrushTexture.height), new Vector2(0.5f, 0.5f));
+		this.BrushTexture.Apply();
+		BrushSprite = Sprite.Create(BrushTexture.Texture, new UnityEngine.Rect(0, 0, BrushTexture.Width, BrushTexture.Height), new Vector2(0.5f, 0.5f));
 		
 		var brushColor = new UnityEngine.Color(1f, 1f, 1f, 0.5f);
 		UnityEngine.Color[] brushOverlayColors = new UnityEngine.Color[BrushOverlayTexture.width * BrushOverlayTexture.height];
@@ -137,44 +135,12 @@ public class Brush
 
 	public void Draw(IBrushDrawable drawable, int brushX, int brushY, UnityEngine.Color color)
 	{
-		for (int by = 0; by < Size; by++)
-		{
-			for (int bx = 0; bx < Size; bx++)
-			{
-				int fx = brushX + bx;
-				int fy = brushY + by;
-
-				if (drawable.IsDrawable(fx, fy))
-				{
-					int index = fx + (fy * drawable.Width);
-					int brushIndex = (int) (bx + by * Size);
-
-					UnityEngine.Color A = color;
-					A.a *= Alphas[brushIndex];
-
-					drawable.Colors[index] = drawable.Colors[index].AlphaComposite(A);
-				}
-			}
-		}
+		drawable.Bitmap.AlphaComposite(BrushTexture, new TextureBitmap.Color((byte) (color.r * 255f), (byte) (color.g * 255f), (byte) (color.b * 255f), (byte) (color.a * 255f)), new TextureBitmap.Point(brushX, brushY), null, drawable.IsDrawable);
 	}
 
 	public void Erase(IBrushDrawable drawable, int brushX, int brushY)
 	{
-		for (int by = 0; by < Size; by++)
-		{
-			for (int bx = 0; bx < Size; bx++)
-			{
-				int fx = brushX + bx;
-				int fy = brushY + by;
-				if (drawable.IsDrawable(fx, fy))
-				{
-					int index = fx + (fy * drawable.Width);
-					int brushIndex = (int) (bx + by * Size);
-
-					drawable.Colors[index].a = Mathf.Clamp01(drawable.Colors[index].a - Alphas[brushIndex]);
-				}
-			}
-		}
+		drawable.Bitmap.Subtract(BrushTexture, new TextureBitmap.Color(0, 0, 0, 255), new TextureBitmap.Point(brushX, brushY), null, drawable.IsDrawable);
 	}
 
 	public void DrawLine(IBrushDrawable drawable, int fromX, int fromY, int toX, int toY, UnityEngine.Color color)
@@ -213,6 +179,5 @@ public class Brush
 			lx += stepX;
 		}
 		Draw(drawable, (int) (toX), (int) (toY), color);
-
 	}
 }

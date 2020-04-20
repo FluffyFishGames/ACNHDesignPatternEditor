@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,97 +74,61 @@ public class QRCodeExtractor
 		return -1;
 	}
 
-	public static Bitmap ExtractQRCode(Bitmap bitmap)
+	public static TextureBitmap ExtractQRCode(TextureBitmap bitmap)
 	{
-		System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-		watch.Start();
 		var result = new Result();
-
-		var data = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-		var pixelSize = data.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb ? 4 : 3;
-		var padding = data.Stride - (data.Width * pixelSize);
-
 
 		var brightnessThreshold = 90;
 		var vibranceThreshold = 30;
-		Pixel[] pixels = new Pixel[data.Width * data.Height];
-
+		int bitmapWidth = bitmap.Width;
+		int bitmapHeight = bitmap.Height;
+		Pixel[] pixels = new Pixel[bitmapWidth * bitmapHeight];
+		
 		unsafe
 		{
-			byte* ptr = (byte*) data.Scan0.ToPointer();
+			TextureBitmap.Color* colorsPtr = bitmap.GetColors();
 
 			var index = 0;
-			for (var y = 0; y < data.Height; y++)
+			for (var y = 0; y < bitmapHeight; y++)
 			{
-				for (var x = 0; x < data.Width; x++)
+				for (var x = 0; x < bitmapWidth; x++)
 				{
-					int r = ((*(ptr + index + 2)));
-					int g = ((*(ptr + index + 1)));
-					int b = ((*(ptr + index + 0)));
-					var vibrance = UnityEngine.Mathf.Max(r, g, b) - UnityEngine.Mathf.Min(r, g, b);
-					var brightness = (r + g + b) / 3;
+					var col = *(colorsPtr + index);
+					var vibrance = UnityEngine.Mathf.Max(col.R, col.G, col.B) - UnityEngine.Mathf.Min(col.R, col.G, col.B);
+					var brightness = (col.R + col.G + col.B) / 3;
 					// black
 					if (brightness < brightnessThreshold && vibrance < vibranceThreshold)
-						pixels[x + y * data.Width] = Pixel.Black;
+						pixels[x + y * bitmapWidth] = Pixel.Black;
 					// white
 					else if (brightness > 0xFF - brightnessThreshold && vibrance < vibranceThreshold)
-						pixels[x + y * data.Width] = Pixel.White;
+						pixels[x + y * bitmapWidth] = Pixel.White;
 					else
-						pixels[x + y * data.Width] = Pixel.Uncertain;
-					index += pixelSize;
+						pixels[x + y * bitmapWidth] = Pixel.Uncertain;
+					index++;
 				}
-				index += padding;
 			}
 		}
-		bitmap.UnlockBits(data);
-
-		bool writeIntermediate = false;
-		Bitmap test = null;
-		if (writeIntermediate)
-		{
-			test = new Bitmap(bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-			for (var y = 0; y < bitmap.Height; y++)
-				for (var x = 0; x < bitmap.Width; x++)
-					test.SetPixel(x, y,
-						pixels[x + y * bitmap.Width] == Pixel.White ? Color.FromArgb(255, 255, 255, 255) :
-						pixels[x + y * bitmap.Width] == Pixel.Black ? Color.FromArgb(255, 0, 0, 0) :
-						Color.FromArgb(255, 120, 120, 120));
-			test.Save("intermediate0.png");
-			test.Dispose();
-
-			test = new Bitmap(bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-		}
-
-		List<Color> colors = new List<Color>()
-		{
-			Color.FromArgb(255, 0, 0, 0),
-			Color.FromArgb(255, 40, 40, 40),
-			Color.FromArgb(255, 80, 80, 80),
-			Color.FromArgb(255, 120, 120, 120),
-			Color.FromArgb(255, 160, 160, 160),
-			Color.FromArgb(255, 200, 200, 200)
-		};
 
 		List<(int, int, int)> verticalLines = new List<(int, int, int)>();
 		List<(int, int, int)> horizontalLines = new List<(int, int, int)>();
 
-		for (var x = 1; x < bitmap.Width - 1; x++)
+		for (var x = 1; x < bitmapWidth - 1; x++)
 		{
-			for (var y = 1; y < bitmap.Height - 1; y++)
+			for (var y = 1; y < bitmapHeight - 1; y++)
 			{
-				var px = pixels[x + y * bitmap.Width];
-				var topPx = pixels[x + (y - 1) * bitmap.Width];
-				var leftPx = pixels[x - 1 + y * bitmap.Width];
+				var px = pixels[x + y * bitmapWidth];
+				var topPx = pixels[x + (y - 1) * bitmapWidth];
+				var leftPx = pixels[x - 1 + y * bitmapWidth];
 				if (px == Pixel.Black || px == Pixel.Uncertain)
 				{
 					if (topPx == Pixel.White)
 					{
-						int vertical = Scan(pixels, x, y, bitmap.Width, 0, 1, 0);
+						int vertical = Scan(pixels, x, y, bitmapWidth, 0, 1, 0);
 						if (vertical > -1) verticalLines.Add((x, y, vertical));
 					}
 					if (leftPx == Pixel.White)
 					{
-						int horizontal = Scan(pixels, x, y, bitmap.Width, 1, 0, 0);
+						int horizontal = Scan(pixels, x, y, bitmapWidth, 1, 0, 0);
 						if (horizontal > -1) horizontalLines.Add((x, y, horizontal));
 					}
 				}
@@ -241,24 +204,6 @@ public class QRCodeExtractor
 			}
 			markers.Add(rect);
 		}
-		if (writeIntermediate)
-		{
-			for (var i = 0; i < markers.Count; i++)
-			{
-				for (var y = markers[i].Item2; y < markers[i].Item2 + markers[i].Item4; y++)
-				{
-					for (var x = markers[i].Item1; x < markers[i].Item1 + markers[i].Item3; x++)
-					{
-						test.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
-					}
-				}
-			}
-
-			test.Save("intermediate2.png");
-			test.Dispose();
-
-			test = new Bitmap(bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-		}
 
 		List<(int, int, int, int)> finalMarkers = new List<(int, int, int, int)>();
 		for (var i = 0; i < markers.Count; i++)
@@ -280,44 +225,26 @@ public class QRCodeExtractor
 			{
 				if (finalLeft == -1)
 				{
-					if (!leftWhitePassed && pixels[left - o + top * bitmap.Width] == Pixel.Black) leftWhitePassed = true;
-					else if (leftWhitePassed && pixels[left - o + top * bitmap.Width] == Pixel.White) finalLeft = left - o + 1;
+					if (!leftWhitePassed && pixels[left - o + top * bitmapWidth] == Pixel.Black) leftWhitePassed = true;
+					else if (leftWhitePassed && pixels[left - o + top * bitmapWidth] == Pixel.White) finalLeft = left - o + 1;
 				}
 				if (finalRight == -1)
 				{
-					if (!rightWhitePassed && pixels[right + o + top * bitmap.Width] == Pixel.Black) rightWhitePassed = true;
-					else if (rightWhitePassed && pixels[right + o + top * bitmap.Width] == Pixel.White) finalRight = right + o;
+					if (!rightWhitePassed && pixels[right + o + top * bitmapWidth] == Pixel.Black) rightWhitePassed = true;
+					else if (rightWhitePassed && pixels[right + o + top * bitmapWidth] == Pixel.White) finalRight = right + o;
 				}
 				if (finalTop == -1)
 				{
-					if (!topWhitePassed && pixels[left + (top - o) * bitmap.Width] == Pixel.Black) topWhitePassed = true;
-					else if (topWhitePassed && pixels[left + (top - o) * bitmap.Width] == Pixel.White) finalTop = top - o + 1;
+					if (!topWhitePassed && pixels[left + (top - o) * bitmapWidth] == Pixel.Black) topWhitePassed = true;
+					else if (topWhitePassed && pixels[left + (top - o) * bitmapWidth] == Pixel.White) finalTop = top - o + 1;
 				}
 				if (finalBottom == -1)
 				{
-					if (!bottomWhitePassed && pixels[left + (bottom + o) * bitmap.Width] == Pixel.Black) bottomWhitePassed = true;
-					else if (bottomWhitePassed && pixels[left + (bottom + o) * bitmap.Width] == Pixel.White) finalBottom = bottom + o;
+					if (!bottomWhitePassed && pixels[left + (bottom + o) * bitmapWidth] == Pixel.Black) bottomWhitePassed = true;
+					else if (bottomWhitePassed && pixels[left + (bottom + o) * bitmapWidth] == Pixel.White) finalBottom = bottom + o;
 				}
 			}
 			finalMarkers.Add((finalLeft, finalTop, finalRight - finalLeft, finalBottom - finalTop));
-		}
-		if (writeIntermediate)
-		{
-			for (var i = 0; i < finalMarkers.Count; i++)
-			{
-				for (var y = finalMarkers[i].Item2; y < finalMarkers[i].Item2 + finalMarkers[i].Item4; y++)
-				{
-					for (var x = finalMarkers[i].Item1; x < finalMarkers[i].Item1 + finalMarkers[i].Item3; x++)
-					{
-						test.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
-					}
-				}
-			}
-
-			test.Save("intermediate3.png");
-			test.Dispose();
-
-			test = new Bitmap(bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 		}
 
 		int sizeThreshold = 1;
@@ -364,73 +291,30 @@ public class QRCodeExtractor
 			}
 		}
 
-		if (writeIntermediate)
-		{
-			for (var i = 0; i < qrCodes.Count; i++)
-			{
-				var left = finalMarkers[qrCodes[i].Item1].Item1;
-				var top = finalMarkers[qrCodes[i].Item1].Item2;
-				var right = finalMarkers[qrCodes[i].Item2].Item1 + finalMarkers[qrCodes[i].Item2].Item3;
-				var bottom = finalMarkers[qrCodes[i].Item3].Item2 + finalMarkers[qrCodes[i].Item3].Item4;
-				for (var y = top; y < bottom; y++)
-				{
-					for (var x = left; x < right; x++)
-					{
-						test.SetPixel(x, y, Color.FromArgb(255, 200, 200, 200));
-					}
-				}
-			}
-
-			for (var i = 0; i < finalMarkers.Count; i++)
-			{
-				for (var y = finalMarkers[i].Item2; y < finalMarkers[i].Item2 + finalMarkers[i].Item4; y++)
-				{
-					for (var x = finalMarkers[i].Item1; x < finalMarkers[i].Item1 + finalMarkers[i].Item3; x++)
-					{
-						test.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
-					}
-				}
-			}
-			test.Save("intermediate4.png");
-			test.Dispose();
-
-			test = new Bitmap(bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-		}
-
-		var resultImage = new Bitmap(finalWidth, maxHeight, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+		var resultImage = new TextureBitmap(finalWidth, maxHeight, false);
 		for (int x = 0; x < finalWidth; x++)
 			for (int y = 0; y < maxHeight; y++)
-				resultImage.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
+				resultImage.SetPixel(x, y, new TextureBitmap.Color(255, 255, 255, 255));
 
 		var horizontalOffset = 0;
 		
-		using (Graphics graphics = Graphics.FromImage(resultImage))
+		for (int i = 0; i < qrCodes.Count; i++)
 		{
-			for (int i = 0; i < qrCodes.Count; i++)
-			{
-				var left = finalMarkers[qrCodes[i].Item1].Item1;
-				var top = finalMarkers[qrCodes[i].Item1].Item2;
-				var right = finalMarkers[qrCodes[i].Item2].Item1 + finalMarkers[qrCodes[i].Item2].Item3;
-				var bottom = finalMarkers[qrCodes[i].Item3].Item2 + finalMarkers[qrCodes[i].Item3].Item4;
+			var left = finalMarkers[qrCodes[i].Item1].Item1;
+			var top = finalMarkers[qrCodes[i].Item1].Item2;
+			var right = finalMarkers[qrCodes[i].Item2].Item1 + finalMarkers[qrCodes[i].Item2].Item3;
+			var bottom = finalMarkers[qrCodes[i].Item3].Item2 + finalMarkers[qrCodes[i].Item3].Item4;
 
-				var width = right - left;
-				var height = bottom - top;
+			var width = right - left;
+			var height = bottom - top;
 
-				var horizontalPadding = (int) (width * 0.1f);
-				var verticalPadding = (int) (height * 0.1f);
+			var horizontalPadding = (int) (width * 0.1f);
+			var verticalPadding = (int) (height * 0.1f);
 
-				graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-				graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-				graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-				graphics.DrawImage(bitmap, new Rectangle(horizontalOffset + horizontalPadding, verticalPadding, width, height), new Rectangle(left, top, width, height), GraphicsUnit.Pixel);
-				horizontalOffset += width + horizontalPadding * 2;
-			}
+			resultImage.AlphaComposite(bitmap, new TextureBitmap.Color(255, 255, 255, 255), new TextureBitmap.Point(horizontalOffset + horizontalPadding, verticalPadding), new TextureBitmap.Rectangle(left, top, width, height));
+			horizontalOffset += width + horizontalPadding * 2;
 		}
 
-		resultImage.Save("intermediate5.png");
-
-		watch.Stop();
-		UnityEngine.Debug.Log(watch.ElapsedMilliseconds);
 		return resultImage;
 	}
 }

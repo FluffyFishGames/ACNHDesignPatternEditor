@@ -2,7 +2,6 @@
 
 using System;
 using System.Linq;
-using System.Drawing;
 using System.Collections.Generic;
 using SimplePaletteQuantizer.ColorCaches;
 using SimplePaletteQuantizer.ColorCaches.Octree;
@@ -23,7 +22,7 @@ namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
     {
         #region | Fields |
 
-        private List<Color> palette;
+        private List<TextureBitmap.Color> palette;
         private Int32 foundColorCount;
 
 #if (UseDictionary)
@@ -71,7 +70,7 @@ namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
         /// <summary>
         /// See <see cref="IColorQuantizer.Prepare"/> for more details.
         /// </summary>
-        protected override void OnPrepare(ImageBuffer image)
+        protected override void OnPrepare(TextureBitmap image)
         {
             base.OnPrepare(image);
 
@@ -90,7 +89,7 @@ namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnAddColor"/> for more details.
         /// </summary>
-        protected override void OnAddColor(Color color, Int32 key, Int32 x, Int32 y)
+        protected override void OnAddColor(TextureBitmap.Color color, Int32 key, Int32 x, Int32 y)
         {
 #if (UseDictionary)
             colorMap.AddOrUpdate(key,
@@ -105,7 +104,7 @@ namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
         /// <summary>
         /// See <see cref="BaseColorCacheQuantizer.OnGetPaletteToCache"/> for more details.
         /// </summary>
-        protected override List<Color> OnGetPaletteToCache(Int32 colorCount)
+        protected override List<TextureBitmap.Color> OnGetPaletteToCache(Int32 colorCount)
         {
             // otherwise calculate one
             palette.Clear();
@@ -152,11 +151,11 @@ namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
                 }
 
                 // adds background color first
-                palette.Add(Color.FromArgb(background.Color));
+                palette.Add(TextureBitmap.Color.FromARGB(background.Color));
             }
 
             // adds the selected colors to a final palette
-            palette.AddRange(colorInfoList.Select(colorInfo => Color.FromArgb(colorInfo.Color)));
+            palette.AddRange(colorInfoList.Select(colorInfo => TextureBitmap.Color.FromARGB(colorInfo.Color)));
 
             // returns our new palette
             return palette;
@@ -177,7 +176,7 @@ namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
         {
             base.OnFinish();
 
-            palette = new List<Color>();
+            palette = new List<TextureBitmap.Color>();
 
 #if (UseDictionary)
             colorMap = new ConcurrentDictionary<Int32, DistinctColorInfo>();

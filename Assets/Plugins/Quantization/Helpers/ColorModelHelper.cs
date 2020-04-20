@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using SimplePaletteQuantizer.ColorCaches.Common;
 
 namespace SimplePaletteQuantizer.Helpers
@@ -51,7 +50,7 @@ namespace SimplePaletteQuantizer.Helpers
             return Convert.ToInt32(255.0f * preresult);
         }
 
-        public static Color HSBtoRGB(Single hue, Single saturation, Single brightness)
+        public static TextureBitmap.Color HSBtoRGB(Single hue, Single saturation, Single brightness)
         {
             // initializes the default black
             Int32 red = 0;
@@ -81,7 +80,7 @@ namespace SimplePaletteQuantizer.Helpers
             }
 
             Int32 argb = 255 << 24 | red << 16 | green << 8 | blue;
-            return Color.FromArgb(argb);
+            return TextureBitmap.Color.FromARGB(argb);
         }
 
         #endregion
@@ -119,7 +118,7 @@ namespace SimplePaletteQuantizer.Helpers
 
         private static Single GetXYZValue(Single value)
         {
-            return value > 0.008856f ? (Single)Math.Pow(value, OneThird) : (7.787f * value + 16.0f / 116.0f);
+            return value > 0.008856f ? (Single) Math.Pow(value, OneThird) : (7.787f * value + 16.0f / 116.0f);
         }
 
         public static void XYZtoLab(Single x, Single y, Single z, out Single l, out Single a, out Single b)
@@ -133,14 +132,14 @@ namespace SimplePaletteQuantizer.Helpers
 
         #region | Methods |
 
-        public static Int64 GetColorEuclideanDistance(ColorModel colorModel, Color requestedColor, Color realColor)
+        public static Int64 GetColorEuclideanDistance(ColorModel colorModel, TextureBitmap.Color requestedColor, TextureBitmap.Color realColor)
         {
             Single componentA, componentB, componentC;
             GetColorComponents(colorModel, requestedColor, realColor, out componentA, out componentB, out componentC);
             return (Int64) (componentA * componentA + componentB * componentB + componentC * componentC);
         }
 
-        public static Int32 GetEuclideanDistance(Color color, ColorModel colorModel, IList<Color> palette)
+        public static Int32 GetEuclideanDistance(TextureBitmap.Color color, ColorModel colorModel, IList<TextureBitmap.Color> palette)
         {
             // initializes the best difference, set it for worst possible, it can only get better
             Int64 leastDistance = Int64.MaxValue;
@@ -148,7 +147,7 @@ namespace SimplePaletteQuantizer.Helpers
 
             for (Int32 index = 0; index < palette.Count; index++)
             {
-                Color targetColor = palette[index];
+                TextureBitmap.Color targetColor = palette[index];
                 Int64 distance = GetColorEuclideanDistance(colorModel, color, targetColor);
 
                 // if a difference is zero, we're good because it won't get better
@@ -169,7 +168,7 @@ namespace SimplePaletteQuantizer.Helpers
             return result;
         }
 
-        public static Int32 GetComponentA(ColorModel colorModel, Color color)
+        public static Int32 GetComponentA(ColorModel colorModel, TextureBitmap.Color color)
         {
             Int32 result = 0;
 
@@ -179,21 +178,21 @@ namespace SimplePaletteQuantizer.Helpers
                     result = color.R;
                     break;
 
-                case ColorModel.HueSaturationBrightness: 
-                    result = Convert.ToInt32(color.GetHue()/HueFactor);
+                case ColorModel.HueSaturationBrightness:
+                    result = Convert.ToInt32(color.GetHue() / HueFactor);
                     break;
 
                 case ColorModel.LabColorSpace:
                     Single l, a, b;
                     RGBtoLab(color.R, color.G, color.B, out l, out a, out b);
-                    result = Convert.ToInt32(l*255.0f);
+                    result = Convert.ToInt32(l * 255.0f);
                     break;
             }
 
             return result;
         }
 
-        public static Int32 GetComponentB(ColorModel colorModel, Color color)
+        public static Int32 GetComponentB(ColorModel colorModel, TextureBitmap.Color color)
         {
             Int32 result = 0;
 
@@ -204,20 +203,20 @@ namespace SimplePaletteQuantizer.Helpers
                     break;
 
                 case ColorModel.HueSaturationBrightness:
-                    result = Convert.ToInt32(color.GetSaturation()*255);
+                    result = Convert.ToInt32(color.GetSaturation() * 255);
                     break;
 
                 case ColorModel.LabColorSpace:
                     Single l, a, b;
                     RGBtoLab(color.R, color.G, color.B, out l, out a, out b);
-                    result = Convert.ToInt32(a*255.0f);
+                    result = Convert.ToInt32(a * 255.0f);
                     break;
             }
 
             return result;
         }
 
-        public static Int32 GetComponentC(ColorModel colorModel, Color color)
+        public static Int32 GetComponentC(ColorModel colorModel, TextureBitmap.Color color)
         {
             Int32 result = 0;
 
@@ -228,20 +227,20 @@ namespace SimplePaletteQuantizer.Helpers
                     break;
 
                 case ColorModel.HueSaturationBrightness:
-                    result = Convert.ToInt32(color.GetBrightness()*255);
+                    result = Convert.ToInt32(color.GetBrightness() * 255);
                     break;
 
                 case ColorModel.LabColorSpace:
                     Single l, a, b;
                     RGBtoLab(color.R, color.G, color.B, out l, out a, out b);
-                    result = Convert.ToInt32(b*255.0f);
+                    result = Convert.ToInt32(b * 255.0f);
                     break;
             }
 
             return result;
         }
-        
-        public static void GetColorComponents(ColorModel colorModel, Color color, out Single componentA, out Single componentB, out Single componentC)
+
+        public static void GetColorComponents(ColorModel colorModel, TextureBitmap.Color color, out Single componentA, out Single componentB, out Single componentC)
         {
             componentA = 0.0f;
             componentB = 0.0f;
@@ -271,7 +270,7 @@ namespace SimplePaletteQuantizer.Helpers
             }
         }
 
-        public static void GetColorComponents(ColorModel colorModel, Color color, Color targetColor, out Single componentA, out Single componentB, out Single componentC)
+        public static void GetColorComponents(ColorModel colorModel, TextureBitmap.Color color, TextureBitmap.Color targetColor, out Single componentA, out Single componentB, out Single componentC)
         {
             componentA = 0.0f;
             componentB = 0.0f;

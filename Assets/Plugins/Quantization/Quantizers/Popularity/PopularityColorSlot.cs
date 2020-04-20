@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 
 namespace SimplePaletteQuantizer.Quantizers.Popularity
 {
@@ -29,7 +28,7 @@ namespace SimplePaletteQuantizer.Quantizers.Popularity
         /// Initializes a new instance of the <see cref="PopularityColorSlot"/> class.
         /// </summary>
         /// <param name="color">The color.</param>
-        public PopularityColorSlot(Color color)
+        public PopularityColorSlot(TextureBitmap.Color color)
         {
             AddValue(color);
         }
@@ -42,7 +41,7 @@ namespace SimplePaletteQuantizer.Quantizers.Popularity
         /// Adds the value to the slot.
         /// </summary>
         /// <param name="color">The color to be added.</param>
-        public PopularityColorSlot AddValue(Color color)
+        public PopularityColorSlot AddValue(TextureBitmap.Color color)
         {
             red += color.R;
             green += color.G;
@@ -55,7 +54,7 @@ namespace SimplePaletteQuantizer.Quantizers.Popularity
         /// Gets the average, just simple value divided by pixel presence.
         /// </summary>
         /// <returns>The average color component value.</returns>
-        public Color GetAverage()
+        public TextureBitmap.Color GetAverage()
         {
             // determines the components
             Int32 finalRed = red/PixelCount;
@@ -71,7 +70,7 @@ namespace SimplePaletteQuantizer.Quantizers.Popularity
             if (finalBlue > 255) finalBlue = 255;
 
             // returns the reconstructed color
-            return Color.FromArgb(255, finalRed, finalGreen, finalBlue);
+            return new TextureBitmap.Color((byte) finalRed, (byte) finalGreen, (byte) finalBlue, 255);
         }
 
         #endregion

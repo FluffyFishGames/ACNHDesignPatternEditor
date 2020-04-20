@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MyHorizons.Data;
 
 public class ACNLFileFormat
@@ -507,9 +503,9 @@ public class ACNLFileFormat
 		}
 	}
 
-	public Bitmap GetImage()
+	public TextureBitmap GetImage()
 	{
-		var bmp = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+		var bmp = new TextureBitmap(Width, Height);
 		for (var y = 0; y < Height; y++)
 		{
 			for (var x = 0; x < Width; x++)
@@ -521,9 +517,9 @@ public class ACNLFileFormat
 					index = (byte) ((Pixels[(x / 2) + y * (Width / 2)] & 0xF0) >> 4);
 
 				if (index == 15)
-					bmp.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
+					bmp.SetPixel(x, y, new TextureBitmap.Color(0, 0, 0, 0));
 				else 
-					bmp.SetPixel(x, y, Color.FromArgb(Colors[Palette[index]].R, Colors[Palette[index]].G, Colors[Palette[index]].B));
+					bmp.SetPixel(x, y, new TextureBitmap.Color(Colors[Palette[index]].R, Colors[Palette[index]].G, Colors[Palette[index]].B, 255));
 			}
 		}
 		return bmp;

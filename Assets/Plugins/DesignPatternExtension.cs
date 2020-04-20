@@ -1,7 +1,6 @@
 ﻿using MyHorizons.Data;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,47 +51,34 @@ public static class DesignPatternExtension
 		return ret;
 	}
 
-	public static System.Drawing.Bitmap GetBitmap(this DesignPattern pattern)
+	public static TextureBitmap GetBitmap(this DesignPattern pattern)
 	{
 		int width = pattern.Width;
 		int height = pattern.Height;
 
-		var bitmap = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-		var data = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-		var pixelSize = data.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb ? 4 : 3;
-		var padding = data.Stride - (data.Width * pixelSize);
-
+		var bitmap = new TextureBitmap(width, height);
+		
 		unsafe
 		{
-			byte* ptr = (byte*) data.Scan0.ToPointer();
+			TextureBitmap.Color* ptr = bitmap.GetColors();
 
-			var index = 0;
-			for (var y = 0; y < data.Height; y++)
+			for (var y = 0; y < height; y++)
 			{
-				for (var x = 0; x < data.Width; x++)
+				for (var x = 0; x < width; x++)
 				{
 					var b = pattern.GetPixel(x, y);
 					if (b == 15)
 					{
-						*(ptr + index + 2) = 0;
-						*(ptr + index + 1) = 0;
-						*(ptr + index + 0) = 0;
-						*(ptr + index + 3) = 0;
+						*(ptr + x + (height - 1 - y) * width) = new TextureBitmap.Color(0, 0, 0, 0);
 					}
 					else
 					{
 						var c = pattern.Palette[b];
-						*(ptr + index + 2) = c.R;
-						*(ptr + index + 1) = c.G;
-						*(ptr + index + 0) = c.B;
-						*(ptr + index + 3) = 255;
+						*(ptr + x + (height - 1 - y) * width) = new TextureBitmap.Color(c.R, c.G, c.B, 255);
 					}
-					index += pixelSize;
 				}
-				index += padding;
 			}
 		}
-		bitmap.UnlockBits(data);
 		return bitmap;
 	}
 
@@ -140,9 +126,9 @@ public static class DesignPatternExtension
 		return UnityEngine.Sprite.Create(texture, new Rect(0, 0, pattern.Width, pattern.Height), new Vector2(0.5f, 0.5f));
 	}
 
-	public static void FromBitmap(this DesignPattern pattern, Bitmap bitmap)
+	public static void FromBitmap(this DesignPattern pattern, TextureBitmap bitmap)
 	{
-		Dictionary<System.Drawing.Color, byte> colorMap = new Dictionary<System.Drawing.Color, byte>();
+		Dictionary<TextureBitmap.Color, byte> colorMap = new Dictionary<TextureBitmap.Color, byte>();
 		for (int i = 0; i < 15; i++)
 		{
 			pattern.Palette[i].R = 0;
@@ -152,34 +138,40 @@ public static class DesignPatternExtension
 
 		int width = pattern.Width;
 		int height = pattern.Height;
-		pattern.Pixels = new byte[width * height];
-		for (var y = 0; y < width; y++)
+		unsafe
 		{
-			for (var x = 0; x < height; x++)
+			var colors = bitmap.GetColors();
+			pattern.Pixels = new byte[width * height];
+			int bitmapHeight = bitmap.Height;
+			int bitmapWidth = bitmap.Width;
+			for (var y = 0; y < width; y++)
 			{
-				var pixelColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
-				if (x < bitmap.Width && y < bitmap.Height)
-					pixelColor = bitmap.GetPixel(x, y);
-
-				
-				byte index = 0xF;
-				if (pixelColor.A == 255)
+				for (var x = 0; x < height; x++)
 				{
-					if (colorMap.ContainsKey(pixelColor))
-						index = colorMap[pixelColor];
-					else
-					{
-						index = (byte) colorMap.Count;
-						pattern.Palette[index].R = pixelColor.R;
-						pattern.Palette[index].G = pixelColor.G;
-						pattern.Palette[index].B = pixelColor.B;
-						colorMap.Add(pixelColor, index);
-					}
-				}
+					var pixelColor = new TextureBitmap.Color(0, 0, 0, 0);
+					if (x < bitmapWidth && y < bitmapHeight)
+						pixelColor = colors[x + (bitmapHeight - 1 - y) * bitmapHeight];
 
-				pattern.SetPixel(x, y, index);
+					byte index = 0xF;
+					if (pixelColor.A == 255)
+					{
+						if (colorMap.ContainsKey(pixelColor))
+							index = colorMap[pixelColor];
+						else
+						{
+							index = (byte) colorMap.Count;
+							pattern.Palette[index].R = pixelColor.R;
+							pattern.Palette[index].G = pixelColor.G;
+							pattern.Palette[index].B = pixelColor.B;
+							colorMap.Add(pixelColor, index);
+						}
+					}
+
+					pattern.SetPixel(x, y, index);
+				}
 			}
 		}
+		
 	}
 
 

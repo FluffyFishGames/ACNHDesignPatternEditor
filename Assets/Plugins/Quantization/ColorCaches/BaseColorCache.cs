@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Drawing;
 using System.Collections.Generic;
 using SimplePaletteQuantizer.ColorCaches.Common;
 
@@ -63,14 +62,14 @@ namespace SimplePaletteQuantizer.ColorCaches
         /// Called when a palette is about to be cached, or precached.
         /// </summary>
         /// <param name="palette">The palette.</param>
-        protected abstract void OnCachePalette(IList<Color> palette);
+        protected abstract void OnCachePalette(IList<TextureBitmap.Color> palette);
 
         /// <summary>
         /// Called when palette index is about to be retrieve for a given color.
         /// </summary>
         /// <param name="color">The color.</param>
         /// <param name="paletteIndex">Index of the palette.</param>
-        protected abstract void OnGetColorPaletteIndex(Color color, out Int32 paletteIndex);
+        protected abstract void OnGetColorPaletteIndex(TextureBitmap.Color color, out Int32 paletteIndex);
 
         #endregion
 
@@ -87,7 +86,7 @@ namespace SimplePaletteQuantizer.ColorCaches
         /// <summary>
         /// See <see cref="IColorCache.CachePalette"/> for more details.
         /// </summary>
-        public void CachePalette(IList<Color> palette)
+        public void CachePalette(IList<TextureBitmap.Color> palette)
         {
             OnCachePalette(palette);
         }
@@ -95,7 +94,7 @@ namespace SimplePaletteQuantizer.ColorCaches
         /// <summary>
         /// See <see cref="IColorCache.GetColorPaletteIndex"/> for more details.
         /// </summary>
-        public void GetColorPaletteIndex(Color color, out Int32 paletteIndex)
+        public void GetColorPaletteIndex(TextureBitmap.Color color, out Int32 paletteIndex)
         {
             Int32 key = color.R << 16 | color.G << 8 | color.B;
 

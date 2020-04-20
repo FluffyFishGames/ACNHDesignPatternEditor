@@ -1,14 +1,9 @@
-﻿using SimplePaletteQuantizer.Helpers;
-using SimplePaletteQuantizer.Quantizers.XiaolinWu;
+﻿using SimplePaletteQuantizer.Quantizers.XiaolinWu;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Importer : MonoBehaviour
+public unsafe class Importer : MonoBehaviour
 {
 	public PixelGrid LeftGrid;
 	public PixelGrid RightGrid;
@@ -27,12 +22,12 @@ public class Importer : MonoBehaviour
 	public TMPro.TMP_InputField XInput;
 	public TMPro.TMP_InputField YInput;
 
-	private System.Action<System.Drawing.Bitmap> OnConfirm;
+	private System.Action<TextureBitmap> OnConfirm;
 	private System.Action OnCancel;
-	private Texture2D Texture;
-	private Texture2D FinishedTexture;
-	private System.Drawing.Bitmap OriginalBitmap;
-	private System.Drawing.Bitmap FinishedBitmap;
+	private TextureBitmap OriginalBitmap;
+	private TextureBitmap LeftBitmap;
+	private TextureBitmap RightBitmap;
+
 	private int Contrast = 50;
 	private int Saturation = 50;
 	private int Brightness = 50;
@@ -41,13 +36,14 @@ public class Importer : MonoBehaviour
 	private float SizeOffset = 0f;
 	private (int, int, int, int) Rect;
 	private (int, int) ResultSize;
-	private byte[] Colors;
+	private TextureBitmap.Color* Colors;
 
-	public void Show(System.Drawing.Bitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<System.Drawing.Bitmap> onConfirm, System.Action onCancel)
+	public void Show(TextureBitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<TextureBitmap> onConfirm, System.Action onCancel)
 	{
 		Rect = rect;
 		ResultSize = resultSize;
 		OriginalBitmap = bitmap;
+		Colors = OriginalBitmap.GetColors();
 
 		BrightnessSlider.value = 0;
 		ContrastSlider.value = 0;
@@ -71,26 +67,35 @@ public class Importer : MonoBehaviour
 		OnConfirm = onConfirm;
 		OnCancel = onCancel;
 
-		var leftBitmap = new System.Drawing.Bitmap(ResultSize.Item1, ResultSize.Item2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-		using (System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(leftBitmap))
-		{
-			graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-			graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-			graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-			//draw the image into the target bitmap
-			graphics.DrawImage(bitmap, new System.Drawing.Rectangle(0, 0, ResultSize.Item1, ResultSize.Item2), new System.Drawing.Rectangle(Rect.Item1, Rect.Item2, Rect.Item3, Rect.Item4), System.Drawing.GraphicsUnit.Pixel);
-		}
+		LeftBitmap = new TextureBitmap(ResultSize.Item1, ResultSize.Item2);
 
-		Texture = leftBitmap.ToTexture2D(Texture);
-		Texture.filterMode = FilterMode.Point;
-		leftBitmap.Dispose();
+		var colors = LeftBitmap.GetColors();
+		int w = LeftBitmap.Width;
+		int h = LeftBitmap.Height;
+		int ow = OriginalBitmap.Width;
+		for (var y = 0; y < h; y++)
+		{
+			for (var x = 0; x < w; x++)
+			{
+				float originalX = ((float) Rect.Item1) + x * ((((float) Rect.Item3)) / ((float) ResultSize.Item1));
+				float originalY = ((float) Rect.Item2) + y * ((((float) Rect.Item4)) / ((float) ResultSize.Item2));
+				int px = Mathf.RoundToInt(originalX);
+				int py = Mathf.RoundToInt(originalY);
+
+				var col = Colors[(px + py * ow)];
+				*(colors + x + y * w) = col;
+			}
+		}
+		LeftBitmap.Texture.filterMode = FilterMode.Point;
+		LeftBitmap.Apply();
+
+		RightBitmap = new TextureBitmap(ResultSize.Item1, ResultSize.Item2);
 
 		float pixelSize = (384f / ((float) ResultSize.Item1));
 		LeftGrid.SetSize(ResultSize.Item1, ResultSize.Item2, pixelSize);
-		LeftGrid.PixelImage.texture = Texture;
+		LeftGrid.PixelImage.texture = LeftBitmap.Texture;
 
 		RightGrid.SetSize(ResultSize.Item1, ResultSize.Item2, pixelSize);
-		Colors = OriginalBitmap.GetBytes();
 
 		gameObject.SetActive(true);
 		UpdateTarget();
@@ -114,93 +119,52 @@ public class Importer : MonoBehaviour
 	void UpdateTarget()
 	{
 		if (Colors == null) return;
-		var bitmap = new System.Drawing.Bitmap(ResultSize.Item1, ResultSize.Item2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-		var data = bitmap.LockBits(new System.Drawing.Rectangle(System.Drawing.Point.Empty, bitmap.Size), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-		var pixelSize = data.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb ? 4 : 3;
-		var padding = data.Stride - (data.Width * pixelSize);
-
+		RightBitmap.Clear();
+		
 		float sizeOffset = SizeOffset * (Rect.Item3 / ResultSize.Item1);
 		float xOffset = XOffset * (Rect.Item3 / ResultSize.Item1);
 		float yOffset = YOffset * (Rect.Item3 / ResultSize.Item1);
+		int ow = OriginalBitmap.Width;
+		int oh = OriginalBitmap.Height;
+		int w = RightBitmap.Width;
+		int h = RightBitmap.Height;
+
+		var contrast = (259f * (Contrast + 255f)) / (255f * (259f - Contrast));
 		unsafe
 		{
-			byte* ptr = (byte*) data.Scan0.ToPointer();
-
+			var colors = RightBitmap.GetColors();
 			var index = 0;
-			for (var y = 0; y < data.Height; y++)
+			for (var y = 0; y < h; y++)
 			{
-				for (var x = 0; x < data.Width; x++)
+				for (var x = 0; x < w; x++)
 				{
-
 					float originalX = ((float) Rect.Item1) + xOffset + x * ((((float) Rect.Item3) + sizeOffset) / ((float) ResultSize.Item1));
 					float originalY = ((float) Rect.Item2) + yOffset + y * ((((float) Rect.Item4) + sizeOffset) / ((float) ResultSize.Item2));
 					int px = Mathf.RoundToInt(originalX);
 					int py = Mathf.RoundToInt(originalY);
 
-					*(ptr + index + 2) = Colors[(px + py * OriginalBitmap.Width) * 4 + 0];
-					*(ptr + index + 1) = Colors[(px + py * OriginalBitmap.Width) * 4 + 1];
-					*(ptr + index + 0) = Colors[(px + py * OriginalBitmap.Width) * 4 + 2];
-					*(ptr + index + 3) = Colors[(px + py * OriginalBitmap.Width) * 4 + 3];
-					index += pixelSize;
-				}
-				index += padding;
-			}
-		}
-		bitmap.UnlockBits(data);
-
-		var quantizer = new WuColorQuantizer();
-
-		data = bitmap.LockBits(new System.Drawing.Rectangle(System.Drawing.Point.Empty, bitmap.Size), System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-		pixelSize = data.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb ? 4 : 3;
-		padding = data.Stride - (data.Width * pixelSize);
-
-		var contrast = (259f * (Contrast + 255f)) / (255f * (259f - Contrast));
-		unsafe
-		{
-			byte* ptr = (byte*) data.Scan0.ToPointer();
-
-			var index = 0;
-			for (var y = 0; y < data.Height; y++)
-			{
-				for (var x = 0; x < data.Width; x++)
-				{
-					int r = *(ptr + index + 2);
-					int g = *(ptr + index + 1);
-					int b = *(ptr + index + 0);
-					int a = *(ptr + index + 3);
-					r = (int) (contrast * (r - 128) + 128) + Brightness * 4;
-					g = (int) (contrast * (g - 128) + 128) + Brightness * 4;
-					b = (int) (contrast * (b - 128) + 128) + Brightness * 4;
-					r = Math.Min(255, Math.Max(0, r));
-					g = Math.Min(255, Math.Max(0, g));
-					b = Math.Min(255, Math.Max(0, b));
-					var hsl = RGBToHSL((r, g, b));
-					/*if (Brightness < 0)
-						hsl.Item3 *= 1f - (Brightness / -50f);
-					else
-						hsl.Item3 *= 1f + (Brightness / 10f);
-						*/
+					var col = Colors[(px + py * ow)];
+					col.R = (byte) Math.Min(255, Math.Max(0, (contrast * (col.R - 128) + 128) + Brightness * 4));
+					col.G = (byte) Math.Min(255, Math.Max(0, (contrast * (col.G - 128) + 128) + Brightness * 4));
+					col.B = (byte) Math.Min(255, Math.Max(0, (contrast * (col.B - 128) + 128) + Brightness * 4));
+					var hsl = RGBToHSL((col.R, col.G, col.B));
 					hsl.Item2 *= (Saturation) / 100.0;
-
 					hsl.Item1 = Math.Max(0f, Math.Min(1, hsl.Item1));
 					hsl.Item2 = Math.Max(0f, Math.Min(1, hsl.Item2));
 					hsl.Item3 = Math.Max(0f, Math.Min(1, hsl.Item3));
-
 					var rgb = HSLToRGB(hsl);
-					*(ptr + index + 2) = (byte) rgb.Item1;
-					*(ptr + index + 1) = (byte) rgb.Item2;
-					*(ptr + index + 0) = (byte) rgb.Item3;
-					index += pixelSize;
+					col.R = rgb.Item1;
+					col.G = rgb.Item2;
+					col.B = rgb.Item3;
+					*(colors + x + y * w) = col;
 				}
-				index += padding;
 			}
 		}
-		bitmap.UnlockBits(data);
 
-		FinishedBitmap = (System.Drawing.Bitmap) ImageBuffer.QuantizeImage(bitmap, quantizer, 15, 1);
-		FinishedTexture = FinishedBitmap.ToTexture2D(FinishedTexture);
-		FinishedTexture.filterMode = FilterMode.Point;
-		RightGrid.PixelImage.texture = FinishedTexture;
+		RightBitmap.Quantize(new WuColorQuantizer(), 15);
+		RightBitmap.Texture.filterMode = FilterMode.Point;
+		RightBitmap.Apply();
+		RightGrid.PixelImage.texture = RightBitmap.Texture;
 	}
 
 	public void Hide()
@@ -324,12 +288,17 @@ public class Importer : MonoBehaviour
 
 		CancelButton.OnClick = () =>
 		{
+			Colors = null;
+			LeftBitmap.Dispose();
+			RightBitmap.Dispose();
 			OnCancel?.Invoke();
 		};
 
 		SaveButton.OnClick = () =>
 		{
-			OnConfirm?.Invoke(FinishedBitmap);
+			Colors = null;
+			LeftBitmap.Dispose();
+			OnConfirm?.Invoke(RightBitmap);
 		};
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 
 namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
 {
@@ -38,9 +37,9 @@ namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
         /// <summary>
         /// Initializes a new instance of the <see cref="DistinctColorInfo"/> struct.
         /// </summary>
-        public DistinctColorInfo(Color color)
+        public DistinctColorInfo(TextureBitmap.Color color)
         {
-            Color = color.ToArgb();
+            Color = color.ToARGB();
             Count = 1;
 
             Hue = Convert.ToInt32(color.GetHue()*Factor);

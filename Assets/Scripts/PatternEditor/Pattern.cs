@@ -3,7 +3,6 @@ using SimplePaletteQuantizer.ColorCaches;
 using SimplePaletteQuantizer.ColorCaches.EuclideanDistance;
 using SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash;
 using SimplePaletteQuantizer.ColorCaches.Octree;
-using SimplePaletteQuantizer.Helpers;
 using SimplePaletteQuantizer.Quantizers;
 using SimplePaletteQuantizer.Quantizers.DistinctSelection;
 using SimplePaletteQuantizer.Quantizers.MedianCut;
@@ -12,30 +11,32 @@ using SimplePaletteQuantizer.Quantizers.Popularity;
 using SimplePaletteQuantizer.Quantizers.XiaolinWu;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 public class Pattern
 {
 	public PatternEditor Editor;
 	public List<SubPattern> SubPatterns;
-	public UnityEngine.Color[] Colors;
 	public IColorQuantizer Quantizer;
 	public IColorCache ColorCache;
+	public TextureBitmap Bitmap;
+	public TextureBitmap PreviewBitmap;
+	public TextureBitmap UpscaledPreviewBitmap;
 
 	private DesignPattern DesignPattern;
 	private DesignPatternInformation.DesignPatternInfo Info;
 	private bool IsParsing = false;
 	private bool IsReady = false;
-	private Bitmap Result;
 	private UnityEngine.Texture2D UpscaledPreviewTexture;
 	private UnityEngine.Texture2D PreviewTexture;
 	private UnityEngine.Sprite PreviewSprite;
 	private int _CurrentSubPattern;
+	private bool Disposed = false;
+	private Thread PreviewThread;
+	private bool Reparse;
+	private bool NeedReparse;
+	private ManualResetEvent ReparseLock = new ManualResetEvent(false);
 
 	private static List<IColorQuantizer> Quantizers = new List<IColorQuantizer>() {
 		new WuColorQuantizer(),
@@ -78,19 +79,66 @@ public class Pattern
 
 	public Pattern(PatternEditor editor, DesignPattern pattern)
 	{
+		PreviewThread = new Thread(() =>
+		{
+			while (true)
+			{
+				ReparseLock.WaitOne();
+				if (Disposed) return;
+				ReparseLock.Reset();
+				if (Quantizer is BaseColorCacheQuantizer colorCacheQuantizer)
+					colorCacheQuantizer.ChangeCacheProvider(ColorCache);
+
+				this.PreviewBitmap.CopyFrom(this.Bitmap);
+				this.PreviewBitmap.Quantize(Quantizer, 16);
+
+				int[] src = this.PreviewBitmap.ConvertToInt();
+				int[] target = new int[UpscaledPreviewBitmap.Width * UpscaledPreviewBitmap.Height];
+				Scaler.ScaleImage(4, src, target, this.PreviewBitmap.Width, this.PreviewBitmap.Height, new xBRZNet.ScalerCfg(), 0, int.MaxValue);
+
+				this.UpscaledPreviewBitmap.FromInt(target);
+				IsReady = true;
+				IsParsing = false;
+			}
+		});
+		PreviewThread.Start();
+
 		_Type = pattern.Type;
-		Result = new Bitmap(1, 1);
+		Bitmap = new TextureBitmap(pattern.Width, pattern.Height);
+		Bitmap.Clear();
+		PreviewBitmap = new TextureBitmap(pattern.Width, pattern.Height);
+		PreviewBitmap.Clear();
+		PreviewSprite = UnityEngine.Sprite.Create(PreviewBitmap.Texture, new UnityEngine.Rect(0, 0, PreviewBitmap.Width, PreviewBitmap.Height), new UnityEngine.Vector2(0.5f, 0.5f));
+
+		UpscaledPreviewBitmap = new TextureBitmap(pattern.Width * 4, pattern.Height * 4);
+		UpscaledPreviewBitmap.Clear();
+
 		Quantizer = Quantizers[0];
 		ColorCache = ColorCaches[0];
 
 		Editor = editor;
 		DesignPattern = pattern;
-		Colors = pattern.GetPixels();
+		var colors = pattern.GetPixels();
 
+		unsafe
+		{
+			var bitmapColors = Bitmap.GetColors();
+			for (int y = 0; y < Height; y++)
+			{
+				for (int x = 0; x < Width; x++)
+				{
+					var col = new TextureBitmap.Color(
+						(byte) (colors[x + y * Width].r * 255f),
+						(byte) (colors[x + y * Width].g * 255f),
+						(byte) (colors[x + y * Width].b * 255f),
+						(byte) (colors[x + y * Width].a * 255f)
+					);
+					*(bitmapColors + x + (Height - 1 - y) * Width) = col;
+				}
+			}
+		}
 		Info = DesignPatternInformation.Types[pattern.Type];
 
-		UpscaledPreviewTexture = new UnityEngine.Texture2D(Width * 4, Height * 4, UnityEngine.TextureFormat.RGB24, false);
-		PreviewTexture = new UnityEngine.Texture2D(Width, Height, UnityEngine.TextureFormat.ARGB32, false);
 	}
 
 	public void Load()
@@ -102,7 +150,7 @@ public class Pattern
 		Editor.SetSize(CurrentSubPattern.Width, CurrentSubPattern.Height);
 		CurrentSubPattern.SelectLayer(0);
 		CurrentSubPattern.UpdateImage();
-		this.RegeneratePreview();
+		NeedReparse = true;
 		Editor.LayersChanged();
 		Editor.SubPatternChanged(CurrentSubPattern.Part);
 		Editor.Tools.HistoryChanged(CurrentSubPattern.History);
@@ -111,13 +159,13 @@ public class Pattern
 	public void ChangeQuantizer(int num)
 	{
 		Quantizer = Quantizers[num];
-		RegeneratePreview();
+		NeedReparse = true;
 	}
 
 	public void ChangeColorCache(int num)
 	{
 		ColorCache = ColorCaches[num];
-		RegeneratePreview();
+		NeedReparse = true;
 	}
 
 	public void NextSubPattern()
@@ -158,7 +206,25 @@ public class Pattern
 		p.IsPro = this.Type != DesignPattern.TypeEnum.SimplePattern;
 		p.Pixels = new byte[p.Width / 2 * p.Height];
 		p.Empty();
-		Colors = p.GetPixels();
+		var colors = p.GetPixels();
+
+		unsafe
+		{
+			var bitmapColors = Bitmap.GetColors();
+			for (int y = 0; y < Height; y++)
+			{
+				for (int x = 0; x < Width; x++)
+				{
+					var col = new TextureBitmap.Color(
+						(byte) (colors[x + y * Width].r * 255f),
+						(byte) (colors[x + y * Width].g * 255f),
+						(byte) (colors[x + y * Width].b * 255f),
+						(byte) (colors[x + y * Width].a * 255f)
+					);
+					*(bitmapColors + x + y * Width) = col;
+				}
+			}
+		}
 		Load();
 	}
 
@@ -167,7 +233,7 @@ public class Pattern
 		using (MemoryStream stream = new MemoryStream())
 		{
 			BinaryWriter writer = new BinaryWriter(stream);
-			writer.Write((byte) 0x00); // version
+			writer.Write((byte) 0x01); // version
 			writer.Write((byte) this.Type); // type;
 			writer.Write((byte) Quantizers.IndexOf(Quantizer));
 			writer.Write((byte) ColorCaches.IndexOf(ColorCache));
@@ -184,14 +250,20 @@ public class Pattern
 						writer.Write(sol.ObjectY);
 						writer.Write(sol.ObjectWidth);
 						writer.Write(sol.ObjectHeight);
-						writer.Write((byte) SmartObjectLayer.Crops.IndexOf(sol.Crop));
-						writer.Write((byte) SmartObjectLayer.Resamplers.IndexOf(sol.Resampler));
+						writer.Write((byte) sol.Crop);
+						writer.Write((byte) sol.Resampler);
 						var nameBytes = System.Text.Encoding.UTF8.GetBytes(sol.Name);
 						writer.Write(nameBytes.Length);
 						writer.Write(nameBytes);
 						writer.Write(sol.Bitmap.Width);
 						writer.Write(sol.Bitmap.Height);
-						writer.Write(sol.Bitmap.GetBytes());
+						int m = sol.Bitmap.Width * sol.Bitmap.Height * sol.Bitmap.PixelSize;
+						unsafe 
+						{
+							byte* ptr = (byte*) sol.Bitmap.Bytes.ToPointer();
+							for (int k = 0; k < m; k++)
+								writer.Write(*(ptr + k));
+						}
 					}
 					else
 					{
@@ -199,15 +271,12 @@ public class Pattern
 						var nameBytes = System.Text.Encoding.UTF8.GetBytes(layer.Name);
 						writer.Write(nameBytes.Length);
 						writer.Write(nameBytes);
-						for (int y = 0; y < layer.Height; y++)
+						unsafe
 						{
-							for (int x = 0; x < layer.Width; x++)
-							{
-								writer.Write(((byte) (layer.Colors[x + y * layer.Width].r * 255f)));
-								writer.Write(((byte) (layer.Colors[x + y * layer.Width].g * 255f)));
-								writer.Write(((byte) (layer.Colors[x + y * layer.Width].b * 255f)));
-								writer.Write(((byte) (layer.Colors[x + y * layer.Width].a * 255f)));
-							}
+							int m = layer.Width * layer.Height;
+							byte* ptr = (byte*) layer.Texture.Bytes.ToPointer();
+							for (int k = 0; k < m; k++)
+								writer.Write(*(ptr + k));
 						}
 					}
 				}
@@ -257,13 +326,21 @@ public class Pattern
 							int bitmapWidth = reader.ReadInt32();
 							int bitmapHeight = reader.ReadInt32();
 							byte[] bitmapPixels = reader.ReadBytes(bitmapWidth * bitmapHeight * 4);
-							var bitmap = new System.Drawing.Bitmap(bitmapWidth, bitmapHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-							bitmap.FromBytes(bitmapPixels);
+							var bitmap = new TextureBitmap(bitmapWidth, bitmapHeight);
+							int m = bitmapWidth * bitmapHeight * bitmap.PixelSize;
+							unsafe
+							{
+								byte* ptr = (byte*) bitmap.Bytes.ToPointer();
+								for (int k = 0; k < m; k++)
+									*(ptr + k) = bitmapPixels[k];
+							}
+							if (version == 0)
+								bitmap.FlipY();
 							SmartObjectLayer layer = new SmartObjectLayer(subPattern, name, bitmap, objectX, objectY, objectW, objectH);
 							subPattern.Layers.Add(layer);
-							layer.Crop = SmartObjectLayer.Crops[crop];
-							layer.Resampler = SmartObjectLayer.Resamplers[resampling];
-							layer.Colors = new UnityEngine.Color[layer.Width * layer.Height]; 
+							layer.Crop = (TextureBitmap.CropMode) crop;
+							layer.Resampler = (ResamplingFilters) resampling;
+							layer.Bitmap = bitmap;
 							layer.UpdateColors();
 							layer.UpdateTexture();
 						}
@@ -272,10 +349,19 @@ public class Pattern
 							int nameLength = reader.ReadInt32();
 							string name = System.Text.Encoding.UTF8.GetString(reader.ReadBytes(nameLength));
 							RasterLayer layer = new RasterLayer(subPattern, name);
-							layer.Colors = new UnityEngine.Color[layer.Width * layer.Height];
-							for (int y = 0; y < layer.Height; y++)
-								for (int x = 0; x < layer.Width; x++)
-									layer.Colors[x + y * layer.Width] = new UnityEngine.Color(reader.ReadByte() / 255f, reader.ReadByte() / 255f, reader.ReadByte() / 255f, reader.ReadByte() / 255f);
+
+							byte[] bitmapPixels = reader.ReadBytes(layer.Width * layer.Height * 4); 
+							layer.Texture = new TextureBitmap(layer.Width, layer.Height);
+							int m = layer.Width * layer.Height * layer.Texture.PixelSize;
+							unsafe
+							{
+								byte* ptr = (byte*) layer.Texture.Bytes.ToPointer();
+								for (int k = 0; k < m; k++)
+									*(ptr + k) = bitmapPixels[k];
+							}
+							if (version == 0)
+								layer.Texture.FlipY();
+
 							layer.UpdateTexture();
 							subPattern.Layers.Add(layer);
 						}
@@ -296,36 +382,9 @@ public class Pattern
 		this.RegeneratePreview();
 	}
 
-	private bool ParseResult()
-	{
-		if (IsReady)
-		{
-			lock (Result)
-			{
-				UnityEngine.Color[] cols = new UnityEngine.Color[Width * Height];
-				System.Drawing.Bitmap resultBitmap;
-				lock (Result)
-				{
-					resultBitmap = (Bitmap) Result.Clone();
-				}
-				PreviewTexture = resultBitmap.ToTexture2D(PreviewTexture);
-				PreviewSprite = UnityEngine.Sprite.Create(PreviewTexture, new UnityEngine.Rect(0, 0, PreviewTexture.width, PreviewTexture.height), new UnityEngine.Vector2(0.5f, 0.5f));
-				resultBitmap.Background(System.Drawing.Color.FromArgb(255, 255, 255));
-				var scaledImage = Scaler.ScaleImage(Result, 4, null);
-				UpscaledPreviewTexture = scaledImage.ToTexture2D(UpscaledPreviewTexture);
-				scaledImage.Dispose();
-				resultBitmap.Dispose();
-				//Result.Dispose();
-				IsReady = false;
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public UnityEngine.Texture2D GetUpscaledPreview()
 	{
-		return UpscaledPreviewTexture;
+		return this.UpscaledPreviewBitmap.Texture;
 	}
 
 	public UnityEngine.Sprite GetPreviewSprite()
@@ -335,7 +394,29 @@ public class Pattern
 
 	public bool Update()
 	{
-		return ParseResult();
+		if (NeedReparse)
+		{
+			if (!IsParsing)
+			{
+				IsParsing = true;
+				ReparseLock.Set();
+				NeedReparse = false;
+			}
+		}
+		if (IsReady)
+		{
+			PreviewBitmap.Apply();
+			UpscaledPreviewBitmap.Apply();
+
+			IsReady = false;
+			return true;
+		}
+		return false;
+	}
+
+	public void RegeneratePreview()
+	{
+		NeedReparse = true;
 	}
 
 	public bool IsVisible(int x, int y)
@@ -356,76 +437,17 @@ public class Pattern
 		return false;
 	}
 
-	public void RegeneratePreview()
-	{
-		if (!this.IsParsing)
-		{
-			IsParsing = true;
-			Thread thread = new Thread(() =>
-			{
-				try
-				{
-					var bitmap = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-					var data = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-					var pixelSize = data.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb ? 4 : 3;
-					var padding = data.Stride - (data.Width * pixelSize);
-
-					List<int> transparentPixels = new List<int>();
-					unsafe
-					{
-						byte* ptr = (byte*) data.Scan0.ToPointer();
-
-						var index = 0;
-						for (var y = 0; y < data.Height; y++)
-						{
-							for (var x = 0; x < data.Width; x++)
-							{
-								if (IsVisible(x, y))
-								{
-									int idx = x + y * Width;
-									(*(ptr + index + 2)) = (byte) (Colors[idx].r * 255f);
-									(*(ptr + index + 1)) = (byte) (Colors[idx].g * 255f);
-									(*(ptr + index + 0)) = (byte) (Colors[idx].b * 255f);
-									(*(ptr + index + 3)) = 255;
-									if (Colors[idx].a == 0f)
-										transparentPixels.Add(idx);
-								}
-								index += pixelSize;
-							}
-							index += padding;
-						}
-					}
-					bitmap.UnlockBits(data);
-
-					if (Quantizer is BaseColorCacheQuantizer colorCacheQuantizer)
-						colorCacheQuantizer.ChangeCacheProvider(ColorCache);
-
-					var targetImage = (Bitmap) ImageBuffer.QuantizeImage(bitmap, Quantizer, null, 15, 1);
-					bitmap.Dispose();
-
-					bitmap = targetImage;
-
-					lock (Result)
-					{
-						if (Result != null)
-							Result.Dispose();
-						Result = bitmap;
-						IsReady = true;
-						IsParsing = false;
-					}
-				}
-				catch (Exception e)
-				{
-					IsParsing = false;
-				}
-			});
-			thread.Start();
-		}
-	}
-
 	public void Dispose()
 	{
-		for (var i = 0; i < SubPatterns.Count; i++)
-			SubPatterns[i].Dispose();
+		if (!Disposed)
+		{
+			Disposed = true;
+			ReparseLock.Set();
+			Bitmap.Dispose();
+			PreviewBitmap.Dispose();
+			UpscaledPreviewBitmap.Dispose();
+			for (var i = 0; i < SubPatterns.Count; i++)
+				SubPatterns[i].Dispose();
+		}
 	}
 }

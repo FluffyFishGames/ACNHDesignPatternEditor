@@ -8,6 +8,6 @@ public interface IBrushDrawable
 {
 	int Width { get; }
 	int Height { get; }
-	UnityEngine.Color[] Colors { get; }
+	TextureBitmap Bitmap { get; }
 	bool IsDrawable(int x, int y);
 }

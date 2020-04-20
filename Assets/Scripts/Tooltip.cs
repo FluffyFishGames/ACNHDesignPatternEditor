@@ -18,8 +18,11 @@ public class Tooltip : MonoBehaviour
 
 	public void Open()
 	{
-		Opened = true;
-		OpenPhase = 0f;
+		if (!Opened)
+		{
+			Opened = true;
+			OpenPhase = 0f;
+		}
 	}
 
 	public void Close()

@@ -39,12 +39,10 @@ public class Layers : MonoBehaviour
 
 		AddLayer.onClick.AddListener(() => {
 			Editor.CurrentPattern.CurrentSubPattern.CreateLayer();
-			//AddNewLayer();
 		});
 
 		DeleteLayer.onClick.AddListener(() => {
 			Editor.CurrentPattern.CurrentSubPattern.DeleteLayer(Editor.CurrentPattern.CurrentSubPattern.SelectedLayer);
-			//DeleteSelectedLayer();
 		});
 
 		ImportLayer.onClick.AddListener(() => {
@@ -133,37 +131,12 @@ public class Layers : MonoBehaviour
 				{
 					try
 					{
-						System.Drawing.Bitmap bmp = null;
-						var imageStream = new System.IO.FileStream(path[0], System.IO.FileMode.Open, System.IO.FileAccess.Read);
-						byte[] fourBytes = new byte[4];
-						imageStream.Read(fourBytes, 0, 4);
-						if (fourBytes[0] == 0x52 && fourBytes[1] == 0x49 && fourBytes[2] == 0x46 && fourBytes[3] == 0x46)
-						{
-							var bytes = System.IO.File.ReadAllBytes(path[0]);
-							int webpWidth;
-							int webpHeight;
-							WebP.Error error;
-							WebP.Texture2DExt.GetWebPDimensions(bytes, out webpWidth, out webpHeight);
-							var colorData = WebP.Texture2DExt.LoadRGBAFromWebP(bytes, ref webpWidth, ref webpHeight, false, out error);
-							bmp = new System.Drawing.Bitmap(webpWidth, webpHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-							bmp.FromBytes(colorData);
-							/*using (WebP webp = new WebP())
-								bmp = webp.Load(path[0]);*/
-							imageStream.Close();
-							imageStream.Dispose();
-						}
-						else
-						{
-							bmp = new System.Drawing.Bitmap(System.Drawing.Image.FromFile(path[0]));
-							imageStream.Close();
-							imageStream.Dispose();
-						}
 						int x = 0;
 						int y = 0;
 						int width = Editor.CurrentPattern.CurrentSubPattern.Width;
 						int height = Editor.CurrentPattern.CurrentSubPattern.Height;
+						var bmp = TextureBitmap.Load(path[0]);
 						var newLayer = new SmartObjectLayer(Editor.CurrentPattern.CurrentSubPattern, System.IO.Path.GetFileNameWithoutExtension(path[0]), bmp, x, y, width, height);
-						newLayer.Colors = new UnityEngine.Color[width * height];
 						newLayer.UpdateColors();
 						var index = Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(Editor.CurrentPattern.CurrentSubPattern.SelectedLayer) + 1;
 						Editor.CurrentPattern.CurrentSubPattern.Layers.Insert(index, newLayer);

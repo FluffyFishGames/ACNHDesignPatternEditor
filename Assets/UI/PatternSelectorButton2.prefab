@@ -159,6 +159,7 @@ GameObject:
   - component: {fileID: 1277016902227705440}
   - component: {fileID: 1277016902227705447}
   - component: {fileID: -31379323065860119}
+  - component: {fileID: 2231932311987661917}
   m_Layer: 5
   m_Name: PatternSelectorButton2
   m_TagString: Untagged
@@ -203,6 +204,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PatternSelector: {fileID: 0}
+  TooltipHandler: {fileID: 2231932311987661917}
 --- !u!222 &1277016902227705440
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -252,6 +254,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Cursor: 1
+--- !u!114 &2231932311987661917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277016902227705444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63d8fbeaa87926d438a3c11337fe5893, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Tooltip: 
+  Offset: {x: 0, y: 50}
 --- !u!1 &1277016902766390720
 GameObject:
   m_ObjectHideFlags: 0

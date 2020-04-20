@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using SimplePaletteQuantizer.ColorCaches;
 using SimplePaletteQuantizer.ColorCaches.Octree;
@@ -32,14 +31,14 @@ namespace SimplePaletteQuantizer.Quantizers.Popularity
     {
         #region | Fields |
 
-        private List<Color> palette;
+        private List<TextureBitmap.Color> palette;
         private ConcurrentDictionary<Int32, PopularityColorSlot> colorMap;
 
         #endregion
 
         #region | Methods |
 
-        private static Int32 GetColorIndex(Color color)
+        private static Int32 GetColorIndex(TextureBitmap.Color color)
         {
             // determines the index by splitting the RGB cube to 4x4x4 (1 >> 2 = 4)
             Int32 redIndex = color.R >> 2;
@@ -57,18 +56,18 @@ namespace SimplePaletteQuantizer.Quantizers.Popularity
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnPrepare"/> for more details.
         /// </summary>
-        protected override void OnPrepare(ImageBuffer image)
+        protected override void OnPrepare(TextureBitmap image)
         {
             base.OnPrepare(image);
 
-            palette = new List<Color>();
+            palette = new List<TextureBitmap.Color>();
             colorMap = new ConcurrentDictionary<Int32, PopularityColorSlot>();
         }
 
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnAddColor"/> for more details.
         /// </summary>
-        protected override void OnAddColor(Color color, Int32 key, Int32 x, Int32 y)
+        protected override void OnAddColor(TextureBitmap.Color color, Int32 key, Int32 x, Int32 y)
         {
             base.OnAddColor(color, key, x, y);
             Int32 index = GetColorIndex(color);
@@ -87,7 +86,7 @@ namespace SimplePaletteQuantizer.Quantizers.Popularity
         /// <summary>
         /// See <see cref="BaseColorCacheQuantizer.OnGetPaletteToCache"/> for more details.
         /// </summary>
-        protected override List<Color> OnGetPaletteToCache(Int32 colorCount)
+        protected override List<TextureBitmap.Color> OnGetPaletteToCache(Int32 colorCount)
         {
             // use fast random class
             FastRandom random = new FastRandom(0);
@@ -95,7 +94,7 @@ namespace SimplePaletteQuantizer.Quantizers.Popularity
             // NOTE: I've added a little randomization here, as it was performing terribly otherwise.
             // sorts out the list by a pixel presence, takes top N slots, and calculates 
             // the average color from them, thus our new palette.
-            IEnumerable<Color> colors = colorMap.
+            IEnumerable<TextureBitmap.Color> colors = colorMap.
                  OrderBy(entry => random.Next(colorMap.Count)).
                  OrderByDescending(entry => entry.Value.PixelCount).
                  Take(colorCount).

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using SimplePaletteQuantizer.ColorCaches;
 using SimplePaletteQuantizer.Helpers;
 
@@ -87,7 +86,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
         /// <summary>
         /// See <see cref="IColorQuantizer.Prepare"/> for more details.
         /// </summary>
-        protected override void OnPrepare(ImageBuffer image)
+        protected override void OnPrepare(TextureBitmap image)
         {
             base.OnPrepare(image);
 
@@ -106,7 +105,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
         /// <summary>
         /// See <see cref="BaseColorCacheQuantizer.OnGetPaletteToCache"/> for more details.
         /// </summary>
-        protected override List<Color> OnGetPaletteToCache(Int32 colorCount)
+        protected override List<TextureBitmap.Color> OnGetPaletteToCache(Int32 colorCount)
         {
             // creates the initial cube covering all the pixels in the image
             MedianCutCube initalMedianCutCube = new MedianCutCube(UniqueColors.Keys);
@@ -122,7 +121,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
             }
 
             // initializes the result palette
-            List<Color> result = new List<Color>();
+            List<TextureBitmap.Color> result = new List<TextureBitmap.Color>();
             Int32 paletteIndex = 0;
 
             // adds all the cubes' colors to the palette, and mark that cube with palette index for later use
@@ -161,7 +160,7 @@ namespace SimplePaletteQuantizer.Quantizers.MedianCut
         /// <summary>
         /// See <see cref="IColorQuantizer.GetPaletteIndex"/> for more details.
         /// </summary>
-        public void GetPaletteIndex(Color color, out Int32 paletteIndex)
+        public void GetPaletteIndex(TextureBitmap.Color color, out Int32 paletteIndex)
         {
             paletteIndex = 0;
             color = QuantizationHelper.ConvertAlpha(color);

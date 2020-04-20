@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,12 +14,17 @@ public class LineTool : ITool
 
 	public void Destroyed(){}
 
-	private UnityEngine.Color[] OldColors;
+	private IntPtr OldColors;
 
 	public void MouseDown(int x, int y)
 	{
-		OldColors = new UnityEngine.Color[Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors.Length];
-		System.Array.Copy(Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors, OldColors, OldColors.Length);
+		var layer = Editor.CurrentPattern.CurrentSubPattern.SelectedLayer;
+		var size = layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize;
+		OldColors = Marshal.AllocHGlobal(size);
+		unsafe
+		{
+			System.Buffer.MemoryCopy(layer.Texture.Bytes.ToPointer(), OldColors.ToPointer(), size, size);
+		}
 
 		if (this.Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is RasterLayer rasterLayer)
 		{
@@ -31,8 +37,7 @@ public class LineTool : ITool
 
 	public void MouseDrag(int x, int y, int previousX, int previousY)
 	{
-		for (int i = 0; i < TemporaryLayer.Colors.Length; i++)
-			TemporaryLayer.Colors[i] = new UnityEngine.Color(1f, 1f, 1f, 0f);
+		TemporaryLayer.Bitmap.Clear();
 		TemporaryLayer.DrawLine(StartX, StartY, x, y, Editor.CurrentColor);
 		Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
 	}
@@ -49,7 +54,14 @@ public class LineTool : ITool
 			Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
 			TemporaryLayer = null;
 
-			Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.ChangedLayerAction("Line", Editor.CurrentPattern.CurrentSubPattern.SelectedLayerIndex, OldColors, Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors));
+			var layer = Editor.CurrentPattern.CurrentSubPattern.SelectedLayer;
+			var size = layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize;
+			var newColors = Marshal.AllocHGlobal(size);
+			unsafe
+			{
+				System.Buffer.MemoryCopy(layer.Texture.Bytes.ToPointer(), newColors.ToPointer(), size, size);
+			}
+			Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.ChangedLayerAction("Line", Editor.CurrentPattern.CurrentSubPattern.SelectedLayerIndex, OldColors, newColors));
 		}
 	}
 

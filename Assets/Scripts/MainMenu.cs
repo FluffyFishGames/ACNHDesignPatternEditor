@@ -83,7 +83,8 @@ public class MainMenu : MonoBehaviour
 				if (Controller.Instance.CurrentState == Controller.State.MainMenu)
 				{
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "main.dat", false, (path) =>
+					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "dat", false, (path) =>
+//					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "main.dat", false, (path) =>
 #elif UNITY_EDITOR || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
 					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "dat", false, (path) =>
 #endif

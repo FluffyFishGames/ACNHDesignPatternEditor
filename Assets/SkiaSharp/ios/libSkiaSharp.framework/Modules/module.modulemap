@@ -1,0 +1,6 @@
+framework module libSkiaSharp {
+  umbrella header "libSkiaSharp.h"
+
+  export *
+  module * { export * }
+}

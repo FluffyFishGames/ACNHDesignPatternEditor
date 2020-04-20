@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using SimplePaletteQuantizer.Helpers;
 
@@ -67,7 +66,7 @@ namespace SimplePaletteQuantizer.Quantizers.Octree
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnPrepare"/> for more details.
         /// </summary>
-        protected override void OnPrepare(ImageBuffer image)
+        protected override void OnPrepare(TextureBitmap image)
         {
             base.OnPrepare(image);
 
@@ -77,7 +76,7 @@ namespace SimplePaletteQuantizer.Quantizers.Octree
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnAddColor"/> for more details.
         /// </summary>
-        protected override void OnAddColor(Color color, Int32 key, Int32 x, Int32 y)
+        protected override void OnAddColor(TextureBitmap.Color color, Int32 key, Int32 x, Int32 y)
         {
             root.AddColor(color, 0, this);
         }
@@ -85,14 +84,14 @@ namespace SimplePaletteQuantizer.Quantizers.Octree
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnGetPalette"/> for more details.
         /// </summary>
-        protected override List<Color> OnGetPalette(Int32 colorCount)
+        protected override List<TextureBitmap.Color> OnGetPalette(Int32 colorCount)
         {
             // use optimized palette, if any
-            List<Color> optimizedPalette = base.OnGetPalette(colorCount);
+            List<TextureBitmap.Color> optimizedPalette = base.OnGetPalette(colorCount);
             if (optimizedPalette != null) return optimizedPalette;
 
             // otherwise let's get to build one
-            List<Color> result = new List<Color>();
+            List<TextureBitmap.Color> result = new List<TextureBitmap.Color>();
             Int32 leafCount = Leaves.Count();
             lastColorCount = leafCount;
             Int32 paletteIndex = 0;
@@ -152,7 +151,7 @@ namespace SimplePaletteQuantizer.Quantizers.Octree
         /// <summary>
         /// See <see cref="BaseColorQuantizer.OnGetPaletteIndex"/> for more details.
         /// </summary>
-        protected override void OnGetPaletteIndex(Color color, Int32 key, Int32 x, Int32 y, out Int32 paletteIndex)
+        protected override void OnGetPaletteIndex(TextureBitmap.Color color, Int32 key, Int32 x, Int32 y, out Int32 paletteIndex)
         {
             // retrieves a palette index
             paletteIndex = root.GetPaletteIndex(color, 0);

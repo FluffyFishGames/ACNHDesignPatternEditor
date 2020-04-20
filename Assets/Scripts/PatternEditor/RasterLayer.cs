@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class RasterLayer : Layer, IBrushDrawable
 {
+	public TextureBitmap Bitmap => Texture;
+
 	public RasterLayer(SubPattern pattern, string name) : base(pattern, name)
 	{
 

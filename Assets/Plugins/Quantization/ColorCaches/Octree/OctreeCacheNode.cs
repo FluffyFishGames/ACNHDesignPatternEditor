@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace SimplePaletteQuantizer.ColorCaches.Octree
 {
@@ -9,7 +8,7 @@ namespace SimplePaletteQuantizer.ColorCaches.Octree
         private static readonly Byte[] Mask = new Byte[] { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
 
         private readonly OctreeCacheNode[] nodes;
-        private readonly Dictionary<Int32, Color> entries;
+        private readonly Dictionary<Int32, TextureBitmap.Color> entries;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OctreeCacheNode"/> class.
@@ -17,7 +16,7 @@ namespace SimplePaletteQuantizer.ColorCaches.Octree
         public OctreeCacheNode()
         {
             nodes = new OctreeCacheNode[8];
-            entries = new Dictionary<Int32, Color>();
+            entries = new Dictionary<Int32, TextureBitmap.Color>();
         }
         
         /// <summary>
@@ -26,7 +25,7 @@ namespace SimplePaletteQuantizer.ColorCaches.Octree
         /// <param name="color">The color.</param>
         /// <param name="paletteIndex">Index of the palette.</param>
         /// <param name="level">The level.</param>
-        public void AddColor(Color color, Int32 paletteIndex, Int32 level)
+        public void AddColor(TextureBitmap.Color color, Int32 paletteIndex, Int32 level)
         {
             // if this node is a leaf, then increase a color amount, and pixel presence
             entries.Add(paletteIndex, color);
@@ -50,9 +49,9 @@ namespace SimplePaletteQuantizer.ColorCaches.Octree
         /// <summary>
         /// Gets the index of the palette.
         /// </summary>
-        public Dictionary<Int32, Color> GetPaletteIndex(Color color, Int32 level)
+        public Dictionary<Int32, TextureBitmap.Color> GetPaletteIndex(TextureBitmap.Color color, Int32 level)
         {
-            Dictionary<Int32, Color> result = entries;
+            Dictionary<Int32, TextureBitmap.Color> result = entries;
             
             if (level < 8)
             {
@@ -67,7 +66,7 @@ namespace SimplePaletteQuantizer.ColorCaches.Octree
             return result;
         }
 
-        private static Int32 GetColorIndexAtLevel(Color color, Int32 level)
+        private static Int32 GetColorIndexAtLevel(TextureBitmap.Color color, Int32 level)
         {
             return ((color.R & Mask[level]) == Mask[level] ? 4 : 0) |
                    ((color.G & Mask[level]) == Mask[level] ? 2 : 0) |

@@ -18,9 +18,13 @@ public class ColorPickerTool : ITool
 
     public void MouseDrag(int x, int y, int previousX, int previousY)
     {
-        this.Editor.ChangeCurrentColor(this.Editor.CurrentPattern.CurrentSubPattern.Colors[x + y * this.Editor.CurrentPattern.CurrentSubPattern.Width]);
+        if (x >= 0 && x < Editor.CurrentPattern.CurrentSubPattern.Bitmap.Width && y >= 0 && y < Editor.CurrentPattern.CurrentSubPattern.Bitmap.Height)
+        {
+            var col = Editor.CurrentPattern.CurrentSubPattern.Bitmap.GetPixel(x, Editor.CurrentPattern.CurrentSubPattern.Bitmap.Height - 1 - y);
+            this.Editor.ChangeCurrentColor(new Color(col.R / 255f, col.G / 255f, col.B / 255f, col.A / 255f));
+        }
     }
 
-    public void MouseMove(int x, int y){}
-    public void MouseUp(int x, int y){}
+    public void MouseMove(int x, int y) { }
+    public void MouseUp(int x, int y) { }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -14,12 +15,17 @@ public class RectTool : ITool
 	private Layer TemporaryLayer;
 	public void Destroyed() { }
 
-	private UnityEngine.Color[] OldColors;
+	private IntPtr OldColors;
 
 	public void MouseDown(int x, int y)
 	{
-		OldColors = new UnityEngine.Color[Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors.Length];
-		System.Array.Copy(Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors, OldColors, OldColors.Length);
+		var layer = Editor.CurrentPattern.CurrentSubPattern.SelectedLayer;
+		var size = layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize;
+		OldColors = Marshal.AllocHGlobal(size);
+		unsafe
+		{
+			System.Buffer.MemoryCopy(layer.Texture.Bytes.ToPointer(), OldColors.ToPointer(), size, size);
+		}
 
 		if (this.Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is RasterLayer rasterLayer)
 		{
@@ -39,75 +45,80 @@ public class RectTool : ITool
 			var fromY = Mathf.Min(StartY, y);
 			var toY = Mathf.Max(StartY, y);
 
-			for (int i = 0; i < TemporaryLayer.Colors.Length; i++)
-				TemporaryLayer.Colors[i] = new UnityEngine.Color(1f, 1f, 1f, 0f);
-
-			if (Editor.Tools.CurrentTool == Tools.Tool.LineCircle || Editor.Tools.CurrentTool == Tools.Tool.FullCircle)
+			TemporaryLayer.Texture.Clear();
+			int w = TemporaryLayer.Texture.Width;
+			int h = TemporaryLayer.Texture.Height;
+			var col = new TextureBitmap.Color((byte) (Editor.CurrentColor.r * 255f), (byte) (Editor.CurrentColor.g * 255f), (byte) (Editor.CurrentColor.b * 255f), (byte) (Editor.CurrentColor.a * 255f));
+			unsafe
 			{
-				float cX = fromX + (toX - fromX) / 2f;
-				float cY = fromY + (toY - fromY) / 2f;
-				float rX = (toX - fromX) / 2f;
-				float rY = (toY - fromY) / 2f;
-				if (Editor.Tools.CurrentTool == Tools.Tool.FullCircle)
+				var colorPointer = TemporaryLayer.Texture.GetColors();
+				if (Editor.Tools.CurrentTool == Tools.Tool.LineCircle || Editor.Tools.CurrentTool == Tools.Tool.FullCircle)
 				{
-					float distanceX = rX * 2;
-					float distanceY = rY * 2;
-					for (int circY = 0; circY < Editor.CurrentBrush.Size + distanceY; circY++)
+					float cX = fromX + (toX - fromX) / 2f;
+					float cY = fromY + (toY - fromY) / 2f;
+					float rX = (toX - fromX) / 2f;
+					float rY = (toY - fromY) / 2f;
+					if (Editor.Tools.CurrentTool == Tools.Tool.FullCircle)
 					{
-						for (int circX = 0; circX < Editor.CurrentBrush.Size + distanceX; circX++)
+						float distanceX = rX * 2;
+						float distanceY = rY * 2;
+						for (int circY = 0; circY < Editor.CurrentBrush.Size + distanceY; circY++)
 						{
-							int coordX = (fromX + circX);
-							int coordY = (fromY + circY);
-							if (Editor.CurrentPattern.CurrentSubPattern.IsDrawable(coordX, coordY))
+							for (int circX = 0; circX < Editor.CurrentBrush.Size + distanceX; circX++)
 							{
-								if (Mathf.Pow((circX - (rX)) / (rX), 2f) + Mathf.Pow((circY - (rY)) / (rY), 2f) <= 1f)
+								int coordX = (fromX + circX);
+								int coordY = (fromY + circY);
+								if (Editor.CurrentPattern.CurrentSubPattern.IsDrawable(coordX, coordY))
 								{
-									rasterLayer.Colors[(fromX + circX) + (fromY + circY) * rasterLayer.Width] = this.Editor.CurrentColor;
+									if (Mathf.Pow((circX - (rX)) / (rX), 2f) + Mathf.Pow((circY - (rY)) / (rY), 2f) <= 1f)
+									{
+										*(colorPointer + (fromX + circX) + (h - 1 - (fromY + circY)) * w) = col;
+									}
 								}
+							}
+						}
+					}
+					else
+					{
+						int lX = -999;
+						int lY = -999;
+						for (float r = 0; r < Mathf.PI / 2f; r += 0.05f)
+						{
+							int ccx = (int) Mathf.Round(Mathf.Cos(r) * rX);
+							int ccy = (int) Mathf.Round(Mathf.Sin(r) * rY);
+							if (ccx != lX || ccy != lY)
+							{
+								rasterLayer.DrawBrush((int) (cX - ccx), (int) (cY - ccy), Editor.CurrentColor);
+								rasterLayer.DrawBrush((int) (cX + ccx), (int) (cY - ccy), Editor.CurrentColor);
+								rasterLayer.DrawBrush((int) (cX - ccx), (int) (cY + ccy), Editor.CurrentColor);
+								rasterLayer.DrawBrush((int) (cX + ccx), (int) (cY + ccy), Editor.CurrentColor);
+								lX = ccx;
+								lY = ccy;
 							}
 						}
 					}
 				}
 				else
 				{
-					int lX = -999;
-					int lY = -999;
-					for (float r = 0; r < Mathf.PI / 2f; r += 0.05f)
+					if (Editor.Tools.CurrentTool == Tools.Tool.FullRect)
 					{
-						int ccx = (int) Mathf.Round(Mathf.Cos(r) * rX);
-						int ccy = (int) Mathf.Round(Mathf.Sin(r) * rY);
-						if (ccx != lX || ccy != lY)
+						for (int rx = fromX; rx < toX + Editor.CurrentBrush.Size; rx++)
+							for (int ry = fromY; ry < toY + Editor.CurrentBrush.Size; ry++)
+								if (Editor.CurrentPattern.CurrentSubPattern.IsDrawable(rx, ry))
+									*(colorPointer + rx + (h - 1 - ry) * w) = col;
+					}
+					else
+					{
+						for (int rx = fromX; rx < toX + 1; rx++)
 						{
-							rasterLayer.DrawBrush((int) (cX - ccx), (int) (cY - ccy), Editor.CurrentColor);
-							rasterLayer.DrawBrush((int) (cX + ccx), (int) (cY - ccy), Editor.CurrentColor);
-							rasterLayer.DrawBrush((int) (cX - ccx), (int) (cY + ccy), Editor.CurrentColor);
-							rasterLayer.DrawBrush((int) (cX + ccx), (int) (cY + ccy), Editor.CurrentColor);
-							lX = ccx;
-							lY = ccy;
+							rasterLayer.DrawBrush(rx, fromY, Editor.CurrentColor);
+							rasterLayer.DrawBrush(rx, toY, Editor.CurrentColor);
 						}
-					}
-				}
-			}
-			else
-			{
-				if (Editor.Tools.CurrentTool == Tools.Tool.FullRect)
-				{
-					for (int rx = fromX; rx < toX + Editor.CurrentBrush.Size; rx++)
-						for (int ry = fromY; ry < toY + Editor.CurrentBrush.Size; ry++)
-							if (Editor.CurrentPattern.CurrentSubPattern.IsDrawable(rx, ry))
-								rasterLayer.Colors[rx + ry * rasterLayer.Width] = Editor.CurrentColor;
-				}
-				else
-				{
-					for (int rx = fromX; rx < toX + 1; rx++)
-					{
-						rasterLayer.DrawBrush(rx, fromY, Editor.CurrentColor);
-						rasterLayer.DrawBrush(rx, toY, Editor.CurrentColor);
-					}
-					for (int ry = fromY + 1; ry < toY; ry++)
-					{
-						rasterLayer.DrawBrush(fromX, ry, Editor.CurrentColor);
-						rasterLayer.DrawBrush(toX, ry, Editor.CurrentColor);
+						for (int ry = fromY + 1; ry < toY; ry++)
+						{
+							rasterLayer.DrawBrush(fromX, ry, Editor.CurrentColor);
+							rasterLayer.DrawBrush(toX, ry, Editor.CurrentColor);
+						}
 					}
 				}
 			}
@@ -132,7 +143,17 @@ public class RectTool : ITool
 				actionName = "Full Rect";
 			if (Editor.Tools.CurrentTool == Tools.Tool.FullCircle)
 				actionName = "Full Circle";
-			Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.ChangedLayerAction(actionName, Editor.CurrentPattern.CurrentSubPattern.SelectedLayerIndex, OldColors, Editor.CurrentPattern.CurrentSubPattern.SelectedLayer.Colors));
+
+
+			var layer = Editor.CurrentPattern.CurrentSubPattern.SelectedLayer;
+			var size = layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize;
+			var newColors = Marshal.AllocHGlobal(size);
+			unsafe
+			{
+				System.Buffer.MemoryCopy(layer.Texture.Bytes.ToPointer(), newColors.ToPointer(), size, size);
+			}
+			
+			Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.ChangedLayerAction(actionName, Editor.CurrentPattern.CurrentSubPattern.SelectedLayerIndex, OldColors, newColors));
 		}
 	}
 

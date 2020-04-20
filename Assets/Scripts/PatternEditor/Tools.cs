@@ -40,9 +40,11 @@ public class Tools : MonoBehaviour
 		CropNone,
 		CropFit,
 		CropCover,
-		SamplingNearestNeighbour,
-		SamplingBilinear,
-		SamplingBicubic
+		SamplingBox,
+		SamplingLanczos8,
+		SamplingMitchell,
+		SamplingCosine,
+		SamplingCubicConvolution
 	};
 
 	public enum Tab
@@ -137,9 +139,11 @@ public class Tools : MonoBehaviour
 	public EventTrigger CropNone;
 	public EventTrigger CropCover;
 	public EventTrigger CropFit;
-	public EventTrigger SamplingNearestNeighbour;
-	public EventTrigger SamplingBilinear;
-	public EventTrigger SamplingBicubic;
+	public EventTrigger SamplingBox;
+	public EventTrigger SamplingLanczos8;
+	public EventTrigger SamplingMitchell;
+	public EventTrigger SamplingCosine;
+	public EventTrigger SamplingCubicConvolution;
 
 	public TransformToolContainer TransformTool;
 
@@ -226,15 +230,15 @@ public class Tools : MonoBehaviour
 		{
 			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer sml)
 			{
-				int old = sml.GetCrop();
-				if (old != 0)
+				TextureBitmap.CropMode old = sml.GetCrop();
+				if (old != TextureBitmap.CropMode.Scale)
 				{
-					sml.ChangeCrop(0);
+					sml.ChangeCrop(TextureBitmap.CropMode.Scale);
 					sml.UpdateColors();
 					sml.UpdateTexture();
 					UpdateTransformSettings(sml);
 					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
-					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed crop", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), old, sml.GetResampling(), 0, sml.GetResampling()));
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed crop", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), old, sml.GetResampling(), TextureBitmap.CropMode.Scale, sml.GetResampling()));
 				}
 			}
 			return;
@@ -243,15 +247,15 @@ public class Tools : MonoBehaviour
 		{
 			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer sml)
 			{
-				int old = sml.GetCrop();
-				if (old != 1)
+				TextureBitmap.CropMode old = sml.GetCrop();
+				if (old != TextureBitmap.CropMode.Fit)
 				{
-					sml.ChangeCrop(1);
+					sml.ChangeCrop(TextureBitmap.CropMode.Fit);
 					sml.UpdateColors();
 					sml.UpdateTexture();
 					UpdateTransformSettings(sml);
 					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
-					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed crop", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), old, sml.GetResampling(), 1, sml.GetResampling()));
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed crop", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), old, sml.GetResampling(), TextureBitmap.CropMode.Fit, sml.GetResampling()));
 				}
 			}
 			return;
@@ -260,66 +264,100 @@ public class Tools : MonoBehaviour
 		{
 			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer sml)
 			{
-				int old = sml.GetCrop();
-				if (old != 2)
+				TextureBitmap.CropMode old = sml.GetCrop();
+				if (old != TextureBitmap.CropMode.Cover)
 				{
-					sml.ChangeCrop(2);
+					sml.ChangeCrop(TextureBitmap.CropMode.Cover);
 					sml.UpdateColors();
 					sml.UpdateTexture();
 					UpdateTransformSettings(sml);
 					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
-					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed crop", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), old, sml.GetResampling(), 2, sml.GetResampling()));
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed crop", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), old, sml.GetResampling(), TextureBitmap.CropMode.Cover, sml.GetResampling()));
 				}
 			}
 			return;
 		}
-		if (tool == Tool.SamplingNearestNeighbour)
+		if (tool == Tool.SamplingBox)
 		{
 			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer sml)
 			{
-				int old = sml.GetResampling();
-				if (old != 0)
+				ResamplingFilters old = sml.GetResampling();
+				if (old != ResamplingFilters.Box)
 				{
-					sml.ChangeResampling(0);
+					sml.ChangeResampling(ResamplingFilters.Box);
 					sml.UpdateColors();
 					sml.UpdateTexture();
 					UpdateTransformSettings(sml);
 					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
-					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed sampling", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), sml.GetCrop(), old, sml.GetCrop(), 0));
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed sampling", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), sml.GetCrop(), old, sml.GetCrop(), ResamplingFilters.Box));
 				}
 			}
 			return;
 		}
-		if (tool == Tool.SamplingBilinear)
+		if (tool == Tool.SamplingLanczos8)
 		{
 			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer sml)
 			{
-				int old = sml.GetResampling();
-				if (old != 1)
+				ResamplingFilters old = sml.GetResampling();
+				if (old != ResamplingFilters.Lanczos8)
 				{
-					sml.ChangeResampling(1);
+					sml.ChangeResampling(ResamplingFilters.Lanczos8);
 					sml.UpdateColors();
 					sml.UpdateTexture();
 					UpdateTransformSettings(sml);
 					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
-					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed sampling", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), sml.GetCrop(), old, sml.GetCrop(), 1));
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed sampling", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), sml.GetCrop(), old, sml.GetCrop(), ResamplingFilters.Lanczos8));
 				}
 			}
 			return;
 		}
-		if (tool == Tool.SamplingBicubic)
+		if (tool == Tool.SamplingMitchell)
 		{
 			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer sml)
 			{
-				int old = sml.GetResampling();
-				if (old != 2)
+				ResamplingFilters old = sml.GetResampling();
+				if (old != ResamplingFilters.Mitchell)
 				{
-					sml.ChangeResampling(2);
+					sml.ChangeResampling(ResamplingFilters.Mitchell);
 					sml.UpdateColors();
 					sml.UpdateTexture();
 					UpdateTransformSettings(sml);
 					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
-					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed sampling", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), sml.GetCrop(), old, sml.GetCrop(), 2));
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed sampling", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), sml.GetCrop(), old, sml.GetCrop(), ResamplingFilters.Mitchell));
+				}
+			}
+			return;
+		}
+		if (tool == Tool.SamplingCosine)
+		{
+			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer sml)
+			{
+				ResamplingFilters old = sml.GetResampling();
+				if (old != ResamplingFilters.Cosine)
+				{
+					sml.ChangeResampling(ResamplingFilters.Cosine);
+					sml.UpdateColors();
+					sml.UpdateTexture();
+					UpdateTransformSettings(sml);
+					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed sampling", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), sml.GetCrop(), old, sml.GetCrop(), ResamplingFilters.Cosine));
+				}
+			}
+			return;
+		}
+		if (tool == Tool.SamplingCubicConvolution)
+		{
+			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer sml)
+			{
+				ResamplingFilters old = sml.GetResampling();
+				if (old != ResamplingFilters.CubicConvolution)
+				{
+					sml.ChangeResampling(ResamplingFilters.CubicConvolution);
+					sml.UpdateColors();
+					sml.UpdateTexture();
+					UpdateTransformSettings(sml);
+					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.TransformChangeCropResampling("Changed sampling", Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(sml), sml.GetCrop(), old, sml.GetCrop(), ResamplingFilters.CubicConvolution));
 				}
 			}
 			return;
@@ -484,21 +522,28 @@ BrushOptions.PopUp();
 		CropNone.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
 		CropFit.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
 		CropCover.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
-		SamplingNearestNeighbour.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
-		SamplingBilinear.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
-		SamplingBicubic.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
-		if (layer.Crop == null)
+		SamplingBox.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
+		SamplingLanczos8.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
+		SamplingMitchell.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
+		SamplingCosine.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
+		SamplingCubicConvolution.GetComponent<CanvasRenderer>().SetAlpha(0.5f);
+
+		if (layer.Crop == TextureBitmap.CropMode.Scale)
 			CropNone.GetComponent<CanvasRenderer>().SetAlpha(1f);
-		else if (layer.Crop.GetType() == typeof(Fit))
+		else if (layer.Crop == TextureBitmap.CropMode.Fit)
 			CropFit.GetComponent<CanvasRenderer>().SetAlpha(1f);
-		else if (layer.Crop.GetType() == typeof(Cover))
+		else if (layer.Crop == TextureBitmap.CropMode.Cover)
 			CropCover.GetComponent<CanvasRenderer>().SetAlpha(1f);
-		if (layer.Resampler.GetType() == typeof(NearestNeighbourSampling))
-			SamplingNearestNeighbour.GetComponent<CanvasRenderer>().SetAlpha(1f);
-		if (layer.Resampler.GetType() == typeof(BillinearSampling))
-			SamplingBilinear.GetComponent<CanvasRenderer>().SetAlpha(1f);
-		if (layer.Resampler.GetType() == typeof(BicubicSampling))
-			SamplingBicubic.GetComponent<CanvasRenderer>().SetAlpha(1f);
+		if (layer.Resampler == ResamplingFilters.Box)
+			SamplingBox.GetComponent<CanvasRenderer>().SetAlpha(1f);
+		if (layer.Resampler == ResamplingFilters.Lanczos8)
+			SamplingLanczos8.GetComponent<CanvasRenderer>().SetAlpha(1f);
+		if (layer.Resampler == ResamplingFilters.Mitchell)
+			SamplingMitchell.GetComponent<CanvasRenderer>().SetAlpha(1f);
+		if (layer.Resampler == ResamplingFilters.CubicConvolution)
+			SamplingCubicConvolution.GetComponent<CanvasRenderer>().SetAlpha(1f);
+		if (layer.Resampler == ResamplingFilters.Cosine)
+			SamplingCosine.GetComponent<CanvasRenderer>().SetAlpha(1f);
 	}
 
 	public void SwitchToolset(Toolset toolset)
@@ -545,9 +590,11 @@ BrushOptions.PopUp();
 			ActivateTool(Tool.CropNone);
 			ActivateTool(Tool.CropFit);
 			ActivateTool(Tool.CropCover);
-			ActivateTool(Tool.SamplingBicubic);
-			ActivateTool(Tool.SamplingBilinear);
-			ActivateTool(Tool.SamplingNearestNeighbour);
+			ActivateTool(Tool.SamplingMitchell);
+			ActivateTool(Tool.SamplingLanczos8);
+			ActivateTool(Tool.SamplingBox);
+			ActivateTool(Tool.SamplingCubicConvolution);
+			ActivateTool(Tool.SamplingCosine);
 			if (Editor.CurrentPattern.CurrentSubPattern.SelectedLayer is SmartObjectLayer layer)
 				UpdateTransformSettings(layer);
 			SwitchTool(Tool.Transform);
@@ -560,7 +607,7 @@ BrushOptions.PopUp();
 		{
 			ActiveTools.Add(tool);
 		}
-		if (tool != Tool.SamplingBicubic && tool != Tool.SamplingBilinear && tool != Tool.SamplingNearestNeighbour && tool != Tool.CropNone && tool != Tool.CropFit && tool != Tool.CropCover)
+		if (tool != Tool.SamplingMitchell && tool != Tool.SamplingLanczos8 && tool != Tool.SamplingBox && tool != Tool.CropNone && tool != Tool.CropFit && tool != Tool.CropCover)
 			ToolImages[tool].color = new UnityEngine.Color(212f / 255f, 135f / 255f, 155f / 255f, 1f);
 	}
 
@@ -570,11 +617,11 @@ BrushOptions.PopUp();
 		{
 			ActiveTools.Remove(tool);
 		}
-		if (tool != Tool.SamplingBicubic && tool != Tool.SamplingBilinear && tool != Tool.SamplingNearestNeighbour && tool != Tool.CropNone && tool != Tool.CropFit && tool != Tool.CropCover)
+		if (tool != Tool.SamplingMitchell && tool != Tool.SamplingLanczos8 && tool != Tool.SamplingBox && tool != Tool.CropNone && tool != Tool.CropFit && tool != Tool.CropCover)
 			ToolImages[tool].color = new UnityEngine.Color(212f / 255f, 135f / 255f, 155f / 255f, 0.1f);
 	}
 
-	void AddEvent(EventTrigger trigger, Tool tool, string tooltip)
+	void AddEvent(EventTrigger trigger, Tool tool)
 	{
 		var onClick = new EventTrigger.Entry() { eventID = EventTriggerType.PointerClick };
 		onClick.callback.AddListener((evtData) => {
@@ -584,25 +631,6 @@ BrushOptions.PopUp();
 			}
 		});
 		trigger.triggers.Add(onClick);
-		if (tooltip != null)
-		{
-			var rectTransform = trigger.GetComponent<RectTransform>();
-
-			var onPointerEnter = new EventTrigger.Entry() { eventID = EventTriggerType.PointerEnter };
-			onPointerEnter.callback.AddListener((evtData) => {
-
-				var pos = Controller.Instance.RectTransform.InverseTransformPoint(rectTransform.position);
-				pos.x += Controller.Instance.RectTransform.rect.width / 2f;
-				pos.y -= Controller.Instance.RectTransform.rect.height / 2f - rectTransform.rect.height / 1.5f;
-				Controller.Instance.ShowTooltip(tooltip, pos);
-			});
-			var onPointerExit = new EventTrigger.Entry() { eventID = EventTriggerType.PointerExit };
-			onPointerExit.callback.AddListener((evtData) => {
-				Controller.Instance.HideTooltip();
-			});
-			trigger.triggers.Add(onPointerEnter);
-			trigger.triggers.Add(onPointerExit);
-		}
 	}
 
 	private void Start()
@@ -662,9 +690,11 @@ BrushOptions.PopUp();
 			{ Tool.CropNone,    CropNone.GetComponent<Image>() },
 			{ Tool.CropFit,     CropFit.GetComponent<Image>() },
 			{ Tool.CropCover,   CropCover.GetComponent<Image>() },
-			{ Tool.SamplingNearestNeighbour, SamplingNearestNeighbour.GetComponent<Image>() },
-			{ Tool.SamplingBilinear,         SamplingBilinear.GetComponent<Image>() },
-			{ Tool.SamplingBicubic,          SamplingBicubic.GetComponent<Image>() },
+			{ Tool.SamplingBox, SamplingBox.GetComponent<Image>() },
+			{ Tool.SamplingLanczos8, SamplingLanczos8.GetComponent<Image>() },
+			{ Tool.SamplingMitchell, SamplingMitchell.GetComponent<Image>() },
+			{ Tool.SamplingCosine, SamplingCosine.GetComponent<Image>() },
+			{ Tool.SamplingCubicConvolution, SamplingCubicConvolution.GetComponent<Image>() },
 		};
 
 
@@ -690,23 +720,25 @@ BrushOptions.PopUp();
 
 		ForceRebuildLayout();
 
-		AddEvent(Brush,       Tool.Brush, "Brush");
-		AddEvent(Eraser,      Tool.Eraser, "Eraser");
-		AddEvent(ColorPicker, Tool.ColorPicker, "Color picker");
-		AddEvent(BucketFill,  Tool.BucketFill, "Bucket fill");
-		AddEvent(Rect,        Tool.Rect, "Shapes");
-		AddEvent(LineRect,    Tool.LineRect, "Line rectangle");
-		AddEvent(LineCircle,  Tool.LineCircle, "Line circle");
-		AddEvent(FullRect,    Tool.FullRect, "Full rectangle");
-		AddEvent(FullCircle,  Tool.FullCircle, "Full circle");
-		AddEvent(Line,        Tool.Line, "Line");
-		AddEvent(Transform,   Tool.Transform, "Transform");
-		AddEvent(CropNone,    Tool.CropNone, "Stretch");
-		AddEvent(CropFit,     Tool.CropFit, "Fit");
-		AddEvent(CropCover,   Tool.CropCover, "Cover");
-		AddEvent(SamplingNearestNeighbour, Tool.SamplingNearestNeighbour, "Nearest Neighbour");
-		AddEvent(SamplingBilinear, Tool.SamplingBilinear, "Bilinear");
-		AddEvent(SamplingBicubic, Tool.SamplingBicubic, "Bicubic");
+		AddEvent(Brush,       Tool.Brush);
+		AddEvent(Eraser,      Tool.Eraser);
+		AddEvent(ColorPicker, Tool.ColorPicker);
+		AddEvent(BucketFill,  Tool.BucketFill);
+		AddEvent(Rect,        Tool.Rect);
+		AddEvent(LineRect,    Tool.LineRect);
+		AddEvent(LineCircle,  Tool.LineCircle);
+		AddEvent(FullRect,    Tool.FullRect);
+		AddEvent(FullCircle,  Tool.FullCircle);
+		AddEvent(Line,        Tool.Line);
+		AddEvent(Transform,   Tool.Transform);
+		AddEvent(CropNone,    Tool.CropNone);
+		AddEvent(CropFit,     Tool.CropFit);
+		AddEvent(CropCover,   Tool.CropCover);
+		AddEvent(SamplingBox, Tool.SamplingBox);
+		AddEvent(SamplingLanczos8, Tool.SamplingLanczos8);
+		AddEvent(SamplingMitchell, Tool.SamplingMitchell);
+		AddEvent(SamplingCosine, Tool.SamplingCosine);
+		AddEvent(SamplingCubicConvolution, Tool.SamplingCubicConvolution);
 
 		BrushHardness.onValueChanged.AddListener((val) => {
 			Editor.CurrentBrush.Hardness = val;

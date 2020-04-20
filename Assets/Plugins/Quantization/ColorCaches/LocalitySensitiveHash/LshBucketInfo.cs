@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash
 {
     public class BucketInfo
     {
-        private readonly SortedDictionary<Int32, Color> colors;
+        private readonly SortedDictionary<Int32, TextureBitmap.Color> colors;
 
         /// <summary>
         /// Gets the colors.
         /// </summary>
         /// <value>The colors.</value>
-        public IDictionary<Int32, Color> Colors
+        public IDictionary<Int32, TextureBitmap.Color> Colors
         {
             get { return colors; }
         }
@@ -22,7 +21,7 @@ namespace SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash
         /// </summary>
         public BucketInfo()
         {
-            colors = new SortedDictionary<Int32, Color>();
+            colors = new SortedDictionary<Int32, TextureBitmap.Color>();
         }
 
         /// <summary>
@@ -30,7 +29,7 @@ namespace SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash
         /// </summary>
         /// <param name="paletteIndex">Index of the palette.</param>
         /// <param name="color">The color.</param>
-        public void AddColor(Int32 paletteIndex, Color color)
+        public void AddColor(Int32 paletteIndex, TextureBitmap.Color color)
         {
             colors.Add(paletteIndex, color);
         }

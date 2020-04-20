@@ -28,6 +28,7 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 	private float HoverAudioPause = 0f;
 	private bool Initialized = false;
 	private Sprite Preview;
+	public TooltipHandler TooltipHandler;
 
 	// Start is called before the first frame update
 	void OnEnable()
@@ -62,6 +63,7 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 		}
 		this.Pattern = pattern;
 		this.Name = pattern.Name;
+		TooltipHandler.Tooltip = this.Name;
 		Preview = pattern.GetPreview();
 		ImageImage.sprite = Preview;
 	}
@@ -145,10 +147,6 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 	{
 		Controller.Instance.PlayHoverSound();
 
-		var pos = Controller.Instance.RectTransform.InverseTransformPoint(MyTransform.position);
-		pos.x += Controller.Instance.RectTransform.rect.width / 2f;
-		pos.y -= Controller.Instance.RectTransform.rect.height / 2f - MyTransform.rect.height / 1.5f;
-		Controller.Instance.ShowTooltip(this.Name, pos);
 		IsMouseOver = true;
 	}
 

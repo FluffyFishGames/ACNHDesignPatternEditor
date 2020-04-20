@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using xBRZNet.Blend;
 using xBRZNet.Color;
 using xBRZNet.Common;
-using xBRZNet.Extensions;
 using xBRZNet.Scalers;
 
 namespace xBRZNet
@@ -53,22 +50,6 @@ namespace xBRZNet
     // ReSharper disable once InconsistentNaming
     public class xBRZScaler
     {
-        // scaleSize = 2 to 5
-        public Bitmap ScaleImage(Bitmap image, int scaleSize, ScalerCfg config = null)
-        {
-            config = config ?? new ScalerCfg();
-
-            var fixedFormatImage = image.ChangeFormat(PixelFormat.Format32bppRgb);
-            var rgbValues = fixedFormatImage.ToIntArray();
-
-            var scaleFactor = scaleSize;
-            var scaledRbgValues = new int[rgbValues.Length * (scaleFactor * scaleFactor)];
-
-            ScaleImage(scaleSize, rgbValues, scaledRbgValues, fixedFormatImage.Width, fixedFormatImage.Height, config, 0, int.MaxValue);
-
-            return scaledRbgValues.ToBitmap(fixedFormatImage.Width * scaleFactor, fixedFormatImage.Height * scaleFactor, fixedFormatImage.PixelFormat);
-        }
-
         public void ScaleImage(int scaleSize, int[] src, int[] trg, int srcWidth, int srcHeight, ScalerCfg cfg, int yFirst, int yLast)
         {
             _scaler = scaleSize.ToIScaler();

@@ -26,23 +26,10 @@ public class Layer
 	}
 
 	public string Name;
-	protected Color[] _Colors;
-	public Color[] Colors 
-	{
-		get 
-		{
-			return _Colors;
-		}
-		set
-		{
-			_Colors = value;
-		}
-	}
-
 	public Sprite Sprite;
-	public Texture2D Texture;
 	public bool IsSelected = false;
 	protected SubPattern SubPattern;
+	public TextureBitmap Texture;
 
 	public Layer(SubPattern pattern, string name = "")
 	{
@@ -50,31 +37,26 @@ public class Layer
 		Name = name;
 		_Width = pattern.Width;
 		_Height = pattern.Height;
+		Texture = new TextureBitmap(_Width, _Height);
+		Texture.Clear();
 	}
 
 	public void Merge(Layer otherLayer)
 	{
-		for (int i = 0; i < _Colors.Length; i++)
-			_Colors[i] = _Colors[i].AlphaComposite(otherLayer._Colors[i]);
+		Texture.AlphaComposite(otherLayer.Texture, new TextureBitmap.Color(255, 255, 255, 255));
 	}
 
 	public void UpdateTexture()
 	{
-		if (Texture == null)
-		{
-			Texture = new Texture2D(_Width, _Height, TextureFormat.ARGB32, false);
-			Sprite = Sprite.Create(Texture,new Rect(0, 0, _Width, _Height), new Vector2(0.5f, 0.5f));
-		}
-		for (int y = 0; y < Texture.height; y++)
-			for (int x = 0; x < Texture.width; x++)
-				Texture.SetPixel(x, Texture.height - y, _Colors[x + y * _Width]);
-
+		if (Sprite != null)
+			GameObject.DestroyImmediate(Sprite);
 		Texture.Apply();
+		Sprite = Sprite.Create(Texture.Texture, new Rect(0, 0, Texture.Width, Texture.Height), new Vector2(0.5f, 0.5f));
 	}
 
 	public virtual void Dispose()
 	{
 		GameObject.DestroyImmediate(Sprite);
-		GameObject.DestroyImmediate(Texture);
+		Texture.Dispose();
 	}
 }

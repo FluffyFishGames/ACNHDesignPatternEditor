@@ -1,13 +1,8 @@
 ﻿using MyHorizons.Data;
 using MyHorizons.Data.Save;
-using MyHorizons.Encryption;
-using SFB;
 using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Threading;
 using UnityEngine;
-using ZXing;
 
 public class Controller : MonoBehaviour
 {
@@ -167,12 +162,12 @@ public class Controller : MonoBehaviour
 		CurrentOperation.Start();
 	}
 
-	public void SwitchToImporter(System.Drawing.Bitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<System.Drawing.Bitmap> confirm, System.Action cancel)
+	public void SwitchToImporter(TextureBitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<TextureBitmap> confirm, System.Action cancel)
 	{
 		StartCoroutine(ShowImporter(bitmap, rect, resultSize, confirm, cancel));
 	}
 
-	IEnumerator ShowImporter(System.Drawing.Bitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<System.Drawing.Bitmap> confirm, System.Action cancel)
+	IEnumerator ShowImporter(TextureBitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<TextureBitmap> confirm, System.Action cancel)
 	{
 		if (Popup.IsOpened)
 		{

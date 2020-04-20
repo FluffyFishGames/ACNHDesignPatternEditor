@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using SimplePaletteQuantizer.Helpers;
-using SimplePaletteQuantizer.PathProviders;
 
 namespace SimplePaletteQuantizer.Quantizers
 {
     /// <summary>
     /// This interface provides a color quantization capabilities.
     /// </summary>
-    public interface IColorQuantizer : IPathProvider
+    public interface IColorQuantizer
     {
         /// <summary>
         /// Gets a value indicating whether to allow parallel processing.
@@ -22,22 +20,22 @@ namespace SimplePaletteQuantizer.Quantizers
         /// <summary>
         /// Prepares the quantizer for image processing.
         /// </summary>
-        void Prepare(ImageBuffer image);
+        void Prepare(TextureBitmap image);
 
         /// <summary>
         /// Adds the color to quantizer.
         /// </summary>
-        void AddColor(Color color, Int32 x, Int32 y);
+        void AddColor(TextureBitmap.Color color, Int32 x, Int32 y);
 
         /// <summary>
         /// Gets the palette with specified count of the colors.
         /// </summary>
-        List<Color> GetPalette(Int32 colorCount);
+        List<TextureBitmap.Color> GetPalette(Int32 colorCount);
 
         /// <summary>
         /// Gets the index of the palette for specific color.
         /// </summary>
-        Int32 GetPaletteIndex(Color color, Int32 x, Int32 y);
+        Int32 GetPaletteIndex(TextureBitmap.Color color, Int32 x, Int32 y);
 
         /// <summary>
         /// Gets the color count.

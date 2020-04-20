@@ -373,33 +373,10 @@ public class PatternSelector : MonoBehaviour
 									{
 										if (path != null && path.Length > 0)
 										{
+											TextureBitmap bmp = null;
 											try
 											{
-												System.Drawing.Bitmap bmp = null;
-												var imageStream = new System.IO.FileStream(path[0], System.IO.FileMode.Open, System.IO.FileAccess.Read);
-												byte[] fourBytes = new byte[4];
-												imageStream.Read(fourBytes, 0, 4);
-												if (fourBytes[0] == 0x52 && fourBytes[1] == 0x49 && fourBytes[2] == 0x46 && fourBytes[3] == 0x46)
-												{
-													var bytes = System.IO.File.ReadAllBytes(path[0]);
-													int webpWidth;
-													int webpHeight;
-													WebP.Error error;
-													WebP.Texture2DExt.GetWebPDimensions(bytes, out webpWidth, out webpHeight);
-													var colorData = WebP.Texture2DExt.LoadRGBAFromWebP(bytes, ref webpWidth, ref webpHeight, false, out error);
-													bmp = new System.Drawing.Bitmap(webpWidth, webpHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-													bmp.FromBytes(colorData);
-													/*using (WebP webp = new WebP())
-														bmp = webp.Load(path[0]);*/
-													imageStream.Close();
-													imageStream.Dispose();
-												}
-												else
-												{
-													bmp = new System.Drawing.Bitmap(System.Drawing.Image.FromFile(path[0]));
-													imageStream.Close();
-													imageStream.Dispose();
-												}
+												bmp = TextureBitmap.Load(path[0], false);
 
 												if (pattern.Pattern.IsPro)
 												{
@@ -433,16 +410,9 @@ public class PatternSelector : MonoBehaviour
 															else
 															{
 																if (bmp.Width > 64 || bmp.Height > 64)
-																{
-																	var sampling = new Lanczos8Sampling();
-																	var @new = sampling.Resample(bmp, 64, 64);
-																	bmp.Dispose();
-																	bmp = @new;
-																}
-																var quantizer = new WuColorQuantizer();
-																var quantized = (System.Drawing.Bitmap) ImageBuffer.QuantizeImage(bmp, quantizer, 15, 1);
-																bmp.Dispose();
-																bmp = quantized;
+																	bmp.Resample(ResamplingFilters.Lanczos8, 64, 64);
+
+																bmp.Quantize(new WuColorQuantizer(), 15);
 																Controller.Instance.SwitchToNameInput(
 																	() =>
 																	{
@@ -496,16 +466,8 @@ public class PatternSelector : MonoBehaviour
 													else
 													{
 														if (bmp.Width > 32 || bmp.Height > 32)
-														{
-															var sampling = new Lanczos8Sampling();
-															var @new = sampling.Resample(bmp, 32, 32);
-															bmp.Dispose();
-															bmp = @new;
-														}
-														var quantizer = new WuColorQuantizer();
-														var quantized = (System.Drawing.Bitmap) ImageBuffer.QuantizeImage(bmp, quantizer, 15, 1);
-														bmp.Dispose();
-														bmp = quantized;
+															bmp.Resample(ResamplingFilters.Lanczos8, 32, 32);
+														bmp.Quantize(new WuColorQuantizer(), 15);
 														Controller.Instance.SwitchToNameInput(
 															() =>
 															{
@@ -527,6 +489,8 @@ public class PatternSelector : MonoBehaviour
 											}
 											catch (System.Exception e)
 											{
+												if (bmp != null)
+													bmp.Dispose();
 												Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
 												Debug.LogException(e);
 											}
@@ -541,34 +505,10 @@ public class PatternSelector : MonoBehaviour
 									{
 										if (path != null && path.Length > 0)
 										{
+											TextureBitmap bmp = null;
 											try
 											{
-												System.Drawing.Bitmap bmp = null;
-												var imageStream = new System.IO.FileStream(path[0], System.IO.FileMode.Open, System.IO.FileAccess.Read);
-												byte[] fourBytes = new byte[4];
-												imageStream.Read(fourBytes, 0, 4);
-												if (fourBytes[0] == 0x52 && fourBytes[1] == 0x49 && fourBytes[2] == 0x46 && fourBytes[3] == 0x46)
-												{
-													var bytes = System.IO.File.ReadAllBytes(path[0]);
-													int webpWidth;
-													int webpHeight;
-													WebP.Error error;
-													WebP.Texture2DExt.GetWebPDimensions(bytes, out webpWidth, out webpHeight);
-													var colorData = WebP.Texture2DExt.LoadRGBAFromWebP(bytes, ref webpWidth, ref webpHeight, false, out error);
-													bmp = new System.Drawing.Bitmap(webpWidth, webpHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-													bmp.FromBytes(colorData);
-													/*using (WebP webp = new WebP())
-														bmp = webp.Load(path[0]);*/
-													imageStream.Close();
-													imageStream.Dispose();
-												}
-												else
-												{
-													bmp = new System.Drawing.Bitmap(System.Drawing.Image.FromFile(path[0]));
-													imageStream.Close();
-													imageStream.Dispose();
-												}
-
+												bmp = TextureBitmap.Load(path[0], false);
 												var scanner = new BarcodeReader()
 												{
 													TryInverted = true,
@@ -586,72 +526,26 @@ public class PatternSelector : MonoBehaviour
 												var result = GetResult(scanner.DecodeMultiple(bmp));
 												if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
 												{
-													System.Drawing.Bitmap resultImage = null;
-													var sampler = new Lanczos8Sampling();
-													resultImage = sampler.Resample(bmp, bmp.Width * 2, bmp.Height * 2);
-													result = GetResult(scanner.DecodeMultiple(resultImage));
-													resultImage.Dispose();
+													bmp.Resample(ResamplingFilters.Lanczos8, bmp.Width * 2, bmp.Height * 2);
+													result = GetResult(scanner.DecodeMultiple(bmp));
 													if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
 													{
 														try
 														{
-															resultImage = QRCodeExtractor.ExtractQRCode(bmp);
+															var resultImage = QRCodeExtractor.ExtractQRCode(bmp);
 															bmp.Dispose();
 															bmp = resultImage;
 														}
 														catch (System.Exception ex)
 														{
 														}
-														if (bmp.Width < 1000 && bmp.Height < 1000)
-														{
-															resultImage = sampler.Resample(bmp, bmp.Width * 2, bmp.Height * 2);
-															bmp.Dispose();
-															bmp = resultImage;
-														}
 														result = GetResult(scanner.DecodeMultiple(bmp));
 														if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
 														{
-															(int, int, int)[] tries = new (int, int, int)[]
+															for (int i = 250; i > 10; i-=10)
 															{
-																(250, 0, 0),
-																(240, 0, 0),
-																(230, 0, 0),
-																(220, 0, 0),
-																(210, 0, 0),
-																(200, 0, 0),
-																(190, 0, 0),
-																(180, 0, 0),
-																(170, 0, 0),
-																(160, 0, 0),
-																(150, 0, 0),
-																(140, 0, 0),
-																(130, 0, 0),
-																(120, 0, 0),
-																(110, 0, 0),
-																(100, 0, 0),
-																( 90, 0, 0),
-																( 80, 0, 0),
-																( 70, 0, 0),
-																( 60, 0, 0),
-																( 50, 0, 0),
-																( 40, 0, 0),
-																( 30, 0, 0),
-																( 20, 0, 0),
-																( 10, 0, 0)
-															};
-
-															for (int i = 0; i < tries.Length; i++)
-															{
-																Debug.Log("Try # " +i);
-																var @try = tries[i];
-																var check = (System.Drawing.Bitmap) bmp.Clone();
-																if (@try.Item2 > 0)
-																	check.RemoveColorful(@try.Item2);
-																if (@try.Item3 > 0)
-																	check.ApplySharpen(@try.Item3);
-																if (@try.Item1 > 0)
-																	check.UltraContrast(@try.Item1);
-
+																var check = bmp.Clone();
+																check.UltraContrast(i);
 																result = GetResult(scanner.DecodeMultiple(check));
 																check.Dispose();
 																if (result != null && result.Type != DesignPattern.TypeEnum.Unsupported)
@@ -719,7 +613,7 @@ public class PatternSelector : MonoBehaviour
 				("Export design", (System.Action) (() => {
 					ActionMenu.Close();
 					Controller.Instance.FormatPopup.Show(
-						"<align=\"center\"><#827157>Which format do you want to import?",
+						"<align=\"center\"><#827157>In which format do you want to export?",
 						(format) =>
 						{
 							if (format == FormatPopup.Format.ACNH)
@@ -772,38 +666,14 @@ public class PatternSelector : MonoBehaviour
 								{
 									if (path != null && path.Length > 0)
 									{
-										var colors = pattern.Pattern.GetPixels();
-										var bitmap = new System.Drawing.Bitmap(pattern.Pattern.Width, pattern.Pattern.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-										for (var y = 0; y < pattern.Pattern.Width; y++)
-										{
-											for (var x = 0; x < pattern.Pattern.Height; x++)
-											{
-												bitmap.SetPixel(x, y, System.Drawing.Color.FromArgb((byte) (colors[x + y * pattern.Pattern.Width].a * 255f), (byte) (colors[x + y * pattern.Pattern.Width].r * 255f), (byte) (colors[x + y * pattern.Pattern.Width].g * 255f), (byte) (colors[x + y * pattern.Pattern.Width].b * 255f)));
-											}
-										}/*
-										if (path.EndsWith(".webp"))
-										{
-											WebP.Error error;
-											var tex = bitmap.ToTexture2D(null);
-											System.IO.File.WriteAllBytes(path, WebP.Texture2DExt.EncodeToWebP(tex, 1f, out error));
-											GameObject.DestroyImmediate(tex);
-										}
-										else {*/
-											var imageFormat = System.Drawing.Imaging.ImageFormat.Png;
-											if (path.EndsWith(".gif"))
-												imageFormat = System.Drawing.Imaging.ImageFormat.Gif;
-											else if (path.EndsWith(".jpg") || path.EndsWith(".jpeg"))
-												imageFormat = System.Drawing.Imaging.ImageFormat.Jpeg;
-											else if (path.EndsWith(".bmp"))
-												imageFormat = System.Drawing.Imaging.ImageFormat.Bmp;
-											bitmap.Save(path, imageFormat);
-										//}
+										var bitmap = pattern.Pattern.GetBitmap();
+										bitmap.Save(path);
 									}
 								});
 							}
 							else if (format == FormatPopup.Format.QR)
 							{
-								StandaloneFileBrowser.SaveFilePanelAsync("Export design", "", "qrcode.png", new ExtensionFilter[] { new ExtensionFilter("QR Code", new string[] { "png" }), new ExtensionFilter("ACNL Pattern file", new string[] { "acnl" }) }, 
+								StandaloneFileBrowser.SaveFilePanelAsync("Export design", "", "qrcode.png", new ExtensionFilter[] { new ExtensionFilter("QR Code", new string[] { "png" }) }, 
 									(path) =>
 									{
 										if (path != null && path.Length > 0)
@@ -818,7 +688,7 @@ public class PatternSelector : MonoBehaviour
 												if (bytes.Length > 620)
 												{
 													int parity = Random.Range(0, 255);
-													System.Drawing.Bitmap[] bitmaps = new System.Drawing.Bitmap[4];
+													TextureBitmap[] bitmaps = new TextureBitmap[4];
 													for (int i = 0; i < 4; i++)
 													{
 														var qr = new QrCodeEncodingOptions()
@@ -835,9 +705,14 @@ public class PatternSelector : MonoBehaviour
 														System.Array.Copy(bytes, 540 * i, part, 0, 540);
 
 														bitmaps[i] = writer.Write(System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(part));
-														//graphics.DrawImage(partBitmap, ((i % 2) * 400), (i / 2) * 400, 400, 400);
+														bitmaps[i].FlipY();
+														bitmaps[i].CreateBackgroundTexture();
+														bitmaps[i].Apply();
 													}
-													System.IO.File.WriteAllBytes(path, Controller.Instance.QRCode.Render(pattern.Pattern, bitmaps[0], bitmaps[1], bitmaps[2], bitmaps[3]));
+													var b = Controller.Instance.QRCode.Render(pattern.Pattern, bitmaps[0], bitmaps[1], bitmaps[2], bitmaps[3]);
+													Debug.Log(path);
+													Debug.Log(b.Length);
+													System.IO.File.WriteAllBytes(path, b);
 													bitmaps[0].Dispose();
 													bitmaps[1].Dispose();
 													bitmaps[2].Dispose();
@@ -852,7 +727,10 @@ public class PatternSelector : MonoBehaviour
 														Width = 700
 													};
 													writer.Options = qr;
-													System.Drawing.Bitmap bitmap = writer.Write(System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(bytes));
+													TextureBitmap bitmap = writer.Write(System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(bytes));
+													bitmap.FlipY();
+													bitmap.CreateBackgroundTexture();
+													bitmap.Apply();
 
 													System.IO.File.WriteAllBytes(path, Controller.Instance.QRCode.Render(pattern.Pattern, bitmap));
 													bitmap.Dispose();

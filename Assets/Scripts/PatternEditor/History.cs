@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -32,34 +33,34 @@ public class History
 
 	public class ChangedLayerAction : HistoryEvent
 	{
-		private Color[] FromColors;
-		private Color[] ToColors;
+		private IntPtr FromColors;
+		private IntPtr ToColors;
 		private int LayerIndex;
-		public ChangedLayerAction(string name, int layerIndex, UnityEngine.Color[] previousColors, UnityEngine.Color[] newColors) : base (name)
+
+		public ChangedLayerAction(string name, int layerIndex, IntPtr previousColors, IntPtr newColors) : base (name)
 		{
 			this.LayerIndex = layerIndex;
 			this.FromColors = previousColors;
-
-			var copy = new UnityEngine.Color[newColors.Length];
-			System.Array.Copy(newColors, copy, copy.Length);
-			this.ToColors = copy;
+			this.ToColors = newColors;
 		}
-
 
 		public override void RestoreBackward(History history)
 		{
 			var layer = history.SubPattern.Layers[this.LayerIndex] as RasterLayer;
-			var cols = new Color[FromColors.Length];
-			Array.Copy(FromColors, cols, cols.Length);
-			layer.Colors = cols;
+			layer.Texture.CopyFrom(FromColors);
 		}
 
 		public override void RestorerForward(History history)
 		{
 			var layer = history.SubPattern.Layers[this.LayerIndex] as RasterLayer;
-			var cols = new Color[ToColors.Length];
-			Array.Copy(ToColors, cols, cols.Length);
-			layer.Colors = cols;
+			layer.Texture.CopyFrom(ToColors);
+		}
+
+		public override void Dispose()
+		{
+			base.Dispose();
+			Marshal.FreeHGlobal(FromColors);
+			Marshal.FreeHGlobal(ToColors);
 		}
 	}
 
@@ -137,8 +138,8 @@ public class History
 	{
 		private int LayerIndex;
 		private string LayerName;
-		private System.Drawing.Bitmap Bitmap;
-		private UnityEngine.Color[] Colors;
+		private TextureBitmap Bitmap;
+		private IntPtr Colors;
 		private int ObjectX;
 		private int ObjectY;
 		private int ObjectWidth;
@@ -150,32 +151,35 @@ public class History
 			this.LayerName = layer.Name;
 			if (layer is SmartObjectLayer sol)
 			{
-				Bitmap = (System.Drawing.Bitmap) sol.Bitmap.Clone();
+				Bitmap = sol.Bitmap.Clone();
 				ObjectX = sol.ObjectX;
 				ObjectY = sol.ObjectY;
 				ObjectWidth = sol.ObjectWidth;
 				ObjectHeight = sol.ObjectHeight;
 			}
-			Colors = new Color[layer.Colors.Length];
-			System.Array.Copy(layer.Colors, Colors, Colors.Length);
+			else
+			{
+				Colors = Marshal.AllocHGlobal(layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize);
+				unsafe
+				{
+					Buffer.MemoryCopy(layer.Texture.Bytes.ToPointer(), Colors.ToPointer(), layer.Texture.Width * layer.Texture.Height * 4, layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize);
+				}
+			}
 		}
 
 
 		public override void RestoreBackward(History history)
 		{
-			var copy = new Color[Colors.Length];
-			Array.Copy(Colors, copy, copy.Length);
 			if (this.Bitmap != null)
 			{
 				var newLayer = new SmartObjectLayer(history.SubPattern, this.LayerName, this.Bitmap, this.ObjectX, this.ObjectY, this.ObjectWidth, this.ObjectHeight);
-				newLayer.Colors = copy;
-				//newLayer.UpdateColors();
+				newLayer.Bitmap = Bitmap.Clone();
 				history.SubPattern.Layers.Insert(this.LayerIndex, newLayer);
 			}
 			else
 			{
 				var newLayer = new RasterLayer(history.SubPattern, this.LayerName);
-				newLayer.Colors = copy;
+				newLayer.Texture.CopyFrom(Colors);
 				history.SubPattern.Layers.Insert(this.LayerIndex, newLayer);
 			}
 		}
@@ -188,7 +192,10 @@ public class History
 		public override void Dispose()
 		{
 			base.Dispose();
-			this.Bitmap.Dispose();
+			if (this.Bitmap != null)
+				this.Bitmap.Dispose();
+			else
+				Marshal.FreeHGlobal(this.Colors);
 		}
 	}
 
@@ -196,12 +203,12 @@ public class History
 	public class TransformChangeCropResampling : HistoryEvent
 	{
 		private int LayerIndex;
-		private int PreviousCrop;
-		private int PreviousSampling;
-		private int NewCrop;
-		private int NewSampling;
+		private TextureBitmap.CropMode PreviousCrop;
+		private ResamplingFilters PreviousSampling;
+		private TextureBitmap.CropMode NewCrop;
+		private ResamplingFilters NewSampling;
 
-		public TransformChangeCropResampling(string name, int layerIndex, int previousCrop, int previousSampling, int newCrop, int newSampling) : base(name)
+		public TransformChangeCropResampling(string name, int layerIndex, TextureBitmap.CropMode previousCrop, ResamplingFilters previousSampling, TextureBitmap.CropMode newCrop, ResamplingFilters newSampling) : base(name)
 		{
 			this.LayerIndex = layerIndex;
 			this.PreviousCrop = previousCrop;
@@ -229,27 +236,33 @@ public class History
 	{
 		private int LayerIndex;
 		private string LayerName;
-		private System.Drawing.Bitmap Bitmap;
-		private UnityEngine.Color[] Colors;
+		private TextureBitmap Bitmap;
+		private IntPtr Colors;
 		private int ObjectX;
 		private int ObjectY;
 		private int ObjectWidth;
 		private int ObjectHeight;
-
+		
 		public LayerCreatedAction(string name, int layerIndex, Layer layer) : base(name)
 		{
 			this.LayerIndex = layerIndex;
 			this.LayerName = layer.Name;
 			if (layer is SmartObjectLayer sol)
 			{
-				Bitmap = (System.Drawing.Bitmap) sol.Bitmap.Clone();
+				Bitmap = sol.Bitmap.Clone();
 				ObjectX = sol.ObjectX;
 				ObjectY = sol.ObjectY;
 				ObjectWidth = sol.ObjectWidth;
 				ObjectHeight = sol.ObjectHeight;
 			}
-			Colors = new Color[layer.Colors.Length];
-			System.Array.Copy(layer.Colors, Colors, Colors.Length);
+			else
+			{
+				Colors = Marshal.AllocHGlobal(layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize);
+				unsafe
+				{
+					Buffer.MemoryCopy(layer.Texture.Bytes.ToPointer(), Colors.ToPointer(), layer.Texture.Width * layer.Texture.Height * 4, layer.Texture.Width * layer.Texture.Height * layer.Texture.PixelSize);
+				}
+			}
 		}
 
 		public override void RestoreBackward(History history)
@@ -262,26 +275,24 @@ public class History
 			if (this.Bitmap != null)
 			{
 				var newLayer = new SmartObjectLayer(history.SubPattern, this.LayerName, this.Bitmap, this.ObjectX, this.ObjectY, this.ObjectWidth, this.ObjectHeight);
-				var copy = new Color[Colors.Length];
-				Array.Copy(Colors, copy, copy.Length);
-				newLayer.Colors = copy;
-				//newLayer.UpdateColors();
+				newLayer.Bitmap = Bitmap.Clone();
 				history.SubPattern.Layers.Insert(this.LayerIndex, newLayer);
 			}
 			else
 			{
 				var newLayer = new RasterLayer(history.SubPattern, this.LayerName);
-				var copy = new Color[Colors.Length];
-				Array.Copy(Colors, copy, copy.Length);
-				newLayer.Colors = copy;
+				newLayer.Texture.CopyFrom(Colors);
 				history.SubPattern.Layers.Insert(this.LayerIndex, newLayer);
 			}
 		}
+
 		public override void Dispose()
 		{
 			base.Dispose();
 			if (this.Bitmap != null)
 				this.Bitmap.Dispose();
+			else
+				Marshal.FreeHGlobal(this.Colors);
 		}
 	}
 

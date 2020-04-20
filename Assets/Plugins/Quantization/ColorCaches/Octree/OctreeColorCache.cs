@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using SimplePaletteQuantizer.ColorCaches.Common;
 using SimplePaletteQuantizer.Helpers;
@@ -57,11 +56,11 @@ namespace SimplePaletteQuantizer.ColorCaches.Octree
         /// <summary>
         /// See <see cref="BaseColorCache.OnCachePalette"/> for more details.
         /// </summary>
-        protected override void OnCachePalette(IList<Color> palette)
+        protected override void OnCachePalette(IList<TextureBitmap.Color> palette)
         {
             Int32 index = 0;
 
-            foreach (Color color in palette)
+            foreach (TextureBitmap.Color color in palette)
             {
                 root.AddColor(color, index++, 0);
             }
@@ -70,9 +69,9 @@ namespace SimplePaletteQuantizer.ColorCaches.Octree
         /// <summary>
         /// See <see cref="BaseColorCache.OnGetColorPaletteIndex"/> for more details.
         /// </summary>
-        protected override void OnGetColorPaletteIndex(Color color, out Int32 paletteIndex)
+        protected override void OnGetColorPaletteIndex(TextureBitmap.Color color, out Int32 paletteIndex)
         {
-            Dictionary<Int32, Color> candidates = root.GetPaletteIndex(color, 0);
+            Dictionary<Int32, TextureBitmap.Color> candidates = root.GetPaletteIndex(color, 0);
 
             paletteIndex = 0;
             Int32 index = 0;

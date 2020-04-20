@@ -26,6 +26,16 @@ public class TooltipHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 		Controller.Instance.HideTooltip();
 	}
 
+	void Update()
+	{
+		if (TooltipShown)
+		{
+			var rectTransform = this.GetComponent<RectTransform>();
+			var pos = Controller.Instance.TopLeftTransform.InverseTransformPoint(rectTransform.TransformPoint(Offset));
+			Controller.Instance.ShowTooltip(Tooltip, pos);
+		}
+	}
+
 	void OnDisable()
 	{
 		if (TooltipShown)

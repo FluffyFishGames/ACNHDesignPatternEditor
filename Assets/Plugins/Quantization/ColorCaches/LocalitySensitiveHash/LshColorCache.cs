@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Drawing;
 using System.Collections.Generic;
 using SimplePaletteQuantizer.Helpers;
 using SimplePaletteQuantizer.ColorCaches.Common;
@@ -90,7 +89,7 @@ namespace SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash
 
         #region | Helper methods |
 
-        private Int64 GetColorBucketIndex(Color color)
+        private Int64 GetColorBucketIndex(TextureBitmap.Color color)
         {
             Single normalizedDistance = 0.0f;
             Single componentA, componentB, componentC;
@@ -110,7 +109,7 @@ namespace SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash
             return resultHash;
         }
 
-        private BucketInfo GetBucket(Color color)
+        private BucketInfo GetBucket(TextureBitmap.Color color)
         {
             Int64 bucketIndex = GetColorBucketIndex(color);
 
@@ -159,13 +158,13 @@ namespace SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash
         /// <summary>
         /// See <see cref="BaseColorCache.OnCachePalette"/> for more details.
         /// </summary>
-        protected override void OnCachePalette(IList<Color> palette)
+        protected override void OnCachePalette(IList<TextureBitmap.Color> palette)
         {
             Int32 paletteIndex = 0;
             minBucketIndex = quality;
             maxBucketIndex = 0;
 
-            foreach (Color color in palette)
+            foreach (TextureBitmap.Color color in palette)
             {
                 Int64 bucketIndex = GetColorBucketIndex(color);
                 BucketInfo bucket = buckets[bucketIndex] ?? new BucketInfo();
@@ -180,7 +179,7 @@ namespace SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash
         /// <summary>
         /// See <see cref="BaseColorCache.OnGetColorPaletteIndex"/> for more details.
         /// </summary>
-        protected override void OnGetColorPaletteIndex(Color color, out Int32 paletteIndex)
+        protected override void OnGetColorPaletteIndex(TextureBitmap.Color color, out Int32 paletteIndex)
         {
             BucketInfo bucket = GetBucket(color);
             Int32 colorCount = bucket.Colors.Count();

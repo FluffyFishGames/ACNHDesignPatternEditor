@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 public class SmartObjectLayer : Layer, ITransformable
 {
-	public System.Drawing.Bitmap Bitmap;
-	public ISampling Resampler;
-	public ICrop Crop;
+	public TextureBitmap Bitmap;
+	public ResamplingFilters Resampler;
+	public TextureBitmap.CropMode Crop;
 	public int ObjectX
 	{
 		get { return _ObjectX; }
@@ -34,25 +34,15 @@ public class SmartObjectLayer : Layer, ITransformable
 	private int _ObjectY;
 	private int _ObjectWidth;
 	private int _ObjectHeight;
+	private int _PreviousWidth;
+	private int _PreviousHeight;
+	private ResamplingFilters _PreviousResampler;
+	private TextureBitmap.CropMode _PreviousCrop;
 
-	public static List<ICrop> Crops = new List<ICrop>()
+	public SmartObjectLayer(SubPattern pattern, string name, TextureBitmap bitmap, int x, int y, int width, int height) : base(pattern, name)
 	{
-		null,
-		new Fit(),
-		new Cover()
-	};
-
-	public static List<ISampling> Resamplers = new List<ISampling>()
-	{
-		new NearestNeighbourSampling(),
-		new BillinearSampling(),
-		new BicubicSampling()
-	};
-
-	public SmartObjectLayer(SubPattern pattern, string name, System.Drawing.Bitmap bitmap, int x, int y, int width, int height) : base(pattern, name)
-	{
-		Crop = Crops[0];
-		Resampler = Resamplers[0];
+		Crop = TextureBitmap.CropMode.Scale;
+		Resampler = ResamplingFilters.Box;
 		Bitmap = bitmap;
 		_ObjectX = x;
 		_ObjectY = y;
@@ -62,59 +52,36 @@ public class SmartObjectLayer : Layer, ITransformable
 	
 	public void UpdateColors()
 	{
-		int desiredWidth = _ObjectWidth;
-		int desiredHeight = _ObjectHeight;
-
-		if (Crop != null)
+		if (_PreviousWidth != _ObjectWidth || _PreviousHeight != _ObjectHeight || _PreviousCrop != Crop || _PreviousResampler != Resampler)
 		{
-			Crop.SetImage(Bitmap, desiredWidth, desiredHeight);
-			desiredWidth = Crop.GetWidth();
-			desiredHeight = Crop.GetHeight();
+			Texture.CopyFrom(Bitmap);
+			Texture.ResampleAndCrop(this.Resampler, this.Crop, _ObjectWidth, _ObjectHeight);
+			UpdateTexture();
+			_PreviousWidth = _ObjectWidth;
+			_PreviousHeight = _ObjectHeight;
+			_PreviousCrop = Crop;
+			_PreviousResampler = Resampler;
 		}
-		var resampled = Resampler.Resample(Bitmap, desiredWidth, desiredHeight);
-
-		var colors = resampled.ToColors();
-		for (int i = 0; i < Colors.Length; i++)
-			Colors[i] = new UnityEngine.Color(0f, 0f, 0f, 0f);
-
-		var startX = (int) (_ObjectX + (_ObjectWidth - desiredWidth) / 2f);
-		var startY = (int) (_ObjectY + (_ObjectHeight - desiredHeight) / 2f);
-
-		for (int y = _ObjectY; y < _ObjectY + _ObjectHeight; y++)
-		{
-			for (int x = _ObjectX; x < _ObjectX + _ObjectWidth; x++)
-			{
-				if (x >= startX && y >= startY && x < startX + desiredWidth && y < startY + desiredHeight)
-				{
-					int px = x;
-					int py = y;
-					if (px >= 0 && px < _Width && py >= 0 && py < _Height)
-						Colors[px + py * _Width] = colors[(x - startX) + (y - startY) * desiredWidth];
-				}
-			}
-		}
-
-		UpdateTexture();
 	}
 
-	public void ChangeResampling(int num)
+	public void ChangeResampling(ResamplingFilters filter)
 	{
-		Resampler = Resamplers[num];
+		Resampler = filter;
 	}
 
-	public int GetResampling()
+	public ResamplingFilters GetResampling()
 	{
-		return Resamplers.IndexOf(Resampler);
+		return Resampler;
 	}
 
-	public void ChangeCrop(int num)
+	public void ChangeCrop(TextureBitmap.CropMode crop)
 	{
-		Crop = Crops[num];
+		Crop = crop;
 	}
 
-	public int GetCrop()
+	public TextureBitmap.CropMode GetCrop()
 	{
-		return Crops.IndexOf(Crop);
+		return Crop;
 	}
 
 	public override void Dispose()

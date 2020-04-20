@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 
 namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
@@ -15,7 +14,7 @@ namespace SimplePaletteQuantizer.Quantizers.DistinctSelection
             Buckets = new DistinctBucket[16];
         }
 
-        public void StoreColor(Color color)
+        public void StoreColor(TextureBitmap.Color color)
         {
             Int32 redIndex = color.R >> 5;
             DistinctBucket redBucket = Buckets[redIndex];
