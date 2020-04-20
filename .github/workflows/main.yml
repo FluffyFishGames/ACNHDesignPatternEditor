@@ -8,41 +8,7 @@ env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
 jobs:
-  requestManualActivationFile:
-    name: Request manual activation file
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        unityVersion:
-          - 2020.1.0b5
-    steps:
-      - uses: actions/checkout@v2
-      - uses: webbertakken/unity-request-manual-activation-file@v1.1
-        id: getManualLicenseFile
-        with:
-          unityVersion: ${{ matrix.unityVersion }}
-      - uses: actions/upload-artifact@v1
-        with:
-          name: Manual Activation File
-          path: ${{ steps.getManualLicenseFile.outputs.filePath }}
-
-  requestActivation:
-    name: Request activation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: webbertakken/unity-activate@v1.2
-
-  activateAndThenReturnLicense:
-    name: Return License
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: webbertakken/unity-activate@v1.2
-      - uses: webbertakken/unity-return-license@v1
-
-  buildAndTestForSomePlatforms:
+  buildForSomePlatforms:
     name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
     runs-on: ubuntu-latest
     strategy:
@@ -68,11 +34,6 @@ jobs:
           restore-keys: |
             Library-${{ matrix.projectPath }}-
             Library-
-      - uses: webbertakken/unity-test-runner@v1.3
-        id: testRunner
-        with:
-          projectPath: ${{ matrix.projectPath }}
-          unityVersion: ${{ matrix.unityVersion }}
       - uses: webbertakken/unity-builder@v0.10
         with:
           projectPath: ${{ matrix.projectPath }}
