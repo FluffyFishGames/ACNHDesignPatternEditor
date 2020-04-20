@@ -87,7 +87,7 @@ public static class DesignPatternExtension
 		int width = pattern.Width;
 		int height = pattern.Height;
 
-		var texture = new Texture2D(width, height, TextureFormat.RGBA32, false, true);
+		var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 		texture.filterMode = FilterMode.Point;
 		UnityEngine.Color[] pixels = pattern.GetPixels();
 		UnityEngine.Color[] resultPixels = new UnityEngine.Color[pixels.Length];
