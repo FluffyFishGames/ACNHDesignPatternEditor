@@ -30,7 +30,7 @@ public class Brush
 		if (BrushTexture != null)
 		{
 			this.BrushTexture.Resize(this.Size, this.Size);
-			GameObject.DestroyImmediate(BrushSprite);
+			GameObject.Destroy(BrushSprite);
 		}
 		else
 		{

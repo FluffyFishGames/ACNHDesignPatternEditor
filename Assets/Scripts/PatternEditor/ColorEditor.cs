@@ -247,8 +247,8 @@ public class ColorEditor : MonoBehaviour
         {
             if (Slider1Image.sprite != null)
             {
-                DestroyImmediate(Slider1Image.sprite.texture);
-                DestroyImmediate(Slider1Image.sprite);
+                Destroy(Slider1Image.sprite.texture);
+                Destroy(Slider1Image.sprite);
             }
             var hueTexture = new Texture2D(360, 1, TextureFormat.RGB24, false);
             hueTexture.wrapMode = TextureWrapMode.Clamp;
@@ -261,8 +261,8 @@ public class ColorEditor : MonoBehaviour
 
             if (Slider2Image.sprite != null)
             {
-                DestroyImmediate(Slider2Image.sprite.texture);
-                DestroyImmediate(Slider2Image.sprite);
+                Destroy(Slider2Image.sprite.texture);
+                Destroy(Slider2Image.sprite);
             }
             var saturationTexture = new Texture2D(100, 1, TextureFormat.RGB24, false);
             saturationTexture.wrapMode = TextureWrapMode.Clamp;
@@ -275,8 +275,8 @@ public class ColorEditor : MonoBehaviour
 
             if (Slider3Image.sprite != null)
             {
-                DestroyImmediate(Slider3Image.sprite.texture);
-                DestroyImmediate(Slider3Image.sprite);
+                Destroy(Slider3Image.sprite.texture);
+                Destroy(Slider3Image.sprite);
             }
             var valueTexture = new Texture2D(100, 1, TextureFormat.RGB24, false);
             valueTexture.wrapMode = TextureWrapMode.Clamp; 
@@ -291,8 +291,8 @@ public class ColorEditor : MonoBehaviour
         {
             if (Slider1Image.sprite != null)
             {
-                DestroyImmediate(Slider1Image.sprite.texture);
-                DestroyImmediate(Slider1Image.sprite);
+                Destroy(Slider1Image.sprite.texture);
+                Destroy(Slider1Image.sprite);
             }
             
             var redTexture = new Texture2D(255, 1, TextureFormat.RGB24, false);
@@ -306,8 +306,8 @@ public class ColorEditor : MonoBehaviour
 
             if (Slider2Image.sprite != null)
             {
-                DestroyImmediate(Slider2Image.sprite.texture);
-                DestroyImmediate(Slider2Image.sprite);
+                Destroy(Slider2Image.sprite.texture);
+                Destroy(Slider2Image.sprite);
             }
             var greenTexture = new Texture2D(255, 1, TextureFormat.RGB24, false);
             greenTexture.wrapMode = TextureWrapMode.Clamp;
@@ -320,8 +320,8 @@ public class ColorEditor : MonoBehaviour
 
             if (Slider3Image.sprite != null)
             {
-                DestroyImmediate(Slider3Image.sprite.texture);
-                DestroyImmediate(Slider3Image.sprite);
+                Destroy(Slider3Image.sprite.texture);
+                Destroy(Slider3Image.sprite);
             }
             var blueTexture = new Texture2D(255, 1, TextureFormat.RGB24, false);
             blueTexture.wrapMode = TextureWrapMode.Clamp;

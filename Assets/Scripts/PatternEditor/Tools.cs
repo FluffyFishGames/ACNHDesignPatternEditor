@@ -199,7 +199,7 @@ public class Tools : MonoBehaviour
 	{
 		for (int i = ProtocolContainer.childCount - 1; i >= history.Events.Count; i--)
 		{
-			DestroyImmediate(ProtocolContainer.GetChild(i).gameObject);
+			Destroy(ProtocolContainer.GetChild(i).gameObject);
 		}
 
 		for (int i = ProtocolContainer.childCount; i < history.Events.Count; i++)

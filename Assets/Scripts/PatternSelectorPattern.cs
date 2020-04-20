@@ -52,6 +52,7 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 		SelectionBorderTransform = transform.Find("SelectionBorder").GetComponent<RectTransform>();
 		SelectionImageTransform = SelectionBorderTransform.transform.Find("SelectionImage").GetComponent<RectTransform>();
 		SelectionBorderTransform.gameObject.SetActive(false);
+		TooltipHandler = GetComponent<TooltipHandler>();
 	}
 
 	public void SetPattern(DesignPattern pattern)
@@ -60,8 +61,8 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 		if (this.Pattern != null)
 		{
 			Logger.Log(Logger.Level.TRACE, "Removing old pattern preview and texture.");
-			GameObject.DestroyImmediate(Preview.texture);
-			GameObject.DestroyImmediate(Preview);
+			GameObject.Destroy(Preview.texture);
+			GameObject.Destroy(Preview);
 		}
 		if (pattern == null)
 			Logger.Log(Logger.Level.ERROR, "Pattern is null!");

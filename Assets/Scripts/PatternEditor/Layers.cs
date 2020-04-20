@@ -63,7 +63,7 @@ public class Layers : MonoBehaviour
 	{
 		while (LayersTransform.childCount > Editor.CurrentPattern.CurrentSubPattern.Layers.Count)
 		{
-			DestroyImmediate(LayersTransform.GetChild(0).gameObject);
+			Destroy(LayersTransform.GetChild(0).gameObject);
 		}
 		while (LayersTransform.childCount < Editor.CurrentPattern.CurrentSubPattern.Layers.Count)
 		{

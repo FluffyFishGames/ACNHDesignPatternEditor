@@ -93,14 +93,14 @@ public class QRCode : MonoBehaviour
 
             Camera.Render();
             
-            GameObject.DestroyImmediate(img1);
-            GameObject.DestroyImmediate(qr1);
-            GameObject.DestroyImmediate(img2);
-            GameObject.DestroyImmediate(qr2);
-            GameObject.DestroyImmediate(img3);
-            GameObject.DestroyImmediate(qr3);
-            GameObject.DestroyImmediate(img4);
-            GameObject.DestroyImmediate(qr4);
+            GameObject.Destroy(img1);
+            GameObject.Destroy(qr1);
+            GameObject.Destroy(img2);
+            GameObject.Destroy(qr2);
+            GameObject.Destroy(img3);
+            GameObject.Destroy(qr3);
+            GameObject.Destroy(img4);
+            GameObject.Destroy(qr4);
         }
         else
         {

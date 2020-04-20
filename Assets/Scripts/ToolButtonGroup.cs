@@ -14,7 +14,7 @@ public class ToolButtonGroup : MonoBehaviour
 	{
 		if (this.Buttons != null)
 			for (int i = 0; i < this.Buttons.Length; i++)
-				DestroyImmediate(this.Buttons[i].gameObject);
+				Destroy(this.Buttons[i].gameObject);
 
 		Buttons = new ToolButton[items.Length];
 		for (int i = 0; i < items.Length; i++)

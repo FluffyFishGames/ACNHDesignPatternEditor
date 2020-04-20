@@ -126,7 +126,7 @@ public class PatternSelector : MonoBehaviour
 	{
 		Logger.Log(Logger.Level.TRACE, "Removing all pattern objects (count: " + Patterns.childCount + ")");
 		for (var i = Patterns.childCount - 1; i >= 0; i--)
-			DestroyImmediate(Patterns.GetChild(i).gameObject);
+			Destroy(Patterns.GetChild(i).gameObject);
 
 		if (this.CurrentMenu == Menu.ProDesigns)
 		{

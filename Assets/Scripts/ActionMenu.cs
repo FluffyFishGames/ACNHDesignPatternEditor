@@ -65,7 +65,7 @@ public class ActionMenu : MonoBehaviour
 	{
 		if (Buttons != null)
 			for (int i = 0; i < Buttons.Length; i++)
-				GameObject.DestroyImmediate(Buttons[i]);
+				GameObject.Destroy(Buttons[i]);
 
 		Buttons = new GameObject[actions.Length];
 		for (int i = 0; i < actions.Length; i++)

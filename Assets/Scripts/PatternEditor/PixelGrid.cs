@@ -72,8 +72,8 @@ public class PixelGrid : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
 	public void Dispose()
 	{
-		GameObject.DestroyImmediate(GridTexture);
-		GameObject.DestroyImmediate(PixelTexture);
+		GameObject.Destroy(GridTexture);
+		GameObject.Destroy(PixelTexture);
 	}
 
 	public void UpdateImage()
