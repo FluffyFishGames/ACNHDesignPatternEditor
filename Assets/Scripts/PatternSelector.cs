@@ -65,7 +65,7 @@ public class PatternSelector : MonoBehaviour
 			ProDesignsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
 			DesignsIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
 			CurrentMenu = Menu.Designs;
-			Open();
+			CreatePatterns();
 		}
 	}
 
@@ -80,13 +80,11 @@ public class PatternSelector : MonoBehaviour
 			DesignsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
 			ProDesignsIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
 			CurrentMenu = Menu.ProDesigns;
-			Open();
+			CreatePatterns();
 		}
 	}
 	void Start()
 	{
-		SwitchToDesigns();
-
 		var click = new EventTrigger.Entry();
 		click.eventID = EventTriggerType.PointerClick;
 		click.callback.AddListener((eventData) => {
@@ -124,37 +122,56 @@ public class PatternSelector : MonoBehaviour
 		StartCoroutine(DoClose());
 	}
 
+	void CreatePatterns()
+	{
+		Logger.Log(Logger.Level.TRACE, "Removing all pattern objects (count: " + Patterns.childCount + ")");
+		for (var i = Patterns.childCount - 1; i >= 0; i--)
+			DestroyImmediate(Patterns.GetChild(i).gameObject);
+
+		if (this.CurrentMenu == Menu.ProDesigns)
+		{
+			for (var i = 0; i < Controller.Instance.CurrentSavegame.ProDesignPatterns.Length; i++)
+			{
+				Logger.Log(Logger.Level.TRACE, "Creating pattern selector button for pro design (" + i + ")");
+				var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
+				PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
+				PatternObjects[i].PatternSelector = this;
+				PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[i]);
+			}
+		}
+		else
+		{
+			for (var i = 0; i < Controller.Instance.CurrentSavegame.DesignPatterns.Length; i++)
+			{
+				Logger.Log(Logger.Level.TRACE, "Creating pattern selector button for design (" + i + ")");
+				var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
+				PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
+				PatternObjects[i].PatternSelector = this;
+				PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[i]);
+			}
+		}
+	}
+
 	public void Open()
 	{
+		Logger.Log(Logger.Level.DEBUG, "Opening pattern selector...");
 		try
 		{
-			for (var i = Patterns.childCount - 1; i >= 0; i--)
-				DestroyImmediate(Patterns.GetChild(i).gameObject);
+			ProDesignsTooltip.SetActive(false);
+			DesignsTooltip.SetActive(true);
+			ProDesignsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+			DesignsIcon.color = new Color(228f / 255f, 107f / 255f, 137f / 255f);
+			ProDesignsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+			DesignsIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
+			CurrentMenu = Menu.Designs;
 
-			if (this.CurrentMenu == Menu.Designs)
-			{
-				for (var i = 0; i < Controller.Instance.CurrentSavegame.DesignPatterns.Length; i++)
-				{
-					var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
-					PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
-					PatternObjects[i].PatternSelector = this;
-					PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[i]);
-				}
-			}
-			else
-			{
-				for (var i = 0; i < Controller.Instance.CurrentSavegame.ProDesignPatterns.Length; i++)
-				{
-					var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
-					PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
-					PatternObjects[i].PatternSelector = this;
-					PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[i]);
-				}
-			}
+			Logger.Log(Logger.Level.TRACE, "Current menu: " + this.CurrentMenu.ToString());
+
+			CreatePatterns();
 		}
 		catch (System.Exception e)
 		{
-			System.IO.File.AppendAllText(Application.dataPath + "/error.log", "\r\n" + e.ToString());
+			Logger.Log(Logger.Level.ERROR, "Exception while parsing design patterns: " + e.ToString());
 		}
 
 		if (!IsOpened)

@@ -148,20 +148,26 @@ public class MainMenu : MonoBehaviour
 
 	private void LoadDesigns(string path)
 	{
+		Logger.Log(Logger.Level.INFO, "Start loading designs file at \"" + path + "\"");
 		StartCoroutine(ShowDesignerLoading());
 		DesignsLoading = true;
 		Thread t = new Thread(() => {
 			try
 			{
 				bool newFile = !System.IO.File.Exists(path);
+				Logger.Log(Logger.Level.INFO, "New file?: " + newFile);
+
 				Controller.Instance.CurrentSavegame = new MyHorizons.Data.Save.MainSaveFile(null, path, null);
 				if (newFile)
 				{
+					Logger.Log(Logger.Level.INFO, "It's a new file! Populate it.");
 					for (int i = 0; i < 50; i++)
 					{
+						Logger.Log(Logger.Level.TRACE, "Filling design # " + i);
 						Controller.Instance.CurrentSavegame.DesignPatterns[i].Type = MyHorizons.Data.DesignPattern.TypeEnum.SimplePattern;
 						Controller.Instance.CurrentSavegame.DesignPatterns[i].Empty();
 						Controller.Instance.CurrentSavegame.DesignPatterns[i].Name = "Empty";
+						Logger.Log(Logger.Level.TRACE, "Filling pro design # " + i);
 						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Type = MyHorizons.Data.DesignPattern.TypeEnum.EmptyProPattern;
 						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Pixels = new byte[32 * 64];
 						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Name = "Empty";
@@ -169,6 +175,7 @@ public class MainMenu : MonoBehaviour
 					}
 				}
 				DesignsLoaded = true;
+				Logger.Log(Logger.Level.INFO, "Successfully loaded designs file!");
 			}
 			catch (Exception e)
 			{
