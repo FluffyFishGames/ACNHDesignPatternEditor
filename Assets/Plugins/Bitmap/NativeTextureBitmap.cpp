@@ -35,12 +35,12 @@ namespace
      }
 }
 
-extern "C" __declspec(dllexport) void __stdcall RegisterTexture(uint32_t id, uint32_t* ptr)
+extern "C" void UNITY_INTERFACE_EXPORT RegisterTexture(uint32_t id, uint32_t* ptr)
 {
     InternalRegisterTexture(id, ptr);
 }
 
-extern "C" __declspec(dllexport) void __stdcall UnregisterTexture(uint32_t id)
+extern "C" void UNITY_INTERFACE_EXPORT UnregisterTexture(uint32_t id)
 {
     InternalUnregisterTexture(id);
 }
