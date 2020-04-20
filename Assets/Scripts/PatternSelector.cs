@@ -154,7 +154,7 @@ public class PatternSelector : MonoBehaviour
 		}
 		catch (System.Exception e)
 		{
-			System.IO.File.AppendAllText("error.log", "\r\n" + e.ToString());
+			System.IO.File.AppendAllText(Application.dataPath + "/error.log", "\r\n" + e.ToString());
 		}
 
 		if (!IsOpened)
