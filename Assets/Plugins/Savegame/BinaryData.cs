@@ -14,55 +14,56 @@ public unsafe class BinaryData
     public sbyte ReadS8(int offset)
     {
         if (offset < 0 || offset + 1 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return *(((sbyte*) Data) + offset);
+        return *(((sbyte*) (Data + offset)));
     }
 
     public byte ReadU8(int offset)
     {
         if (offset < 0 || offset + 1 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return *(((byte*) Data) + offset);
+        return *(((byte*) (Data + offset)));
     }
 
     public ushort ReadU16(int offset)
     {
         if (offset < 0 || offset + 2 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return *(((ushort*) Data) + offset);
+        return *(((ushort*) (Data + offset)));
     }
 
     public short ReadS16(int offset)
     {
         if (offset < 0 || offset + 2 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return *(((short*) Data) + offset);
+        return *(((short*) (Data + offset)));
     }
 
     public uint ReadU32(int offset)
     {
         if (offset < 0 || offset + 4 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return *(((uint*) Data) + offset);
+        return *(((uint*) (Data + offset)));
     }
 
     public int ReadS32(int offset)
     {
         if (offset < 0 || offset + 4 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return *(((int*) Data) + offset);
+        return *(((int*) (Data + offset)));
     }
 
     public ulong ReadU64(int offset)
     {
         if (offset < 0 || offset + 8 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return *(((ulong*) Data) + offset);
+        return *(((ulong*) (Data + offset)));
     }
 
     public long ReadS64(int offset)
     {
         if (offset < 0 || offset + 8 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return *(((long*) Data) + offset);
+        return *(((long*) (Data + offset)));
     }
 
     public string ReadString(int offset, int size)
     {
         if (offset < 0 || offset + size * 2 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        return Marshal.PtrToStringUni(new IntPtr(Data + offset), size * 2).Trim('\0');
+        return System.Text.Encoding.Unicode.GetString(ReadBytes(offset, size * 2)).Trim('\0');
+        //return Marshal.PtrToStringUni(new IntPtr(Data + offset), size * 2).Trim('\0');
         /*byte[] byteData = new byte[size * 2];
         fixed (byte* bytePtr = &byteData[0])
             Buffer.MemoryCopy(Data + offset, bytePtr, size * 10, size * 10);
@@ -82,49 +83,49 @@ public unsafe class BinaryData
     public void WriteS8(int offset, sbyte value)
     {
         if (offset < 0 || offset + 1 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        *(((sbyte*) Data) + offset) = value;
+        *(((sbyte*) (Data + offset))) = value;
     }
 
     public void WriteU8(int offset, byte value)
     {
         if (offset < 0 || offset + 1 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        *(((byte*) Data) + offset) = value;
+        *(((byte*) (Data + offset))) = value;
     }
 
     public void WriteU16(int offset, ushort value)
     {
         if (offset < 0 || offset + 2 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        *(((ushort*) Data) + offset) = value;
+        *(((ushort*) (Data + offset))) = value;
     }
 
     public void WriteS16(int offset, short value)
     {
         if (offset < 0 || offset + 2 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        *(((short*) Data) + offset) = value;
+        *(((short*) (Data + offset))) = value;
     }
 
     public void WriteU32(int offset, uint value)
     {
         if (offset < 0 || offset + 4 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        *(((uint*) Data) + offset) = value;
+        *(((uint*) (Data + offset))) = value;
     }
 
     public void WriteS32(int offset, int value)
     {
         if (offset < 0 || offset + 4 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        *(((int*) Data) + offset) = value;
+        *(((int*) (Data + offset))) = value;
     }
 
     public void WriteU64(int offset, ulong value)
     {
         if (offset < 0 || offset + 8 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        *(((ulong*) Data) + offset) = value;
+        *(((ulong*) (Data + offset))) = value;
     }
 
     public void WriteS64(int offset, long value)
     {
         if (offset < 0 || offset + 8 > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
-        *(((long*) Data) + offset) = value;
+        *(((long*) (Data + offset))) = value;
     }
 
     public void WriteBytes(int offset, byte[] bytes)

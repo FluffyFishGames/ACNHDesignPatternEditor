@@ -79,7 +79,6 @@ public unsafe class Designs : BinaryData, IDesignPatternContainer
 
     public void Dispose()
     {
-        Data = null;
         Marshal.FreeHGlobal(this.RawData);
     }
 
@@ -92,7 +91,7 @@ public unsafe class Designs : BinaryData, IDesignPatternContainer
 
         byte[] bytes = new byte[Size];
         fixed (byte* bytesPtr = &bytes[0])
-            System.Buffer.MemoryCopy(Data, bytesPtr, Size, Size);
+            System.Buffer.MemoryCopy(Data, bytesPtr, 0x235A0, 0x235A0);
 
         File.WriteAllBytes(MainFile.FullName, bytes);
     }
