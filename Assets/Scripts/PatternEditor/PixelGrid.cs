@@ -151,7 +151,7 @@ public class PixelGrid : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 			ShowUVToggle.isOn = false;
 			UVImage.gameObject.SetActive(false);
 
-			ShowUVToggle.gameObject.SetActive(Editor.CurrentPattern.Type != MyHorizons.Data.DesignPattern.TypeEnum.SimplePattern);
+			ShowUVToggle.gameObject.SetActive(Editor.CurrentPattern.Type != DesignPattern.TypeEnum.SimplePattern);
 		}
 	}
 
@@ -168,6 +168,8 @@ public class PixelGrid : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 		if (Editor == null)
 			return;
 		if (Editor.CurrentTool == null)
+			return;
+		if (Editor.CurrentBrush == null)
 			return;
 
 		if (RectTransformUtility.ScreenPointToLocalPointInRectangle(RectTransform, Input.mousePosition, Camera.main, out vec))

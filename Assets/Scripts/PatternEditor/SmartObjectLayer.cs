@@ -88,5 +88,6 @@ public class SmartObjectLayer : Layer, ITransformable
 	{
 		base.Dispose();
 		this.Bitmap.Dispose();
+		UnityEngine.Debug.Log("SOL disposed");
 	}
 }

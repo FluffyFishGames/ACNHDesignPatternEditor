@@ -5,7 +5,7 @@ using System;
 using System.Runtime.InteropServices;
 using UnityEngine.Rendering;
 using SimplePaletteQuantizer.Quantizers;
-
+using System.Diagnostics;
 
 public unsafe class TextureBitmap
 {
@@ -385,6 +385,7 @@ public unsafe class TextureBitmap
 
 	public Color* GetColors()
 	{
+		if (Disposed) return null;
 		return (Color*) (Bytes.ToPointer());
 	}
 
@@ -407,6 +408,7 @@ public unsafe class TextureBitmap
 
 	public void CreateBackgroundTexture()
 	{
+		if (Disposed) return;
 		if (this.Texture == null)
 		{
 			Texture = new Texture2D(Width, Height, TextureFormat.RGBA32, false);
@@ -445,6 +447,7 @@ public unsafe class TextureBitmap
 
 	public void Clear()
 	{
+		if (Disposed) return;
 		int w = Width;
 		int h = Height;
 		int m = Width * Height * PixelSize;
@@ -455,6 +458,7 @@ public unsafe class TextureBitmap
 
 	public void AlphaComposite(TextureBitmap other, Color tint, Point point = null, Rectangle otherRect = null, Func<int, int, bool> isDrawable = null)
 	{
+		if (Disposed) return;
 		int myWidth = Width;
 		int myHeight = Height;
 		int myPixelSize = PixelSize;
@@ -537,6 +541,7 @@ public unsafe class TextureBitmap
 
 	public void Subtract(TextureBitmap other, Color tint, Point point = null, Rectangle otherRect = null, Func<int, int, bool> isDrawable = null)
 	{
+		if (Disposed) return;
 		int myWidth = Width;
 		int myHeight = Height;
 		int myPixelSize = PixelSize;
@@ -589,6 +594,7 @@ public unsafe class TextureBitmap
 
 	public int[] ConvertToInt()
 	{
+		if (Disposed) return null;
 		int w = Width;
 		int h = Height;
 		int m = w * h;
@@ -603,6 +609,7 @@ public unsafe class TextureBitmap
 	
 	public void FromInt(int[] data)
 	{
+		if (Disposed) return;
 		int w = Width;
 		int h = Height;
 		int m = w * h;
@@ -615,6 +622,7 @@ public unsafe class TextureBitmap
 
 	public void Replace(TextureBitmap other, Color tint, Point point = null, Rectangle otherRect = null)
 	{
+		if (Disposed) return;
 		int myWidth = Width;
 		int myHeight = Height;
 		int myPixelSize = PixelSize;
@@ -662,6 +670,7 @@ public unsafe class TextureBitmap
 
 	public TextureBitmap Clone()
 	{
+		if (Disposed) return null;
 		var ret = new TextureBitmap(this.Width, this.Height);
 		Buffer.MemoryCopy(this.Bytes.ToPointer(), ret.Bytes.ToPointer(), this.Width * this.Height * PixelSize, this.Width * this.Height * PixelSize);
 		return ret;
@@ -669,17 +678,20 @@ public unsafe class TextureBitmap
 
 	public void CopyFrom(TextureBitmap bitmap)
 	{
+		if (Disposed) return;
 		this.Resize(bitmap.Width, bitmap.Height);
 		Buffer.MemoryCopy(bitmap.Bytes.ToPointer(), this.Bytes.ToPointer(), this.Width * this.Height * PixelSize, this.Width * this.Height * PixelSize);
 	}
 
 	public void CopyFrom(IntPtr pointer)
 	{
+		if (Disposed) return;
 		Buffer.MemoryCopy(pointer.ToPointer(), this.Bytes.ToPointer(), this.Width * this.Height * PixelSize, this.Width * this.Height * PixelSize);
 	}
 
 	public void Resample(ResamplingFilters filter, int newWidth, int newHeight)
 	{
+		if (Disposed) return;
 		ResamplingService resamplingService = new ResamplingService();
 		resamplingService.Filter = filter;
 		var array = ResamplingFilter.ConvertByteArrayToArray((byte*) this.Bytes.ToPointer(), this.Width, this.Height);
@@ -697,6 +709,7 @@ public unsafe class TextureBitmap
 
 	public void ResampleAndCrop(ResamplingFilters filter, CropMode mode, int newWidth, int newHeight)
 	{
+		if (Disposed) return;
 		// fit
 		int w = newWidth;
 		int h = newHeight;
@@ -756,6 +769,7 @@ public unsafe class TextureBitmap
 	
 	public void Move(Point point)
 	{
+		if (Disposed) return;
 		var w = Width;
 		var h = Height;
 		var ox = point.X;
@@ -778,6 +792,7 @@ public unsafe class TextureBitmap
 
 	public void Crop(Rectangle rect, bool keepSize = false)
 	{
+		if (Disposed) return;
 		var w = Width;
 		var h = Height;
 		var rw = rect.Width;
@@ -822,16 +837,45 @@ public unsafe class TextureBitmap
 
 	public void Quantize(IColorQuantizer quantizer, int colorCount)
 	{
+		if (Disposed) return;
 		int myWidth = Width;
 		int myHeight = Height;
 		Color* colors = GetColors();
 		quantizer.Prepare(this);
+		bool usesAlpha = false;
+		// weird stuff to make the quantizer work with alpha
+		Color lastColor = new Color(255, 255, 255, 0);
+		bool firstColorFound = false;
 		for (int y = 0; y < myHeight; y++)
 		{
 			for (int x = 0; x < myWidth; x++)
 			{
-				var col = *(colors + x + y * myWidth);
-				quantizer.AddColor(col, x, y);
+				int idx = x + y * myWidth;
+				var col = *(colors + idx);
+				if (col.A > 128)
+				{
+					col.A = 255;
+					(*(colors + x + y * myWidth)) = col;
+					if (!firstColorFound && usesAlpha)
+					{
+						for (int i = 0; i < idx; i++)
+							quantizer.AddColor(col, i % myWidth, Mathf.FloorToInt(i / myWidth));
+					}
+					firstColorFound = true;
+					lastColor = col;
+					quantizer.AddColor(col, x, y);
+				}
+				else
+				{
+					col = new Color(255, 255, 255, 0);
+					(*(colors + x + y * myWidth)) = col;
+					usesAlpha = true;
+
+					if (firstColorFound)
+					{
+						quantizer.AddColor(lastColor, x, y);
+					}
+				}
 			}
 		}
 		var palette = quantizer.GetPalette(colorCount);
@@ -839,9 +883,12 @@ public unsafe class TextureBitmap
 		{
 			for (int x = 0; x < myWidth; x++)
 			{
-				int index = quantizer.GetPaletteIndex(*(colors + x + y * myWidth), x, y);
-				//Debug.Log(index);
-				*(colors + x + y * Width) = palette[index];
+				if ((*(colors + x + y * myWidth)).A == 255)
+				{
+					int index = quantizer.GetPaletteIndex(*(colors + x + y * myWidth), x, y);
+					//Debug.Log(index);
+					*(colors + x + y * myWidth) = palette[index];
+				}
 			}
 		}
 		quantizer.Finish();
@@ -849,6 +896,8 @@ public unsafe class TextureBitmap
 
 	public void SetPixel(int x, int y, Color color)
 	{
+		if (x < 0 || y < 0 || x >= Width || y >= Height) return;
+		if (Disposed) return;
 		Color* myPointer = (Color*) Bytes.ToPointer();
 		int myIndex = x + y * Width;
 		*(myPointer + myIndex) = color;
@@ -856,6 +905,7 @@ public unsafe class TextureBitmap
 
 	public Color GetPixel(int x, int y)
 	{
+		if (Disposed) return new Color(0, 0, 0, 0);
 		Color* myPointer = (Color*) Bytes.ToPointer();
 		int myIndex = x + y * Width;
 		return *(myPointer + myIndex);
@@ -863,6 +913,7 @@ public unsafe class TextureBitmap
 
 	public void Resize(int width, int height)
 	{
+		if (Disposed) return;
 		InternalResize(width, height);
 	}
 
@@ -874,20 +925,31 @@ public unsafe class TextureBitmap
 
 	public void Apply()
 	{
+		if (Disposed) return;
 		if (this.Texture != null)
+		{
+			CommandBuffer.Clear();
+			CommandBuffer.IssuePluginCustomTextureUpdateV2(GetTextureBitmapUpdateCallback(), this.Texture, ID);
 			Graphics.ExecuteCommandBuffer(CommandBuffer);
+		}
 	}
 
+	private bool Disposed = false;
 	public void Dispose()
 	{
-		if (Texture != null)
-			GameObject.Destroy(Texture);
-		Marshal.FreeHGlobal(Bytes);
-		UnregisterTexture(ID);
+		if (!Disposed)
+		{
+			Disposed = true;
+			if (Texture != null)
+				GameObject.Destroy(Texture);
+			Marshal.FreeHGlobal(Bytes);
+			UnregisterTexture(ID);
+		}
 	}
 
 	private void InternalResize(int width, int height)
 	{
+		if (Disposed) return;
 		if (Width != width || Height != height)
 		{
 			Width = width;
@@ -908,6 +970,7 @@ public unsafe class TextureBitmap
 
 	public void FlipY()
 	{
+		if (Disposed) return;
 		int w = Width;
 		int h = Height;
 		Color* myPointer = (Color*) this.Bytes.ToPointer();
@@ -953,11 +1016,13 @@ public unsafe class TextureBitmap
 
 	public void LoadFrom(string filename)
 	{
+		if (Disposed) return;
 		this.LoadFrom(System.IO.File.ReadAllBytes(filename));
 	}
 
 	public void LoadFrom(byte[] bytes)
 	{
+		if (Disposed) return;
 		var bitmap = SkiaSharp.SKBitmap.Decode(bytes);
 		if (ColorTransformers.ContainsKey(bitmap.ColorType))
 		{
@@ -980,6 +1045,7 @@ public unsafe class TextureBitmap
 
 	public void UltraContrast(int threshold)
 	{
+		if (Disposed) return;
 		int m = Width * Height;
 		var ptr = GetColors();
 		for (int i = 0; i < m; i++)
@@ -995,6 +1061,7 @@ public unsafe class TextureBitmap
 
 	public void Save(string filename)
 	{
+		if (Disposed) return;
 		filename = System.IO.Path.GetFullPath(filename);
 		if (filename.ToLowerInvariant().EndsWith(".png"))
 			Save(filename, SkiaSharp.SKEncodedImageFormat.Png);
@@ -1010,6 +1077,7 @@ public unsafe class TextureBitmap
 
 	public void Save(string filename, SkiaSharp.SKEncodedImageFormat format)
 	{
+		if (Disposed) return;
 		SkiaSharp.SKBitmap bitmap = new SkiaSharp.SKBitmap(this.Width, this.Height, false);
 		int w = Width;
 		int h = Height;

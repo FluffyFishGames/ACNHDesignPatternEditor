@@ -66,7 +66,6 @@ public unsafe class Importer : MonoBehaviour
 
 		OnConfirm = onConfirm;
 		OnCancel = onCancel;
-
 		LeftBitmap = new TextureBitmap(ResultSize.Item1, ResultSize.Item2);
 
 		var colors = LeftBitmap.GetColors();
@@ -81,7 +80,6 @@ public unsafe class Importer : MonoBehaviour
 				float originalY = ((float) Rect.Item2) + y * ((((float) Rect.Item4)) / ((float) ResultSize.Item2));
 				int px = Mathf.RoundToInt(originalX);
 				int py = Mathf.RoundToInt(originalY);
-
 				var col = Colors[(px + py * ow)];
 				*(colors + x + y * w) = col;
 			}
@@ -119,6 +117,7 @@ public unsafe class Importer : MonoBehaviour
 	void UpdateTarget()
 	{
 		if (Colors == null) return;
+		if (RightBitmap == null) return;
 		RightBitmap.Clear();
 		
 		float sizeOffset = SizeOffset * (Rect.Item3 / ResultSize.Item1);
@@ -128,7 +127,6 @@ public unsafe class Importer : MonoBehaviour
 		int oh = OriginalBitmap.Height;
 		int w = RightBitmap.Width;
 		int h = RightBitmap.Height;
-
 		var contrast = (259f * (Contrast + 255f)) / (255f * (259f - Contrast));
 		unsafe
 		{
@@ -160,7 +158,6 @@ public unsafe class Importer : MonoBehaviour
 				}
 			}
 		}
-
 		RightBitmap.Quantize(new WuColorQuantizer(), 15);
 		RightBitmap.Texture.filterMode = FilterMode.Point;
 		RightBitmap.Apply();
@@ -291,6 +288,9 @@ public unsafe class Importer : MonoBehaviour
 			Colors = null;
 			LeftBitmap.Dispose();
 			RightBitmap.Dispose();
+			LeftBitmap = null;
+			RightBitmap = null;
+
 			OnCancel?.Invoke();
 		};
 
@@ -299,6 +299,7 @@ public unsafe class Importer : MonoBehaviour
 			Colors = null;
 			LeftBitmap.Dispose();
 			OnConfirm?.Invoke(RightBitmap);
+			RightBitmap = null;
 		};
 	}
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 public class Logger
 {
-	public static Level LogLevel = Level.TRACE;
+	public static Level LogLevel = Level.WARNING;
 
 	private static Thread WriterThread;
 	private static string Cache;

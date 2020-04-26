@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MyHorizons.Data;
-
-public class CloneOperation : IOperation, IPatternOperation, IPatternSelectorOperation
+﻿public class CloneOperation : IOperation, IPatternOperation, IPatternSelectorOperation
 {
 	private DesignPattern Pattern;
 	private bool _IsFinished = false;

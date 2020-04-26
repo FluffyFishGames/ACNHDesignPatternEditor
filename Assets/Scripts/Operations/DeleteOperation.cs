@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MyHorizons.Data;
-
-public class DeleteOperation : IOperation, IPatternOperation
+﻿public class DeleteOperation : IOperation, IPatternOperation
 {
 	private DesignPattern Pattern;
 	private bool _IsFinished = false;

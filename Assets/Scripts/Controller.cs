@@ -1,6 +1,4 @@
-﻿using MyHorizons.Data;
-using MyHorizons.Data.Save;
-using System.Collections;
+﻿using System.Collections;
 using System.Threading;
 using UnityEngine;
 
@@ -12,7 +10,7 @@ public class Controller : MonoBehaviour
 	public static Controller Instance;
 	public Popup Popup;
 	public MainMenu MainMenu;
-	public MainSaveFile CurrentSavegame;
+	public IDesignPatternContainer CurrentSavegame;
 	public PatternSelector PatternSelector;
 	public Importer Importer;
 	public RectTransform RectTransform;
@@ -191,7 +189,9 @@ public class Controller : MonoBehaviour
 		{
 			try
 			{
-				CurrentSavegame.Save(null);
+				CurrentSavegame.Save();
+				CurrentSavegame.Dispose();
+				CurrentSavegame = null;
 				SavegameSaved = true;
 			}
 			catch (System.Exception e)

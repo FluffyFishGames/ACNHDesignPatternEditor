@@ -1,6 +1,4 @@
-﻿using MyHorizons.Data;
-
-public interface IOperation
+﻿public interface IOperation
 {
 	void Start();
 	bool IsFinished();

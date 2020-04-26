@@ -139,7 +139,7 @@ public class SubPattern
 			Pattern.RegeneratePreview();
 
 		Pattern.Bitmap.Replace(this.Bitmap, new TextureBitmap.Color(255, 255, 255, 255), new TextureBitmap.Point(Part.X, Part.Y));
-		Pattern.Bitmap.Apply();
+		//Pattern.Bitmap.Apply();
 		Pattern.Editor.OnImageUpdated();
 	}
 

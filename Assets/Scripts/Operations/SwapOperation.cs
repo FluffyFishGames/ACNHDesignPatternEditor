@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MyHorizons.Data;
-
-public class SwapOperation : IOperation, IPatternOperation, IPatternSelectorOperation
+﻿public class SwapOperation : IOperation, IPatternOperation, IPatternSelectorOperation
 {
 	private DesignPattern Pattern;
 	private bool _IsFinished = false;
@@ -37,6 +30,7 @@ public class SwapOperation : IOperation, IPatternOperation, IPatternSelectorOper
 
 	public void SelectPattern(DesignPattern pattern)
 	{
+		/*
 		if (pattern == Pattern) return;
 		var backup = new DesignPattern();
 		
@@ -53,7 +47,7 @@ public class SwapOperation : IOperation, IPatternOperation, IPatternSelectorOper
 			Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Index].CopyFrom(backup);
 		}
    
-		_IsFinished = true;
+		_IsFinished = true;*/
 	}
 
 	public void Start()

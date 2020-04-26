@@ -39,6 +39,7 @@ public class Layer
 		_Height = pattern.Height;
 		Texture = new TextureBitmap(_Width, _Height);
 		Texture.Clear();
+		Sprite = Sprite.Create(Texture.Texture, new Rect(0, 0, Texture.Width, Texture.Height), new Vector2(0.5f, 0.5f));
 	}
 
 	public void Merge(Layer otherLayer)
@@ -48,10 +49,7 @@ public class Layer
 
 	public void UpdateTexture()
 	{
-		if (Sprite != null)
-			GameObject.DestroyImmediate(Sprite);
 		Texture.Apply();
-		Sprite = Sprite.Create(Texture.Texture, new Rect(0, 0, Texture.Width, Texture.Height), new Vector2(0.5f, 0.5f));
 	}
 
 	public virtual void Dispose()

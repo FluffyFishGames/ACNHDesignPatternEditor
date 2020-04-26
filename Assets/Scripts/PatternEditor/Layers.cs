@@ -59,24 +59,35 @@ public class Layers : MonoBehaviour
 		DraggingStartIndex = Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(layer);
 	}
 
+	public void Unloaded()
+	{
+		for (int i = LayersTransform.childCount - 1; i >= 0; i--)
+		{
+			Destroy(LayersTransform.GetChild(i).gameObject);
+		}
+	}
+
 	public void UpdateLayers()
 	{
-		while (LayersTransform.childCount > Editor.CurrentPattern.CurrentSubPattern.Layers.Count)
+		for (int i = LayersTransform.childCount - 1; i >= Editor.CurrentPattern.CurrentSubPattern.Layers.Count; i--)
 		{
-			Destroy(LayersTransform.GetChild(0).gameObject);
+			Destroy(LayersTransform.GetChild(i).gameObject);
 		}
 		while (LayersTransform.childCount < Editor.CurrentPattern.CurrentSubPattern.Layers.Count)
 		{
 			var layer = GameObject.Instantiate(LayerPrefab, LayersTransform);
 		}
 
-		for (int i = 0; i < Editor.CurrentPattern.CurrentSubPattern.Layers.Count; i++)
+		if (Editor.CurrentPattern != null)
 		{
-			Editor.CurrentPattern.CurrentSubPattern.Layers[i].IsSelected = Editor.CurrentPattern.CurrentSubPattern.SelectedLayer == Editor.CurrentPattern.CurrentSubPattern.Layers[i];
-			var layerComponent = LayersTransform.GetChild(LayersTransform.childCount - 1 - i).GetComponent<LayerComponent>();
-			layerComponent.Editor = this.Editor;
-			layerComponent.Layers = this;
-			layerComponent.SetLayer(Editor.CurrentPattern.CurrentSubPattern.Layers[i]);
+			for (int i = 0; i < Editor.CurrentPattern.CurrentSubPattern.Layers.Count; i++)
+			{
+				Editor.CurrentPattern.CurrentSubPattern.Layers[i].IsSelected = Editor.CurrentPattern.CurrentSubPattern.SelectedLayer == Editor.CurrentPattern.CurrentSubPattern.Layers[i];
+				var layerComponent = LayersTransform.GetChild(LayersTransform.childCount - 1 - i).GetComponent<LayerComponent>();
+				layerComponent.Editor = this.Editor;
+				layerComponent.Layers = this;
+				layerComponent.SetLayer(Editor.CurrentPattern.CurrentSubPattern.Layers[i]);
+			}
 		}
 	}
 

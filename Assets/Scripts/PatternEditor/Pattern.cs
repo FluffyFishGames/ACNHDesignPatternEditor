@@ -1,5 +1,4 @@
-﻿using MyHorizons.Data;
-using SimplePaletteQuantizer.ColorCaches;
+﻿using SimplePaletteQuantizer.ColorCaches;
 using SimplePaletteQuantizer.ColorCaches.EuclideanDistance;
 using SimplePaletteQuantizer.ColorCaches.LocalitySensitiveHash;
 using SimplePaletteQuantizer.ColorCaches.Octree;
@@ -65,7 +64,7 @@ public class Pattern
 	{
 		get
 		{
-			return DesignPattern.Width;
+			return _Type == DesignPattern.TypeEnum.SimplePattern ? 32 : 64;
 		}
 	}
 
@@ -73,8 +72,46 @@ public class Pattern
 	{
 		get
 		{
-			return DesignPattern.Height;
+			return _Type == DesignPattern.TypeEnum.SimplePattern ? 32 : 64;
 		}
+	}
+
+	private void StartPreviewThread()
+	{
+		PreviewThread = new Thread(() =>
+		{
+			while (true)
+			{
+				ReparseLock.WaitOne();
+				if (Disposed)
+				{
+					Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Preview generator thread stopped!");
+					return;
+				}
+				ReparseLock.Reset();
+				try
+				{
+					if (Quantizer is BaseColorCacheQuantizer colorCacheQuantizer)
+						colorCacheQuantizer.ChangeCacheProvider(ColorCache);
+
+					this.PreviewBitmap.CopyFrom(this.Bitmap);
+					this.PreviewBitmap.Quantize(Quantizer, 15);
+					
+					int[] src = this.PreviewBitmap.ConvertToInt();
+					int[] target = new int[UpscaledPreviewBitmap.Width * UpscaledPreviewBitmap.Height];
+					Scaler.ScaleImage(4, src, target, this.PreviewBitmap.Width, this.PreviewBitmap.Height, new xBRZNet.ScalerCfg(), 0, int.MaxValue);
+
+					this.UpscaledPreviewBitmap.FromInt(target);
+					IsReady = true;
+					IsParsing = false;
+				}
+				catch (System.Exception e)
+				{
+					Logger.Log(Logger.Level.ERROR, "[PatternEditor/Pattern] Error while generating pattern preview: " + e.ToString());
+				}
+			}
+		});
+		PreviewThread.Start();
 	}
 
 	public Pattern(PatternEditor editor, DesignPattern pattern)
@@ -82,41 +119,7 @@ public class Pattern
 		try
 		{
 			Logger.Log(Logger.Level.INFO, "[PatternEditor/Pattern] Creating new pattern");
-			PreviewThread = new Thread(() =>
-			{
-				while (true)
-				{
-					ReparseLock.WaitOne();
-					if (Disposed)
-					{
-						Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Preview generator thread stopped!");
-						return;
-					}
-					ReparseLock.Reset();
-					try
-					{
-						if (Quantizer is BaseColorCacheQuantizer colorCacheQuantizer)
-							colorCacheQuantizer.ChangeCacheProvider(ColorCache);
-
-						this.PreviewBitmap.CopyFrom(this.Bitmap);
-						this.PreviewBitmap.Quantize(Quantizer, 16);
-
-						int[] src = this.PreviewBitmap.ConvertToInt();
-						int[] target = new int[UpscaledPreviewBitmap.Width * UpscaledPreviewBitmap.Height];
-						Scaler.ScaleImage(4, src, target, this.PreviewBitmap.Width, this.PreviewBitmap.Height, new xBRZNet.ScalerCfg(), 0, int.MaxValue);
-
-						this.UpscaledPreviewBitmap.FromInt(target);
-						IsReady = true;
-						IsParsing = false;
-					}
-					catch (System.Exception e)
-					{
-						Logger.Log(Logger.Level.ERROR, "[PatternEditor/Pattern] Error while generating pattern preview: " + e.ToString());
-					}
-				}
-			});
-			PreviewThread.Start();
-
+			StartPreviewThread();
 			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Preview generator thread started!");
 			_Type = pattern.Type;
 			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Pattern type: " + _Type.ToString()); 
@@ -241,10 +244,10 @@ public class Pattern
 
 	public void Clear()
 	{
-		var p = new DesignPattern();
+		var p = new SimpleDesignPattern();
 		p.Type = this.Type;
-		p.IsPro = this.Type != DesignPattern.TypeEnum.SimplePattern;
-		p.Pixels = new byte[p.Width / 2 * p.Height];
+		//p.IsPro = this.Type != DesignPattern.TypeEnum.SimplePattern;
+		p.Image = new byte[p.Width / 2 * p.Height];
 		p.Empty();
 		var colors = p.GetPixels();
 
@@ -313,7 +316,7 @@ public class Pattern
 						writer.Write(nameBytes);
 						unsafe
 						{
-							int m = layer.Width * layer.Height;
+							int m = layer.Width * layer.Height * layer.Texture.PixelSize;
 							byte* ptr = (byte*) layer.Texture.Bytes.ToPointer();
 							for (int k = 0; k < m; k++)
 								writer.Write(*(ptr + k));
@@ -325,18 +328,20 @@ public class Pattern
 		}
 	}
 
-	public void FromBytes(byte[] bytes)
+	public Pattern(PatternEditor editor, byte[] bytes)
 	{
-		using (MemoryStream stream = new MemoryStream(bytes))
+		try
 		{
-			BinaryReader reader = new BinaryReader(stream);
-			byte version = reader.ReadByte();
-			if (version == 0x00)
+			Editor = editor;
+			
+			using (MemoryStream stream = new MemoryStream(bytes))
 			{
+				BinaryReader reader = new BinaryReader(stream);
+				byte version = reader.ReadByte();
 				var t = (DesignPattern.TypeEnum) reader.ReadByte();
-				if (this._Type == DesignPattern.TypeEnum.SimplePattern && t != DesignPattern.TypeEnum.SimplePattern)
+				if (!Editor.IsPro && t != DesignPattern.TypeEnum.SimplePattern)
 					throw new ArgumentException("Simple design spot can't hold pro design.", "project");
-				if (this._Type != DesignPattern.TypeEnum.SimplePattern && t == DesignPattern.TypeEnum.SimplePattern)
+				if (Editor.IsPro && t == DesignPattern.TypeEnum.SimplePattern)
 					throw new ArgumentException("Pro design spot can't hold simple design.", "project");
 				this._Type = t;
 				Quantizer = Quantizers[reader.ReadByte()];
@@ -390,9 +395,10 @@ public class Pattern
 							string name = System.Text.Encoding.UTF8.GetString(reader.ReadBytes(nameLength));
 							RasterLayer layer = new RasterLayer(subPattern, name);
 
-							byte[] bitmapPixels = reader.ReadBytes(layer.Width * layer.Height * 4); 
+							int m = layer.Width * layer.Height * layer.Texture.PixelSize; 
+							byte[] bitmapPixels = reader.ReadBytes(m);
 							layer.Texture = new TextureBitmap(layer.Width, layer.Height);
-							int m = layer.Width * layer.Height * layer.Texture.PixelSize;
+							
 							unsafe
 							{
 								byte* ptr = (byte*) layer.Texture.Bytes.ToPointer();
@@ -408,18 +414,50 @@ public class Pattern
 					}
 				}
 			}
+			GC.Collect();
+			_CurrentSubPattern = 0;
+
+			Logger.Log(Logger.Level.INFO, "[PatternEditor/Pattern] Creating new pattern");
+			StartPreviewThread();
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Pattern type: " + _Type.ToString());
+			Bitmap = new TextureBitmap(Width, Height);
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Created TextureBitmap " + Width + "x" + Height);
+			Bitmap.Clear();
+			PreviewBitmap = new TextureBitmap(Width, Height);
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Created preview TextureBitmap " + Width + "x" + Height);
+			PreviewBitmap.Clear();
+			PreviewSprite = UnityEngine.Sprite.Create(PreviewBitmap.Texture, new UnityEngine.Rect(0, 0, PreviewBitmap.Width, PreviewBitmap.Height), new UnityEngine.Vector2(0.5f, 0.5f));
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Created preview sprite");
+
+			UpscaledPreviewBitmap = new TextureBitmap(Width * 4, Height * 4);
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Created upscaled preview TextureBitmap " + (Width * 4) + "x" + (Height * 4));
+			UpscaledPreviewBitmap.Clear();
+
+			Info = DesignPatternInformation.Types[this._Type];
+			Logger.Log(Logger.Level.DEBUG, "[PatternEditor/Pattern] Pattern information obtained.");
+
 		}
-		_CurrentSubPattern = 0;
-		Editor.SetSize(CurrentSubPattern.Width, CurrentSubPattern.Height);
-		Editor.LayersChanged();
-		Editor.SubPatternChanged(CurrentSubPattern.Part);
-		Editor.SetType(this._Type);
-		Editor.Show(null, null, null);
-		Editor.OnImageUpdated();
-		Editor.Tools.HistoryChanged(CurrentSubPattern.History);
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[PatternEditor/Pattern] Error while creating pattern: " + e.ToString());
+			this.Dispose();
+			throw e;
+		}
+	}
+
+	public void ProjectLoaded()
+	{
 		for (int i = 0; i < SubPatterns.Count; i++)
 			SubPatterns[i].UpdateImage(false);
-		this.RegeneratePreview();
+
+		Editor.SetSize(CurrentSubPattern.Width, CurrentSubPattern.Height);
+		Editor.SetType(this._Type);
+		Editor.Show(null, null, null);
+		Editor.LayersChanged();
+		Editor.SubPatternChanged(CurrentSubPattern.Part);
+		Editor.PixelGrid.UpdateImage();
+		Editor.Tools.HistoryChanged(CurrentSubPattern.History);
+		RegeneratePreview();
 	}
 
 	public UnityEngine.Texture2D GetUpscaledPreview()
@@ -446,6 +484,8 @@ public class Pattern
 		if (IsReady)
 		{
 			PreviewBitmap.Apply();
+			PreviewBitmap.Texture.filterMode = UnityEngine.FilterMode.Point;
+			PreviewBitmap.Texture.wrapMode = UnityEngine.TextureWrapMode.Clamp;
 			UpscaledPreviewBitmap.Apply();
 
 			IsReady = false;
@@ -486,8 +526,9 @@ public class Pattern
 			Bitmap.Dispose();
 			PreviewBitmap.Dispose();
 			UpscaledPreviewBitmap.Dispose();
-			for (var i = 0; i < SubPatterns.Count; i++)
-				SubPatterns[i].Dispose();
+			if (SubPatterns != null)
+				for (var i = 0; i < SubPatterns.Count; i++)
+					SubPatterns[i].Dispose();
 		}
 	}
 }

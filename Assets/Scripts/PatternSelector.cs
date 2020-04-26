@@ -1,5 +1,4 @@
-﻿using MyHorizons.Data;
-using SFB;
+﻿using SFB;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +7,6 @@ using UnityEngine.UI;
 using ZXing;
 using ZXing.QrCode;
 using SimplePaletteQuantizer.Quantizers.XiaolinWu;
-using SimplePaletteQuantizer.Helpers;
 
 public class PatternSelector : MonoBehaviour
 {
@@ -141,13 +139,13 @@ public class PatternSelector : MonoBehaviour
 		}
 		else
 		{
-			for (var i = 0; i < Controller.Instance.CurrentSavegame.DesignPatterns.Length; i++)
+			for (var i = 0; i < Controller.Instance.CurrentSavegame.SimpleDesignPatterns.Length; i++)
 			{
 				Logger.Log(Logger.Level.TRACE, "Creating pattern selector button for design (" + i + ")");
 				var newObj = GameObject.Instantiate(PatternPrefab, Patterns);
 				PatternObjects[i] = newObj.GetComponent<PatternSelectorPattern>();
 				PatternObjects[i].PatternSelector = this;
-				PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[i]);
+				PatternObjects[i].SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[i]);
 			}
 		}
 	}
@@ -157,13 +155,16 @@ public class PatternSelector : MonoBehaviour
 		Logger.Log(Logger.Level.DEBUG, "Opening pattern selector...");
 		try
 		{
-			ProDesignsTooltip.SetActive(false);
-			DesignsTooltip.SetActive(true);
-			ProDesignsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
-			DesignsIcon.color = new Color(228f / 255f, 107f / 255f, 137f / 255f);
-			ProDesignsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
-			DesignsIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
-			CurrentMenu = Menu.Designs;
+			if (CurrentMenu == Menu.None)
+			{
+				CurrentMenu = Menu.Designs;
+				ProDesignsTooltip.SetActive(false);
+				DesignsTooltip.SetActive(true);
+				ProDesignsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+				DesignsIcon.color = new Color(228f / 255f, 107f / 255f, 137f / 255f);
+				ProDesignsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+				DesignsIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
+			}
 
 			Logger.Log(Logger.Level.TRACE, "Current menu: " + this.CurrentMenu.ToString());
 
@@ -204,10 +205,11 @@ public class PatternSelector : MonoBehaviour
 			() =>
 			{
 				editPattern.Name = Controller.Instance.NameInput.GetName();
-				if (editPattern.IsPro)
+				UnityEngine.Debug.Log(editPattern);
+				if (editPattern is ProDesignPattern)
 					Controller.Instance.CurrentSavegame.ProDesignPatterns[editPattern.Index].CopyFrom(editPattern);
 				else 
-					Controller.Instance.CurrentSavegame.DesignPatterns[editPattern.Index].CopyFrom(editPattern);
+					Controller.Instance.CurrentSavegame.SimpleDesignPatterns[editPattern.Index].CopyFrom(editPattern);
 				Controller.Instance.SwitchToPatternMenu();
 			},
 			() =>
@@ -223,10 +225,9 @@ public class PatternSelector : MonoBehaviour
 		() =>
 		{
 			var resultPattern = Controller.Instance.PatternEditor.Save();
-			resultPattern.IsPro = resultPattern.Type != DesignPattern.TypeEnum.SimplePattern;
+			//resultPattern.IsPro = resultPattern.Type != DesignPattern.TypeEnum.SimplePattern;
 			resultPattern.Index = editPattern.Index;
-			resultPattern.PersonalID = new MyHorizons.Data.PlayerData.PersonalID() { UniqueId = 0xFFFFFFFF, TownId = Controller.Instance.CurrentSavegame.PersonalID.TownId };
-			resultPattern.PersonalID.SetName(Controller.Instance.CurrentSavegame.PersonalID.GetName());
+			resultPattern.PersonalID = new PersonalID() { UniqueId = 0xFFFFFFFF, TownId = Controller.Instance.CurrentSavegame.PersonalID.TownId, Name = Controller.Instance.CurrentSavegame.PersonalID.Name };
 			resultPattern.Name = editPattern.Name;
 			SavePattern(resultPattern);
 		},
@@ -252,9 +253,10 @@ public class PatternSelector : MonoBehaviour
 			{
 				("Edit design", (System.Action) (() => {
 					ActionMenu.Close();
-					if (pattern.Pattern.IsPro)
+					
+					if (pattern.Pattern is ProDesignPattern)
 					{
-						var editPattern = new DesignPattern();
+						var editPattern = new ProDesignPattern();
 						editPattern.Index = pattern.Pattern.Index;
 						editPattern.CopyFrom(pattern.Pattern);
 						if (editPattern.Type == DesignPattern.TypeEnum.EmptyProPattern)
@@ -277,11 +279,10 @@ public class PatternSelector : MonoBehaviour
 					}
 					else
 					{
-						var editPattern = new DesignPattern();
+						var editPattern = new SimpleDesignPattern();
 						editPattern.Index = pattern.Pattern.Index;
 						editPattern.CopyFrom(pattern.Pattern);
 						EditPattern(editPattern);
-						//Controller.Instance.StartOperation(new DeleteOperation(Selected.Pattern));
 					}
 				})),
 				("Delete design", (System.Action) (() => {
@@ -314,9 +315,9 @@ public class PatternSelector : MonoBehaviour
 												if (path[0].EndsWith(".acnh"))
 												{
 													var file = new ACNHFileFormat(System.IO.File.ReadAllBytes(path[0]));
-													if (file.IsPro != pattern.Pattern.IsPro)
+													if (file.IsPro != (pattern.Pattern is ProDesignPattern))
 													{
-														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern.IsPro ? "pro design" : "basic design") + " but wanted to import a "+ (file.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (file.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
 													}
 													else
 													{
@@ -324,15 +325,15 @@ public class PatternSelector : MonoBehaviour
 															Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
 														else
 														{
-															if (pattern.Pattern.IsPro)
+															if (pattern.Pattern is ProDesignPattern)
 															{
 																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 															}
 															else
 															{
-																Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].CopyFrom(file);
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index]);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 															}
 														}
 													}
@@ -358,9 +359,10 @@ public class PatternSelector : MonoBehaviour
 												if (path[0].EndsWith(".acnl"))
 												{
 													var file = new ACNLFileFormat(System.IO.File.ReadAllBytes(path[0]));
-													if (file.IsPro != pattern.Pattern.IsPro)
+													
+													if (file.IsPro != pattern.Pattern is ProDesignPattern)
 													{
-														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern.IsPro ? "pro design" : "basic design") + " but wanted to import a "+ (file.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (file.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
 													}
 													else
 													{
@@ -368,15 +370,15 @@ public class PatternSelector : MonoBehaviour
 															Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
 														else
 														{
-															if (pattern.Pattern.IsPro)
+															if (pattern.Pattern is ProDesignPattern)
 															{
 																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 															}
 															else
 															{
-																Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].CopyFrom(file);
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index]);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 															}
 														}
 													}
@@ -401,15 +403,15 @@ public class PatternSelector : MonoBehaviour
 											try
 											{
 												bmp = TextureBitmap.Load(path[0], false);
-
-												if (pattern.Pattern.IsPro)
+												
+												if (pattern.Pattern is ProDesignPattern)
 												{
 													Controller.Instance.SwitchToClothSelector(
 														(type) => {
 															var result = ACNHDesignExtractor.FindPattern(bmp, type);
 															if (result.Item1 != -1 && result.Item2 != -1 && result.Item3 != -1 && result.Item4 != -1)
 															{
-																Controller.Instance.SwitchToImporter(bmp, result, pattern.Pattern.IsPro ? (64, 64) : (32, 32), (final) => {
+																Controller.Instance.SwitchToImporter(bmp, result, pattern.Pattern is ProDesignPattern ? (64, 64) : (32, 32), (final) => {
 																	Controller.Instance.SwitchToNameInput(
 																		() =>
 																		{
@@ -424,10 +426,12 @@ public class PatternSelector : MonoBehaviour
 																		},
 																		() =>
 																		{
+																			bmp.Dispose();
 																			Controller.Instance.SwitchToPatternMenu();
 																		}
 																	);
 																}, () => {
+																	bmp.Dispose();
 																	Controller.Instance.SwitchToPatternMenu();
 																});
 															}
@@ -450,12 +454,14 @@ public class PatternSelector : MonoBehaviour
 																	},
 																	() =>
 																	{
+																		bmp.Dispose();
 																		Controller.Instance.SwitchToPatternMenu();
 																	}
 																);
 															}
 														},
 														() => {
+															bmp.Dispose();
 															Controller.Instance.SwitchToPatternMenu();
 														}
 													);
@@ -465,25 +471,27 @@ public class PatternSelector : MonoBehaviour
 													var result = ACNHDesignExtractor.FindPattern(bmp, DesignPattern.TypeEnum.SimplePattern);
 													if (result.Item1 != -1 && result.Item2 != -1 && result.Item3 != -1 && result.Item4 != -1)
 													{
-														Controller.Instance.SwitchToImporter(bmp, result, pattern.Pattern.IsPro ? (64, 64) : (32, 32), (final) => {
+														Controller.Instance.SwitchToImporter(bmp, result, pattern.Pattern is ProDesignPattern ? (64, 64) : (32, 32), (final) => {
 															Controller.Instance.SwitchToNameInput(
 																() =>
 																{
 																	string name = Controller.Instance.NameInput.GetName();
-																	Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].FromBitmap(final);
-																	Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
-																	Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].Name = name;
-																	pattern.SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index]);
+																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].FromBitmap(final);
+																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
+																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Name = name;
+																	pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 																	bmp.Dispose();
 																	final.Dispose();
 																	Controller.Instance.SwitchToPatternMenu();
 																},
 																() =>
 																{
+																	bmp.Dispose();
 																	Controller.Instance.SwitchToPatternMenu();
 																}
 															);
 														}, () => {
+															bmp.Dispose();
 															Controller.Instance.SwitchToPatternMenu();
 														});
 													}
@@ -496,15 +504,16 @@ public class PatternSelector : MonoBehaviour
 															() =>
 															{
 																string name = Controller.Instance.NameInput.GetName();
-																Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].FromBitmap(bmp);
-																Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
-																Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].Name = name;
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index]);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].FromBitmap(bmp);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Name = name;
+																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 																bmp.Dispose();
 																Controller.Instance.SwitchToPatternMenu();
 															},
 															() =>
 															{
+																bmp.Dispose();
 																Controller.Instance.SwitchToPatternMenu();
 															}
 														);
@@ -554,7 +563,7 @@ public class PatternSelector : MonoBehaviour
 													result = GetResult(scanner.DecodeMultiple(bmp));
 													if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
 													{
-														try
+														/*try
 														{
 															var resultImage = QRCodeExtractor.ExtractQRCode(bmp);
 															bmp.Dispose();
@@ -562,10 +571,11 @@ public class PatternSelector : MonoBehaviour
 														}
 														catch (System.Exception ex)
 														{
+															Debug.LogException(ex);
 														}
 														result = GetResult(scanner.DecodeMultiple(bmp));
 														if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
-														{
+														{*/
 															for (int i = 250; i > 10; i-=10)
 															{
 																var check = bmp.Clone();
@@ -575,7 +585,7 @@ public class PatternSelector : MonoBehaviour
 																if (result != null && result.Type != DesignPattern.TypeEnum.Unsupported)
 																	break;
 															}
-														}
+														//}
 													}
 												}
 												bmp.Dispose();
@@ -586,9 +596,10 @@ public class PatternSelector : MonoBehaviour
 												}
 												else
 												{
-													if (result.IsPro != pattern.Pattern.IsPro)
+													
+													if (result.IsPro != pattern.Pattern is ProDesignPattern)
 													{
-														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern.IsPro ? "pro design" : "basic design") + " but wanted to import a "+ (result.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (result.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
 													}
 													else
 													{
@@ -596,11 +607,11 @@ public class PatternSelector : MonoBehaviour
 															Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
 														else
 														{
-															var personalID = new MyHorizons.Data.PlayerData.PersonalID();
-															personalID.SetName(Controller.Instance.CurrentSavegame.PersonalID.GetName());
+															var personalID = new PersonalID();
+															personalID.Name = Controller.Instance.CurrentSavegame.PersonalID.Name;
 															personalID.UniqueId = 0xFFFFFFFF;
 															personalID.TownId = Controller.Instance.CurrentSavegame.PersonalID.TownId;
-															if (pattern.Pattern.IsPro)
+															if (pattern.Pattern is ProDesignPattern)
 															{
 																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(result);
 																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].PersonalID = personalID;
@@ -608,9 +619,9 @@ public class PatternSelector : MonoBehaviour
 															}
 															else
 															{
-																Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].CopyFrom(result);
-																Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index].PersonalID = personalID;
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Pattern.Index]);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(result);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].PersonalID = personalID;
+																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 															}
 														}
 													}
@@ -618,6 +629,8 @@ public class PatternSelector : MonoBehaviour
 											}
 											catch (System.Exception e)
 											{
+												if (bmp != null) 
+													bmp.Dispose();
 												Debug.LogException(e);
 											}
 										}
@@ -692,6 +705,7 @@ public class PatternSelector : MonoBehaviour
 									{
 										var bitmap = pattern.Pattern.GetBitmap();
 										bitmap.Save(path);
+										bitmap.Dispose();
 									}
 								});
 							}
@@ -734,8 +748,6 @@ public class PatternSelector : MonoBehaviour
 														bitmaps[i].Apply();
 													}
 													var b = Controller.Instance.QRCode.Render(pattern.Pattern, bitmaps[0], bitmaps[1], bitmaps[2], bitmaps[3]);
-													Debug.Log(path);
-													Debug.Log(b.Length);
 													System.IO.File.WriteAllBytes(path, b);
 													bitmaps[0].Dispose();
 													bitmaps[1].Dispose();

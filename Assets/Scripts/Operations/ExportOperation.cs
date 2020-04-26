@@ -1,10 +1,4 @@
-﻿using MyHorizons.Data;
-using SFB;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SFB;
 
 public class ExportOperation : IOperation, IPatternOperation
 {

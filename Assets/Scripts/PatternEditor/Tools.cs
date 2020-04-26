@@ -156,11 +156,12 @@ public class Tools : MonoBehaviour
 
 	private Dictionary<Tool, Image> ToolImages;
 	private readonly List<Tool> ActiveTools = new List<Tool>();
+	private History CurrentHistory;
 
 	public void PatternChanged()
 	{
 		SwitchTab(Tab.Tools);
-		ChangeTypeButton.gameObject.SetActive(Editor.CurrentPattern.Type != MyHorizons.Data.DesignPattern.TypeEnum.SimplePattern);
+		ChangeTypeButton.gameObject.SetActive(Editor.CurrentPattern.Type != DesignPattern.TypeEnum.SimplePattern);
 		LayoutRebuilder.ForceRebuildLayoutImmediate(ChangeTypeButton.transform.parent.GetComponent<RectTransform>());
 	}
 
@@ -197,6 +198,7 @@ public class Tools : MonoBehaviour
 
 	public void HistoryChanged(History history)
 	{
+		CurrentHistory = history;
 		for (int i = ProtocolContainer.childCount - 1; i >= history.Events.Count; i--)
 		{
 			Destroy(ProtocolContainer.GetChild(i).gameObject);
@@ -661,6 +663,31 @@ BrushOptions.PopUp();
 		this.BrushPreview.GetComponent<RectTransform>().sizeDelta = new Vector2(Editor.CurrentBrush.BrushSprite.texture.width * 4, Editor.CurrentBrush.BrushSprite.texture.height * 4);
 	}
 
+	public void Unloaded()
+	{
+		for (int i = ProtocolContainer.childCount - 1; i >= 0; i--)
+		{
+			Destroy(ProtocolContainer.GetChild(i).gameObject);
+		}
+	}
+
+	public void Undo()
+	{
+		if (CurrentHistory != null && CurrentHistory.CurrentEvent > 0)
+		{
+			CurrentHistory.RestoreTo(CurrentHistory.CurrentEvent - 1);
+		}
+	}
+
+	public void Redo()
+	{
+		if (CurrentHistory != null && CurrentHistory.CurrentEvent < CurrentHistory.Events.Count - 1)
+		{
+			CurrentHistory.RestoreTo(CurrentHistory.CurrentEvent + 1);
+		}
+	}
+
+
 	private void Initialize()
 	{
 		if (Initialized) return;
@@ -835,7 +862,7 @@ BrushOptions.PopUp();
 						{
 							if (path[0].EndsWith(".acnhp"))
 							{
-								Editor.CurrentPattern.FromBytes(System.IO.File.ReadAllBytes(path[0]));
+								Editor.OpenProject(System.IO.File.ReadAllBytes(path[0]));
 							}
 						}
 						catch (System.ArgumentException e)

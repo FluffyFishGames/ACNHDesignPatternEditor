@@ -27,6 +27,7 @@ public class Brush
 		}
 		else this.BrushOverlayTexture = new Texture2D(this.Size * this.Editor.PixelSize, this.Size * this.Editor.PixelSize, TextureFormat.ARGB32, false);
 
+		if (this.Size == 0) this.Size = 1;
 		if (BrushTexture != null)
 		{
 			this.BrushTexture.Resize(this.Size, this.Size);
@@ -49,6 +50,7 @@ public class Brush
 					((float) x) / ((float) Size) + 0.5f / ((float) Size),
 					((float) y) / ((float) Size) + 0.5f / ((float) Size));
 				float alpha = Mathf.Max(0f, Mathf.Min(1f, (0.5f - Vector2.Distance(c, new Vector2(0.5f, 0.5f))) * (Hardness * Hardness * Size)));
+				
 				Alphas[x + y * Size] = alpha;
 				this.BrushTexture.SetPixel(x, y, new TextureBitmap.Color(255, 255, 255, (byte) (alpha * 255f)));
 			}
@@ -179,5 +181,14 @@ public class Brush
 			lx += stepX;
 		}
 		Draw(drawable, (int) (toX), (int) (toY), color);
+	}
+
+	public void Dispose()
+	{
+		GameObject.Destroy(this.BrushOverlayTexture);
+		GameObject.Destroy(this.BrushSprite);
+		if (this.BrushTexture != null)
+			this.BrushTexture.Dispose();
+		this.Alphas = null;
 	}
 }

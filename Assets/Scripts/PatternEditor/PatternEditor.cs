@@ -2,10 +2,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
-using MyHorizons.Data;
 
 public class PatternEditor : MonoBehaviour
 {
+	public bool IsPro;
 	public LoadingAnimation Loading;
 	public ColorPalette ColorPalette;
 	public RectTransform RightPanel;
@@ -92,7 +92,23 @@ public class PatternEditor : MonoBehaviour
 			if (IsShown)
 			{
 				IsShown = false;
-				CurrentPattern.Dispose();
+				if (CurrentPattern != null)
+				{
+					CurrentPattern.Dispose();
+					CurrentPattern = null;
+				}
+				if (Secret != null)
+				{
+					Secret.Dispose();
+					Secret = null;
+				}
+				if (CurrentBrush != null)
+				{
+					CurrentBrush.Dispose();
+					CurrentBrush = null;
+				}
+				Layers.Unloaded();
+				Tools.Unloaded();
 			}
 		}
 		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while hiding: " + e.ToString()); }
@@ -158,10 +174,17 @@ public class PatternEditor : MonoBehaviour
 			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Showing pattern editor...");
 
 			Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Creating new brush...");
+			if (this.CurrentBrush != null)
+			{
+				this.CurrentBrush.Dispose();
+				this.CurrentBrush = null;
+			}
+
 			this.CurrentBrush = new Brush() { Editor = this };
 			if (pattern != null)
 			{
 				Logger.Log(Logger.Level.DEBUG, "[PatternEditor] Adding pattern to editor.");
+				IsPro = pattern is ProDesignPattern;
 				this.CurrentPattern = new Pattern(this, pattern);
 				this.CurrentPattern.Load();
 
@@ -210,6 +233,23 @@ public class PatternEditor : MonoBehaviour
 		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while opening color editor: " + e.ToString()); }
 	}
 
+	public void OpenProject(byte[] data)
+	{
+		try
+		{
+			var newPattern = new Pattern(this, data);
+			if (this.CurrentPattern != null)
+				this.CurrentPattern.Dispose();
+			this.CurrentPattern = newPattern;
+			this.CurrentPattern.ProjectLoaded();
+		}
+		catch (System.Exception e)
+		{
+			throw e;
+		}
+		this.Show(null, null, null);
+	}
+
 	public void LayersChanged()
 	{
 		try
@@ -232,14 +272,12 @@ public class PatternEditor : MonoBehaviour
 			{
 				//Debug.Log("CANCEL " + CancelAction);
 				CancelAction?.Invoke();
-				this.CurrentPattern.Dispose();
 			};
 
 			SaveButton.OnClick += () =>
 			{
 				//Debug.Log("CANCEL " + ConfirmAction);
 				ConfirmAction?.Invoke();
-				this.CurrentPattern.Dispose();
 			};
 
 			SubPattern.onClick.AddListener(() =>
@@ -287,6 +325,7 @@ public class PatternEditor : MonoBehaviour
 
 	public void ChangeCurrentColor(UnityEngine.Color color)
 	{
+		if (this.Secret != null) return;
 		try
 		{
 			this.ColorPalette.SetSelectedColor(color);
@@ -311,9 +350,213 @@ public class PatternEditor : MonoBehaviour
 		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while changing tool: " + e.ToString()); }
 	}
 
+	private KeyCode[] SecretCombo = new KeyCode[] { KeyCode.UpArrow, KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow, KeyCode.LeftArrow, KeyCode.RightArrow };
+	private int CurrentSecret = 0;
+	private Snake Secret;
+	public class Snake
+	{
+		private int Width;
+		private int Height;
+		private float SnakeSpeed = 0.5f;
+		private List<TextureBitmap.Point> Points = new List<TextureBitmap.Point>();
+		private bool Extend = false;
+		private float Phase = 0f;
+		private Direction CurrentDirection;
+		private Direction LastDirection;
+		private TextureBitmap.Point FoodPosition;
+		private TextureBitmap Playground;
+		private TextureBitmap Original;
+		private TextureBitmap.Color CurrentSnakeColor;
+		private TextureBitmap.Color CurrentFoodColor;
+		public bool Dead = false;
+
+		public Snake(TextureBitmap playground)
+		{
+			CurrentSnakeColor = new TextureBitmap.Color(0, 0, 0, 255);
+
+			Original = playground.Clone();
+			Playground = playground;
+			Width = playground.Width;
+			Height = playground.Height;
+			int startX = Width / 2;
+			int startY = Height / 2;
+			for (int i = 0; i < 3; i++)
+				Points.Add(new TextureBitmap.Point(startX, startY + 3 - i));
+			SpawnFood();
+			CurrentDirection = Direction.UP;
+			LastDirection = Direction.UP;
+		}
+
+		public enum Direction
+		{
+			UP,
+			LEFT,
+			RIGHT,
+			DOWN
+		};
+
+		public void Update()
+		{
+			if (Dead)
+				return;
+			if (Input.GetKeyDown(KeyCode.UpArrow) && LastDirection != Direction.DOWN)
+				CurrentDirection = Direction.UP;
+			if (Input.GetKeyDown(KeyCode.DownArrow) && LastDirection != Direction.UP)
+				CurrentDirection = Direction.DOWN;
+			if (Input.GetKeyDown(KeyCode.LeftArrow) && LastDirection != Direction.RIGHT)
+				CurrentDirection = Direction.LEFT;
+			if (Input.GetKeyDown(KeyCode.RightArrow) && LastDirection != Direction.LEFT)
+				CurrentDirection = Direction.RIGHT;
+			Phase += Time.deltaTime;
+			if (Phase > SnakeSpeed)
+			{
+				Phase -= SnakeSpeed;
+				Move();
+				Render(true);
+			}
+			else Render(false);
+		}
+		
+		private void Render(bool renderEffects = false)
+		{
+			Playground.AlphaComposite(Original, new TextureBitmap.Color(255, 255, 255, 10));
+			if (renderEffects)
+				Playground.SetPixel(FoodPosition.X, FoodPosition.Y, new TextureBitmap.Color(255, 255, 255, 255));
+			else
+				Playground.SetPixel(FoodPosition.X, FoodPosition.Y, CurrentFoodColor);
+
+			for (int i = 0; i < Points.Count; i++)
+			{
+				if (renderEffects)
+				{
+					Original.SetPixel(Points[i].X, Points[i].Y, Original.GetPixel(Points[i].X, Points[i].Y).AlphaComposite(new TextureBitmap.Color(CurrentSnakeColor.R, CurrentSnakeColor.G, CurrentSnakeColor.B, 20)));
+				}
+				Playground.SetPixel(Points[i].X, Points[i].Y, CurrentSnakeColor);
+			}
+			Playground.Apply();
+		}
+
+		private void Move()
+		{
+			int start = Points.Count - 1;
+			for (int i = start; i >= 0; i--)
+			{
+				if (i == 0)
+				{
+					Points[i].X += CurrentDirection == Direction.LEFT ? -1 : CurrentDirection == Direction.RIGHT ? 1 : 0;
+					Points[i].Y -= CurrentDirection == Direction.UP ? -1 : CurrentDirection == Direction.DOWN ? 1 : 0;
+					if (Points[i].X < 0 || Points[i].X >= Width || Points[i].Y < 0 || Points[i].Y >= Height)
+						Dead = true;
+					for (int j = 1; j < Points.Count; j++)
+					{
+						if (Points[i].X == Points[j].X && Points[i].Y == Points[j].Y)
+							Dead = true;
+					}
+					if (Points[i].X == FoodPosition.X && Points[i].Y == FoodPosition.Y)
+						Eat();
+				}
+				else
+				{
+					if (Extend && i == Points.Count - 1)
+					{
+						Points.Add(new TextureBitmap.Point(Points[i].X, Points[i].Y));
+						Extend = false;
+					}
+					Points[i].X = Points[i - 1].X;
+					Points[i].Y = Points[i - 1].Y;
+				}
+			}
+			LastDirection = CurrentDirection;
+		}
+
+		private void Eat()
+		{
+			SnakeSpeed *= 0.95f;
+			if (SnakeSpeed < 0.1f)
+				SnakeSpeed = 0.1f;
+			CurrentSnakeColor = CurrentFoodColor;
+			Extend = true;
+			int size = Random.Range(2, 10);
+			int opacity = Random.Range(100, 200);
+			for (int x = -size; x <= size; x++)
+			{
+				for (int y = -size; y <= size; y++)
+				{
+					int fx = FoodPosition.X + x;
+					int fy = FoodPosition.Y + y;
+					var dist = Vector2.Distance(new Vector2(fx, fy), new Vector2(FoodPosition.X, FoodPosition.Y)) / size;
+					if (fx < 0) fx += Width;
+					if (fy < 0) fy += Height;
+					if (fx >= Width) fx -= Width;
+					if (fy >= Height) fy -= Height;
+					Original.SetPixel(fx, fy, Original.GetPixel(fx, fy).AlphaComposite(new TextureBitmap.Color(CurrentSnakeColor.R, CurrentSnakeColor.G, CurrentSnakeColor.B, (byte) (Mathf.Clamp01(1 - dist) * opacity))));
+				}
+			}
+			SpawnFood();
+		}
+		
+		public void Dispose()
+		{
+			Original.Dispose();
+		}
+
+		void SpawnFood()
+		{
+			List<TextureBitmap.Point> freeSpots = new List<TextureBitmap.Point>();
+			for (int x = 0; x < Width; x++)
+			{
+				for (int y = 0; y < Height; y++)
+				{
+					bool free = true;
+					for (int i = 0; i < Points.Count; i++)
+					{
+						if (x == Points[i].X && y == Points[i].Y)
+						{
+							free = false;
+							break;
+						}
+					}
+					if (free)
+						freeSpots.Add(new TextureBitmap.Point(x, y));
+				}
+			}
+
+			CurrentFoodColor = new TextureBitmap.Color((byte) Random.Range(0, 255), (byte) Random.Range(0, 255), (byte) Random.Range(0, 255), 255);
+			FoodPosition = freeSpots[Random.Range(0, freeSpots.Count)];
+		}
+	}
 	// Update is called once per frame
 	void Update()
     {
+		if (Secret != null)
+		{
+			if (!Secret.Dead)
+			{
+				Secret.Update();
+				CurrentPattern.CurrentSubPattern.UpdateImage();
+				CurrentPattern.RegeneratePreview();
+			}
+		}
+		if (Secret == null && IsShown && Input.anyKeyDown)
+		{
+			if (Input.GetKey(SecretCombo[CurrentSecret]))
+			{
+				CurrentSecret++;
+				if (CurrentSecret == SecretCombo.Length)
+				{
+					CurrentSecret = 0;
+					var layer = new RasterLayer(CurrentPattern.CurrentSubPattern, "Snake");
+					layer.Bitmap.CopyFrom(this.CurrentPattern.CurrentSubPattern.Bitmap);
+					CurrentPattern.CurrentSubPattern.Layers.Add(layer);
+					LayersChanged();
+					Secret = new Snake(layer.Bitmap);
+				}
+			}
+			else
+			{
+				CurrentSecret = 0;
+			}
+		}
 		try
 		{
 			if (CurrentPattern != null)
@@ -325,6 +568,27 @@ public class PatternEditor : MonoBehaviour
 					PreviewImage.sprite = CurrentPattern.GetPreviewSprite();
 					Previews.AllPreviews[CurrentPattern.Type].SetTexture(CurrentPattern.GetUpscaledPreview());
 				}
+				if (Tools.IsToolActive(Tools.Tool.Brush) && Input.GetKeyDown(KeyCode.B))
+					Tools.SwitchTool(Tools.Tool.Brush);
+				if (Tools.IsToolActive(Tools.Tool.BucketFill) && Input.GetKeyDown(KeyCode.F))
+					Tools.SwitchTool(Tools.Tool.BucketFill);
+				if (Tools.IsToolActive(Tools.Tool.ColorPicker) && Input.GetKeyDown(KeyCode.C))
+					Tools.SwitchTool(Tools.Tool.ColorPicker);
+				if (Tools.IsToolActive(Tools.Tool.Eraser) && Input.GetKeyDown(KeyCode.E))
+					Tools.SwitchTool(Tools.Tool.Eraser);
+				if (Tools.IsToolActive(Tools.Tool.Line) && Input.GetKeyDown(KeyCode.L))
+					Tools.SwitchTool(Tools.Tool.Line);
+				if (Tools.IsToolActive(Tools.Tool.Rect) && Input.GetKeyDown(KeyCode.S))
+					Tools.SwitchTool(Tools.Tool.Rect);
+				if (Tools.IsToolActive(Tools.Tool.Transform) && Input.GetKeyDown(KeyCode.T))
+					Tools.SwitchTool(Tools.Tool.Transform);
+				if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
+					Input.GetKeyDown(KeyCode.Z))
+					Tools.Undo();
+				if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
+					Input.GetKeyDown(KeyCode.Y))
+					Tools.Redo();
+
 				if (Tools.IsToolActive(Tools.Tool.ColorPicker))
 				{
 					if (Input.GetKey(KeyCode.LeftAlt))
@@ -363,14 +627,26 @@ public class PatternEditor : MonoBehaviour
 	{
 		try
 		{
-			var pattern = new DesignPattern
+			if (this.CurrentPattern.Type == DesignPattern.TypeEnum.SimplePattern)
 			{
-				Type = Type,
-				IsPro = Type != DesignPattern.TypeEnum.SimplePattern
-			};
-			pattern.FromBitmap(this.CurrentPattern.PreviewBitmap);
-
-			return pattern;
+				var pattern = new SimpleDesignPattern
+				{
+					Type = Type/*,
+					IsPro = Type != DesignPattern.TypeEnum.SimplePattern*/
+				};
+				pattern.FromBitmap(this.CurrentPattern.PreviewBitmap);
+				return pattern;
+			}
+			else
+			{
+				var pattern = new ProDesignPattern
+				{
+					Type = Type/*,
+					IsPro = Type != DesignPattern.TypeEnum.SimplePattern*/
+				};
+				pattern.FromBitmap(this.CurrentPattern.PreviewBitmap);
+				return pattern;
+			}
 		}
 		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while saving pattern: " + e.ToString()); return null; }
 	}
@@ -379,11 +655,20 @@ public class PatternEditor : MonoBehaviour
 	{
 		if (CurrentPattern != null)
 			CurrentPattern.Dispose();
+		if (CurrentBrush != null)
+			CurrentBrush.Dispose();
+		if (Secret != null)
+			Secret.Dispose();
+
 	}
 
 	private void OnApplicationQuit()
 	{
 		if (CurrentPattern != null)
 			CurrentPattern.Dispose();
+		if (CurrentBrush != null)
+			CurrentBrush.Dispose();
+		if (Secret != null)
+			Secret.Dispose();
 	}
 }

@@ -134,7 +134,7 @@ public class MainMenu : MonoBehaviour
 		Thread t = new Thread(() => {
 			try
 			{
-				Controller.Instance.CurrentSavegame = Savegame.Decrypt(new System.IO.FileInfo(path));
+				Controller.Instance.CurrentSavegame = new Savegame(new System.IO.FileInfo(path));
 				SavegameLoaded = true;
 			}
 			catch (Exception e)
@@ -157,19 +157,24 @@ public class MainMenu : MonoBehaviour
 				bool newFile = !System.IO.File.Exists(path);
 				Logger.Log(Logger.Level.INFO, "New file?: " + newFile);
 
-				Controller.Instance.CurrentSavegame = new MyHorizons.Data.Save.MainSaveFile(null, path, null);
+				Controller.Instance.CurrentSavegame = new Designs(new System.IO.FileInfo(path));
 				if (newFile)
 				{
 					Logger.Log(Logger.Level.INFO, "It's a new file! Populate it.");
 					for (int i = 0; i < 50; i++)
 					{
 						Logger.Log(Logger.Level.TRACE, "Filling design # " + i);
-						Controller.Instance.CurrentSavegame.DesignPatterns[i].Type = MyHorizons.Data.DesignPattern.TypeEnum.SimplePattern;
-						Controller.Instance.CurrentSavegame.DesignPatterns[i].Empty();
-						Controller.Instance.CurrentSavegame.DesignPatterns[i].Name = "Empty";
+						Controller.Instance.CurrentSavegame.SimpleDesignPatterns[i] = new SimpleDesignPattern();
+						Controller.Instance.CurrentSavegame.SimpleDesignPatterns[i].Index = i;
+						Controller.Instance.CurrentSavegame.SimpleDesignPatterns[i].Type = DesignPattern.TypeEnum.SimplePattern;
+						Controller.Instance.CurrentSavegame.SimpleDesignPatterns[i].Image = new byte[16 * 32];
+						Controller.Instance.CurrentSavegame.SimpleDesignPatterns[i].Empty();
+						Controller.Instance.CurrentSavegame.SimpleDesignPatterns[i].Name = "Empty";
 						Logger.Log(Logger.Level.TRACE, "Filling pro design # " + i);
-						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Type = MyHorizons.Data.DesignPattern.TypeEnum.EmptyProPattern;
-						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Pixels = new byte[32 * 64];
+						Controller.Instance.CurrentSavegame.ProDesignPatterns[i] = new ProDesignPattern();
+						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Index = i;
+						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Type = DesignPattern.TypeEnum.EmptyProPattern;
+						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Image = new byte[32 * 64];
 						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Name = "Empty";
 						Controller.Instance.CurrentSavegame.ProDesignPatterns[i].Empty();
 					}

@@ -6,6 +6,8 @@ using System.IO;
 
 public class LogButton : MonoBehaviour
 {
+    public Credits Credits;
+    /*
     public static void OpenInFileBrowser(string path)
     {
 #if UNITY_STANDALONE_OSX
@@ -67,13 +69,14 @@ public class LogButton : MonoBehaviour
         }
 #endif
     }
-
+    */
     // Start is called before the first frame update
     void Start()
     {
         GetComponent<MenuButton>().OnClick = () => {
-            string path = Application.persistentDataPath.TrimEnd(new[] { '\\', '/' }); // Mac doesn't like trailing slash
-            OpenInFileBrowser(path);
+            Credits.Show();
+            /*string path = Application.persistentDataPath.TrimEnd(new[] { '\\', '/' }); // Mac doesn't like trailing slash
+            OpenInFileBrowser(path);*/
         };
     }
 }

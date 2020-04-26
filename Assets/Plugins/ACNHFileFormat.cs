@@ -1,5 +1,4 @@
 ﻿using System;
-using MyHorizons.Data;
 
 public class ACNHFileFormat
 {
@@ -20,7 +19,7 @@ public class ACNHFileFormat
 	public string Name;
 	public byte[] Pixels;
 	public DesignPattern.TypeEnum Type;
-	public DesignPattern.DesignColor[] Palette;
+	public DesignPattern.Color[] Palette;
 	public byte Version;
 
 	public bool IsPro
@@ -37,13 +36,13 @@ public class ACNHFileFormat
 
 		result.Name = pattern.Name;
 		result.Type = pattern.Type;
-		result.Palette = new DesignPattern.DesignColor[15];
+		result.Palette = new DesignPattern.Color[15];
 
 		for (int i = 0; i < pattern.Palette.Length; i++)
-			result.Palette[i] = new DesignPattern.DesignColor() { R = pattern.Palette[i].R, G = pattern.Palette[i].G, B = pattern.Palette[i].B };
+			result.Palette[i] = new DesignPattern.Color() { R = pattern.Palette[i].R, G = pattern.Palette[i].G, B = pattern.Palette[i].B };
 
 		result.Pixels = new byte[(result.Width / 2) * result.Height];
-		Array.Copy(pattern.Pixels, result.Pixels, result.Pixels.Length);
+		Array.Copy(pattern.Image, result.Pixels, result.Pixels.Length);
 		return result;
 	}
 
@@ -81,10 +80,10 @@ public class ACNHFileFormat
 	{
 		Version = bytes[0];
 		Name = System.Text.Encoding.Unicode.GetString(bytes, 1, 0x29).Replace(" ", "").Trim();
-		Palette = new DesignPattern.DesignColor[15];
+		Palette = new DesignPattern.Color[15];
 		this.Type = (DesignPattern.TypeEnum) bytes[0x2B];
 		for (int i = 0; i < 15; i++)
-			Palette[i] = new DesignPattern.DesignColor() { R = bytes[0x2C + i * 3 + 0], G = bytes[0x2C + i * 3 + 1], B = bytes[0x2C + i * 3 + 2] };
+			Palette[i] = new DesignPattern.Color() { R = bytes[0x2C + i * 3 + 0], G = bytes[0x2C + i * 3 + 1], B = bytes[0x2C + i * 3 + 2] };
 		this.Pixels = new byte[Width / 2 * Height];
 		Array.Copy(bytes, 0x59, this.Pixels, 0, this.Pixels.Length);
 	}
