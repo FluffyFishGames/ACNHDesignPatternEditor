@@ -24,7 +24,7 @@ public unsafe class ProDesignPattern : DesignPattern
 
 	public void Write(BinaryData data, int offset)
 	{
-		data.WriteString(offset + 0x10, this._Name, 10);
+		data.WriteString(offset + 0x10, this._Name, 20);
 		_PersonalID.Write(data, offset + 0x38);
 		for (int i = 0; i < _Palette.Length; i++)
 			_Palette[i].Write(data, offset + 0x78 + 0x03 * i);
@@ -35,7 +35,7 @@ public unsafe class ProDesignPattern : DesignPattern
 	public static ProDesignPattern Read(BinaryData data, int offset)
 	{
 		var ret = new ProDesignPattern();
-		ret._Name = data.ReadString(offset + 0x10, 10);
+		ret._Name = data.ReadString(offset + 0x10, 20);
 		ret._PersonalID = PersonalID.Read(data, offset + 0x38);
 		ret._Palette = new DesignPattern.Color[15];
 		for (int i = 0; i < ret._Palette.Length; i++)

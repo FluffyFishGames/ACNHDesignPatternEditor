@@ -13,6 +13,14 @@ public abstract class DesignPattern
 	public abstract int Height { get; }
 	public int Index { get; set; }
 
+	public void ChangeOwnership(PersonalID personalID)
+	{
+		var newPersonalID = new PersonalID();
+		newPersonalID.Name = personalID.Name;
+		newPersonalID.UniqueId = 0xFFFFFFFF;
+		newPersonalID.TownId = personalID.TownId;
+		PersonalID = newPersonalID;
+	}
 	public virtual byte this[int index]
 	{
 		get

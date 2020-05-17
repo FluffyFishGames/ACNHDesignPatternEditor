@@ -140,7 +140,7 @@ public static class DesignPatternExtension
 		unsafe
 		{
 			var colors = bitmap.GetColors();
-			pattern.Image = new byte[width * height];
+			pattern.Image = new byte[(width / 2) * height];
 			int bitmapHeight = bitmap.Height;
 			int bitmapWidth = bitmap.Width;
 			for (var y = 0; y < width; y++)
@@ -186,7 +186,7 @@ public static class DesignPatternExtension
 
 		int width = pattern.Width;
 		int height = pattern.Height;
-		pattern.Image = new byte[width * height];
+		pattern.Image = new byte[(width / 2) * height];
 		for (var y = 0; y < width; y++)
 		{
 			for (var x = 0; x < height; x++)
@@ -227,7 +227,7 @@ public static class DesignPatternExtension
 
 		int width = pattern.Width;
 		int height = pattern.Height;
-		pattern.Image = new byte[width * height];
+		pattern.Image = new byte[(width / 2) * height];
 		for (var y = 0; y < height; y++)
 		{
 			for (var x = 0; x < width; x++)
@@ -316,11 +316,12 @@ public static class DesignPatternExtension
 	public static void CopyFrom(this DesignPattern pattern, ACNLFileFormat file)
 	{
 		pattern.Image = new byte[file.Pixels.Length];
-		for (int y = 0; y < file.Height; y++)
+		Array.Copy(file.Pixels, pattern.Image, pattern.Image.Length);
+		/*for (int y = 0; y < file.Height; y++)
 			for (int x = 0; x < file.Width; x++)
 				pattern.SetPixel(x, y, (byte) (x % 2 == 0 ? 
 					(file.Pixels[(x / 2) + y * (file.Width / 2)]) & 0x0F : 
-					((file.Pixels[(x / 2) + y * (file.Width / 2)] & 0xF0)) >> 4));
+					((file.Pixels[(x / 2) + y * (file.Width / 2)] & 0xF0)) >> 4));*/
 		pattern.Type = file.Type;
 		pattern.Name = file.Name;
 		for (int i = 0; i < file.Palette.Length; i++)
@@ -337,8 +338,23 @@ public static class DesignPatternExtension
 	public static void CopyFrom(this DesignPattern pattern, ACNHFileFormat file)
 	{
 		pattern.Image = new byte[file.Pixels.Length];
-		Array.Copy(file.Pixels, 0, pattern.Image, 0, file.Pixels.Length);
 		pattern.Type = file.Type;
+		if (file.Version == 0x00 && file.Type != DesignPattern.TypeEnum.SimplePattern)
+		{
+			for (int y = 0; y < pattern.Height; y++)
+			{
+				for (int x = 0; x < pattern.Width; x++)
+				{
+					byte b = file.Pixels[(x / 2) + y * (pattern.Width / 2)];
+					if (x % 2 == 0)
+						pattern.SetPixel(x, y, (byte) (b & 0x0F));
+					else
+						pattern.SetPixel(x, y, (byte) ((b & 0xF0) / 0x10));
+				}
+			}
+		}
+		else
+			Array.Copy(file.Pixels, 0, pattern.Image, 0, file.Pixels.Length);
 		pattern.Name = file.Name;
 		for (int i = 0; i < file.Palette.Length; i++)
 		{

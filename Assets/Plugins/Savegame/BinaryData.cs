@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,8 +9,8 @@ using Unity.Collections.LowLevel.Unsafe;
 
 public unsafe class BinaryData
 {
-	protected byte* Data;
-    protected int Size;
+	public byte* Data;
+    public int Size;
 
     public sbyte ReadS8(int offset)
     {
@@ -74,6 +75,7 @@ public unsafe class BinaryData
     public unsafe byte[] ReadBytes(int offset, int length)
     {
         if (offset < 0 || offset + length > Size) throw new IndexOutOfRangeException(offset + " is outside of binary data.");
+        if (length == 0) return new byte[] { };
         byte[] ret = new byte[length];
         fixed (byte* retPtr = &ret[0])
             System.Buffer.MemoryCopy(this.Data + offset, retPtr, length, length);

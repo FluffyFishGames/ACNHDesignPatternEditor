@@ -15,15 +15,18 @@ public class MainMenu : MonoBehaviour
 	public MenuButton PatreonButton;
 	public MenuButton SelectSavegame;
 	public MenuButton HowTo;
+	public MenuButton CreateDesigns;
 	public MenuButton SelectDesigns;
 	public MenuButton SavegameBack;
 	public MenuButton DesignerBack;
+
 
 	public Pop SavegameMenuButtonPop;
 	public Pop DesignerMenuButtonPop;
 	public Pop PatreonButtonPop;
 	public Pop SelectSavegamePop;
 	public Pop HowToPop;
+	public Pop CreateDesignsPop;
 	public Pop SelectDesignsPop;
 	public Pop SavegameBackPop;
 	public Pop DesignerBackPop;
@@ -84,7 +87,6 @@ public class MainMenu : MonoBehaviour
 				{
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "dat", false, (path) =>
-//					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "main.dat", false, (path) =>
 #elif UNITY_EDITOR || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
 					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "dat", false, (path) =>
 #endif
@@ -104,10 +106,29 @@ public class MainMenu : MonoBehaviour
 			{
 				if (Controller.Instance.CurrentState == Controller.State.MainMenu)
 				{
-					StandaloneFileBrowser.SaveFilePanelAsync("Open designs", "", "myDesigns.designs", new ExtensionFilter[] { new ExtensionFilter("Designs", new string[] { "designs" }) }, (path) =>
+					StandaloneFileBrowser.OpenFilePanelAsync("Open designs", "", new ExtensionFilter[] { new ExtensionFilter("Designs", new string[] { "designs" }) }, false, (path) =>
 					{
 						if (path != null && path.Length > 0)
 						{
+							LoadDesigns(path[0]);
+						}
+					});
+				}
+			}
+		};
+
+		CreateDesigns.OnClick += () =>
+		{
+			if (!SavegameLoaded && !SavegameLoading && !DesignsLoaded && !DesignsLoading)
+			{
+				if (Controller.Instance.CurrentState == Controller.State.MainMenu)
+				{
+					StandaloneFileBrowser.SaveFilePanelAsync("Create designs", "", "myDesigns.designs", new ExtensionFilter[] { new ExtensionFilter("Designs", new string[] { "designs" }) }, (path) =>
+					{
+						if (path != null && path.Length > 0)
+						{
+							if (!path.ToLowerInvariant().EndsWith(".designs"))
+								path = path + ".designs";
 							LoadDesigns(path);
 						}
 					});
@@ -258,6 +279,8 @@ public class MainMenu : MonoBehaviour
 		Controller.Instance.Popup.Close();
 		Controller.Instance.PlayPopoutSound();
 		yield return new WaitForSeconds(0.1f);
+		CreateDesignsPop.PopOut();
+		yield return new WaitForSeconds(0.1f);
 		SelectDesignsPop.PopOut();
 		yield return new WaitForSeconds(0.1f);
 		DesignerBackPop.PopOut();
@@ -289,6 +312,7 @@ public class MainMenu : MonoBehaviour
 
 	public IEnumerator OpenAnimation()
 	{
+		CreateDesignsPop.PopOut();
 		SelectDesignsPop.PopOut();
 		DesignerBackPop.PopOut();
 		SelectSavegamePop.PopOut();
@@ -336,6 +360,8 @@ public class MainMenu : MonoBehaviour
 		DesignerMenu.SetActive(true);
 		SavegameMenu.SetActive(false);
 		Main.SetActive(false);
+		CreateDesignsPop.PopUp();
+		yield return new WaitForSeconds(0.1f);
 		SelectDesignsPop.PopUp();
 		yield return new WaitForSeconds(0.1f);
 		DesignerBackPop.PopUp();

@@ -32,6 +32,7 @@ public class DesignPatternInformation
 
 	public class DesignPatternInfo
 	{
+		public string Name;
 		public List<DesignPatternPart> Parts;
 	}
 	public static Dictionary<DesignPattern.TypeEnum, DesignPatternInfo> Types = new Dictionary<DesignPattern.TypeEnum, DesignPatternInfo>()
@@ -40,6 +41,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.SimplePattern,
 			new DesignPatternInfo()
 			{
+				Name = "Simple design",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -90,6 +92,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.Tanktop,
 			new DesignPatternInfo()
 			{
+				Name = "Tank top",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -181,6 +184,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.TShirt,
 			new DesignPatternInfo()
 			{
+				Name = "Short-sleeve tee",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -316,6 +320,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.LongSleeveShirt,
 			new DesignPatternInfo()
 			{
+				Name = "Long-sleeve dress shirt",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -469,6 +474,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.Pullover,
 			new DesignPatternInfo()
 			{
+				Name = "Sweater",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -622,6 +628,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.Hoodie,
 			new DesignPatternInfo()
 			{
+				Name = "Hoodie",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -775,6 +782,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.Coat,
 			new DesignPatternInfo()
 			{
+				Name = "Coat",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -946,6 +954,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.SleevelessDress,
 			new DesignPatternInfo()
 			{
+				Name = "Sleeveless dress",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -1055,6 +1064,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.ShortSleeveDress,
 			new DesignPatternInfo()
 			{
+				Name = "Short-sleeve dress",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -1208,6 +1218,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.LongSleeveDress,
 			new DesignPatternInfo()
 			{
+				Name = "Long-sleeve dress",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -1379,6 +1390,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.RoundDress,
 			new DesignPatternInfo()
 			{
+				Name = "Round dress",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -1488,6 +1500,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.BalloonDress,
 			new DesignPatternInfo()
 			{
+				Name = "Balloon-hem dress",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -1641,6 +1654,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.Robe,
 			new DesignPatternInfo()
 			{
+				Name = "Robe",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -1812,6 +1826,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.BrimmedCap,
 			new DesignPatternInfo()
 			{
+				Name = "Brimmed cap",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -1954,6 +1969,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.KnitCap,
 			new DesignPatternInfo()
 			{
+				Name = "Knit cap",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2025,6 +2041,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.BrimmedHat,
 			new DesignPatternInfo()
 			{
+				Name = "Brimmed hat",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2125,6 +2142,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.Hat3DS,
 			new DesignPatternInfo()
 			{
+				Name = "Hat (3DS)",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2175,6 +2193,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.HornHat3DS,
 			new DesignPatternInfo()
 			{
+				Name = "Horn Hat (3DS)",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2225,6 +2244,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.NoSleeveShirt3DS,
 			new DesignPatternInfo()
 			{
+				Name = "Tank Top (3DS)",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2316,6 +2336,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.NoSleeveDress3DS,
 			new DesignPatternInfo()
 			{
+				Name = "Sleeveless Dress (3DS)",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2439,6 +2460,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.ShortSleeveShirt3DS,
 			new DesignPatternInfo()
 			{
+				Name = "Shortsleeve Shirt (3DS)",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2580,6 +2602,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.ShortSleeveDress3DS,
 			new DesignPatternInfo()
 			{
+				Name = "Shortsleeve Dress (3DS)",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2753,6 +2776,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.LongSleeveShirt3DS,
 			new DesignPatternInfo()
 			{
+				Name = "Longsleeve Shirt (3DS)",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -2894,6 +2918,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.LongSleeveDress3DS,
 			new DesignPatternInfo()
 			{
+				Name = "Longsleeve Dress (3DS)",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()
@@ -3067,6 +3092,7 @@ public class DesignPatternInformation
 			DesignPattern.TypeEnum.EmptyProPattern,
 			new DesignPatternInfo()
 			{
+				Name = "Empty Pro Design",
 				Parts = new List<DesignPatternPart>()
 				{
 					new DesignPatternPart()

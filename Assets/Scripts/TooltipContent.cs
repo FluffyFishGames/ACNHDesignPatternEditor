@@ -116,8 +116,8 @@ public class TooltipContent : Graphic
 		TextComponent.text = Text;
 		Vector3[] vertices;
 		TextComponent.ForceMeshUpdate();
-		float textWidth = TextComponent.preferredWidth;
-		this.RectTransform.sizeDelta = new Vector3(textWidth + Padding * 2, this.RectTransform.sizeDelta.y, 0f);
+		float textWidth = TextComponent.preferredWidth + Padding * 2;
+		this.RectTransform.sizeDelta = new Vector3(textWidth, this.RectTransform.sizeDelta.y, 0f);
 		TextComponent.ForceMeshUpdate();
 
 		TMP_TextInfo textInfo = TextComponent.textInfo;
@@ -126,8 +126,8 @@ public class TooltipContent : Graphic
 		if (characterCount == 0)
 			return;
 
-		float boundsMinX = TextComponent.bounds.min.x;
-		float boundsMaxX = TextComponent.bounds.max.x;
+		float boundsMinX = TextComponent.bounds.min.x - Padding;
+		float boundsMaxX = TextComponent.bounds.max.x + Padding;
 
 		float fullWidth = textWidth + Padding * 2;
 		float angle = Angle * 100 / textWidth;

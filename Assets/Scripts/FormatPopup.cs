@@ -9,10 +9,12 @@ public class FormatPopup : MonoBehaviour
 	public GameObject ACNL;
 	public GameObject QR;
 	public GameObject Image;
+	public GameObject Online;
 	public MenuButton ACNHButton;
 	public MenuButton ACNLButton;
 	public MenuButton QRButton;
 	public MenuButton ImageButton;
+	public MenuButton OnlineButton;
 	public MenuButton CancelButton;
 
 	public CanvasGroup BackgroundCanvasGroup;
@@ -30,7 +32,8 @@ public class FormatPopup : MonoBehaviour
 		ACNH,
 		ACNL,
 		QR,
-		Image
+		Image,
+		Online
 	}
 
 	void OnEnable()
@@ -64,6 +67,11 @@ public class FormatPopup : MonoBehaviour
 			Callback?.Invoke(Format.Image);
 			Hide();
 		};
+		OnlineButton.OnClick = () =>
+		{
+			Callback?.Invoke(Format.Online);
+			Hide();
+		};
 	}
 
 	public void Hide()
@@ -77,7 +85,7 @@ public class FormatPopup : MonoBehaviour
 	}
 
 
-	public void Show(string text, System.Action<Format> callback, System.Action cancel, bool showACNH, bool showACNL, bool showQR, bool showImage)
+	public void Show(string text, System.Action<Format> callback, System.Action cancel, bool showACNH, bool showACNL, bool showQR, bool showImage, bool showOnline)
 	{
 		if (!IsOpen)
 		{
@@ -88,6 +96,7 @@ public class FormatPopup : MonoBehaviour
 			ACNL.SetActive(showACNL);
 			QR.SetActive(showQR);
 			Image.SetActive(showImage);
+			Online.SetActive(showOnline);
 			Text.text = text;
 
 			gameObject.SetActive(true);

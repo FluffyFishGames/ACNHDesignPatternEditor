@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 public class ACNHFileFormat
 {
@@ -30,6 +31,23 @@ public class ACNHFileFormat
 		}
 	}
 
+	public static ACNHFileFormat FromPattern(DesignServer.Pattern pattern)
+	{
+		var result = new ACNHFileFormat();
+
+		result.Name = pattern.Name;
+		result.Type = (DesignPattern.TypeEnum) pattern.Type;
+		result.Palette = new DesignPattern.Color[15];
+
+		for (int i = 0; i < result.Palette.Length; i++)
+			result.Palette[i] = new DesignPattern.Color() { R = pattern.Bytes[i * 3 + 0], G = pattern.Bytes[i * 3 + 1], B = pattern.Bytes[i * 3 + 2] };
+
+		result.Pixels = new byte[(result.Width / 2) * result.Height];
+		Array.Copy(pattern.Bytes, 15 * 3, result.Pixels, 0, result.Pixels.Length);
+		return result;
+	}
+
+
 	public static ACNHFileFormat FromPattern(DesignPattern pattern)
 	{
 		var result = new ACNHFileFormat();
@@ -50,7 +68,7 @@ public class ACNHFileFormat
 	{
 		int length = 89 + (Width / 2) * Height;
 		byte[] ret = new byte[length];
-		ret[0] = 0x00; // version
+		ret[0] = 0x01; // version
 		if (Name != null)
 		{
 			var nameBytes = System.Text.Encoding.Unicode.GetBytes(Name);

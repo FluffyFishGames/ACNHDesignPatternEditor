@@ -213,8 +213,6 @@ public class Popup : MonoBehaviour
 
 				var loadingScale = EasingFunction.EaseOutBack(0f, 0.7f, LoadingPhase);
 				Loading.localScale = new Vector3(loadingScale, loadingScale, 1f);
-				if (LoadingPhase == 1f)
-					Opened = false;
 			}
 		}
 		MyRenderer.SetAlpha(Mathf.Min(1f, OpeningPhase * 1.2f));

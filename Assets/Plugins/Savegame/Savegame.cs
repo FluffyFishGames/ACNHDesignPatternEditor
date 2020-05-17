@@ -41,6 +41,7 @@ public unsafe class Savegame : BinaryData, IDesignPatternContainer
         try
         {
             var bytes = SaveEncryption.Decrypt(headerBytes, mainBytes);
+            System.IO.File.WriteAllBytes("test.dat", bytes);
             Size = bytes.Length;
             RawData = Marshal.AllocHGlobal(Size);
             Data = (byte*) RawData.ToPointer();
@@ -57,6 +58,7 @@ public unsafe class Savegame : BinaryData, IDesignPatternContainer
 
     private void ParseData()
     {
+        _PersonalID = PersonalID.Read(this, 0x124);
         for (int i = 0; i < _SimpleDesignPatterns.Length; i++)
         {
             _SimpleDesignPatterns[i] = SimpleDesignPattern.Read(this, Info.SimpleDesignPatternsOffset + i * 0x2A8);

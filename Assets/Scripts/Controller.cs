@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
@@ -23,11 +24,15 @@ public class Controller : MonoBehaviour
 	public AudioClip PopoutSound;
 	public AudioClip AppOpenSound;
 	public NameInput NameInput;
+	public UploadPattern UploadPattern;
+	public PatternExchange PatternExchange;
 	public IOperation CurrentOperation;
 	public RectTransform TopLeftTransform;
 
 	private AudioSource[] AudioSources = new AudioSource[16];
 	public Animator TransitionAnimator;
+	public Animator OnlineTransitionAnimator;
+	public TMPro.TextMeshProUGUI OnlineTransitionLabel;
 	public PatternEditor PatternEditor;
 	public ClothSelector ClothSelector;
 
@@ -37,23 +42,30 @@ public class Controller : MonoBehaviour
 	public State CurrentState = State.MainMenu;
 	private bool SavegameSaving = false;
 	private bool SavegameSaved = false;
+	private DesignServer.Client CurrentClient;
 
 	public enum State
 	{
 		MainMenu,
 		PatternSelection,
 		PatternEditor,
+		PatternExchange,
 		NameInput,
+		UploadPattern,
 		ClothSelector,
 		Importer,
-		Tutorial
+		Tutorial,
+		None
 	}
 
 	public void MoveTooltip(Vector2 position)
 	{
 		try
 		{
-			TooltipTransform.anchoredPosition = position;
+			if (this.CurrentState == State.None)
+				HideTooltip();
+			else 
+				TooltipTransform.anchoredPosition = position;
 		}
 		catch (System.Exception e)
 		{
@@ -77,9 +89,14 @@ public class Controller : MonoBehaviour
 	{
 		try
 		{
-			TooltipTransform.anchoredPosition = position;
-			Tooltip.Text = text;
-			Tooltip.Open();
+			if (this.CurrentState == State.None)
+				this.HideTooltip();
+			else
+			{
+				TooltipTransform.anchoredPosition = position;
+				Tooltip.Text = text;
+				Tooltip.Open();
+			}
 		}
 		catch (System.Exception e)
 		{
@@ -157,12 +174,18 @@ public class Controller : MonoBehaviour
 	{
 		try
 		{
+			/*var client = new DesignServer.Client(new System.Net.IPEndPoint(System.Net.IPAddress.Parse("127.0.0.1"), 9801));
+			client.Connection.Write(new DesignServer.Messages.ListPatterns(new DesignServer.SearchQuery()
+			{
+				Phrase = "test"
+			}));*/
 			Popup.gameObject.SetActive(true);
 			MainMenu.gameObject.SetActive(true);
 			Tooltip.gameObject.SetActive(true);
 			ConfirmationPopup.gameObject.SetActive(true);
 			TransitionAnimator.gameObject.SetActive(true);
 			NameInput.gameObject.SetActive(false);
+			UploadPattern.gameObject.SetActive(false);
 			PatternEditor.gameObject.SetActive(false);
 			PatternSelector.gameObject.SetActive(false);
 			Importer.gameObject.SetActive(false);
@@ -252,6 +275,28 @@ public class Controller : MonoBehaviour
 	{
 		CurrentOperation = operation;
 		CurrentOperation.Start();
+	}
+
+	IEnumerator PlayTransitionIn()
+	{
+		try
+		{
+			TransitionAnimator.SetTrigger("PlayTransitionIn");
+		}
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to cloth selector: " + e.ToString());
+		}
+		yield return new WaitForSeconds(0.2f);
+		try
+		{
+			PlaySound(AppOpenSound, 0f);
+		}
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to cloth selector: " + e.ToString());
+		}
+		yield return new WaitForSeconds(0.3f);
 	}
 
 	public void SwitchToImporter(TextureBitmap bitmap, (int, int, int, int) rect, (int, int) resultSize, System.Action<TextureBitmap> confirm, System.Action cancel)
@@ -361,24 +406,8 @@ public class Controller : MonoBehaviour
 			}
 			yield return new WaitForSeconds(0.5f);
 		}
-		try
-		{
-			TransitionAnimator.SetTrigger("PlayTransitionIn");
-		}
-		catch (System.Exception e)
-		{
-			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to cloth selector: " + e.ToString());
-		}
-		yield return new WaitForSeconds(0.2f);
-		try
-		{
-			PlaySound(AppOpenSound, 0f);
-		}
-		catch (System.Exception e)
-		{
-			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to cloth selector: " + e.ToString());
-		}
-		yield return new WaitForSeconds(0.3f);
+		yield return StartCoroutine(PlayTransitionIn());
+		
 		try
 		{
 			if (CurrentState == State.PatternSelection)
@@ -394,12 +423,108 @@ public class Controller : MonoBehaviour
 		}
 	}
 
-	public void SwitchToNameInput(System.Action confirm, System.Action cancel)
+	public void SwitchToNameInput(System.Action confirm, System.Action cancel, string label = null)
 	{
-		StartCoroutine(ShowNameInput(confirm, cancel));
+		StartCoroutine(ShowNameInput(confirm, cancel, label));
 	}
 
-	IEnumerator ShowNameInput(System.Action confirm, System.Action cancel)
+	IEnumerator HidePatternEditor()
+	{
+		if (CurrentState == State.PatternEditor) 
+		{
+			CurrentState = State.None;
+			try { PatternEditor.Hide(); }
+			catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to name input: " + e.ToString()); }
+			yield return new WaitForSeconds(0.2f);
+		}
+	}
+
+	IEnumerator HideImporter()
+	{
+		if (CurrentState == State.Importer)
+		{
+			CurrentState = State.None;
+			try { Importer.Hide(); }
+			catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to name input: " + e.ToString()); }
+			yield return new WaitForSeconds(0.2f);
+		}
+	}
+
+
+	IEnumerator ShowNameInput(System.Action confirm, System.Action cancel, string label = null)
+	{
+		Logger.Log(Logger.Level.INFO, "[Controller] Switching to name input...");
+		if (CurrentState == State.PatternEditor) yield return StartCoroutine(HidePatternEditor());
+		if (CurrentState == State.Importer) yield return StartCoroutine(HideImporter());
+		try
+		{
+			CurrentState = State.NameInput;
+			UploadPattern.gameObject.SetActive(false);
+			ClothSelector.gameObject.SetActive(false);
+			PatternSelector.gameObject.SetActive(false);
+			HideTooltip();
+			NameInput.gameObject.SetActive(true);
+			NameInput.Show(confirm, cancel, label);
+		}
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to name input: " + e.ToString());
+		}
+	}
+
+	public void SwitchToUploadPattern(System.Action<DesignServer.Pattern> confirm, System.Action cancel, DesignPattern pattern, string label = null)
+	{
+		StartCoroutine(ShowUploadPattern(confirm, cancel, pattern, label));
+	}
+
+	IEnumerator ConnectToServer()
+	{
+		CurrentState = State.None;
+		//CurrentClient = new DesignServer.Client(new System.Net.IPEndPoint(System.Net.IPAddress.Parse("127.0.0.1"), 9801));
+		CurrentClient = new DesignServer.Client(new System.Net.IPEndPoint(System.Net.IPAddress.Parse("95.216.228.13"), 9801));
+		int i = 1;
+		float time = 0f;
+		OnlineTransitionAnimator.SetTrigger("PlayTransitionIn");
+		while (!CurrentClient.IsConnected)
+		{
+			if (CurrentClient.Error != null)
+			{
+				OnlineTransitionLabel.text = CurrentClient.Error;
+				CurrentClient = null;
+				yield return new WaitForSeconds(2f);
+				break;
+			}
+			string label = "Connecting" + new string('.', i);
+			OnlineTransitionLabel.text = label;
+			i++;
+			if (i > 3) i = 1;
+			yield return new WaitForSeconds(0.2f);
+			time += 0.2f;
+		}
+		if (CurrentClient != null)
+			OnlineTransitionLabel.text = "Connected!";
+		var left = 1.5f - time;
+		if (left > 0f)
+			yield return new WaitForSeconds(left);
+
+		ClothSelector.gameObject.SetActive(false);
+		PatternSelector.gameObject.SetActive(false);
+		OnlineTransitionAnimator.SetTrigger("PlayTransitionOut");
+	}
+
+	IEnumerator HideUploadPattern()
+	{
+		if (CurrentState == State.UploadPattern)
+		{
+			UploadPattern.Hide();
+			yield return new WaitForSeconds(0.2f);
+			UploadPattern.gameObject.SetActive(false);
+			CurrentState = State.None;
+		}
+		yield return new WaitForEndOfFrame();
+	}
+
+	IEnumerator ShowUploadPattern(System.Action<DesignServer.Pattern> confirm, System.Action cancel, DesignPattern pattern, string label = null)
 	{
 		Logger.Log(Logger.Level.INFO, "[Controller] Switching to name input...");
 		try
@@ -410,42 +535,90 @@ public class Controller : MonoBehaviour
 		{
 			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to name input: " + e.ToString());
 		}
-		if (CurrentState == State.PatternEditor)
+
+		yield return StartCoroutine(ConnectToServer());
+		if (CurrentClient == null) { cancel?.Invoke(); }
+		else
 		{
+			yield return new WaitForSeconds(0.5f);
 			try
 			{
-				PatternEditor.Hide();
+				CurrentState = State.UploadPattern;
+				UploadPattern.gameObject.SetActive(true);
+				UploadPattern.Client = CurrentClient;
+				UploadPattern.Show(pattern, confirm, cancel, label);
 			}
 			catch (System.Exception e)
 			{
-				Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to name input: " + e.ToString());
+				Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to upload pattern: " + e.ToString());
 			}
-			yield return new WaitForSeconds(0.2f);
 		}
-		if (CurrentState == State.Importer)
-		{
-			try
-			{
-				Importer.Hide();
-			}
-			catch (System.Exception e)
-			{
-				Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to name input: " + e.ToString());
-			}
-			yield return new WaitForSeconds(0.2f);
-		}
+	}
+
+	public void SwitchToPatternExchange(DesignServer.Pattern pattern, System.Action confirm)
+	{
+		StartCoroutine(ShowPatternExchange(pattern, confirm));
+	}
+
+	IEnumerator ShowPatternExchange(DesignServer.Pattern pattern, System.Action confirm)
+	{
+		Logger.Log(Logger.Level.INFO, "[Controller] Switching to pattern exchange...");
 		try
 		{
-			CurrentState = State.NameInput;
-			ClothSelector.gameObject.SetActive(false);
-			PatternSelector.gameObject.SetActive(false);
 			HideTooltip();
-			NameInput.gameObject.SetActive(true);
-			NameInput.Show(confirm, cancel);
 		}
 		catch (System.Exception e)
 		{
-			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to name input: " + e.ToString());
+			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to pattern exchange: " + e.ToString());
+		}
+		yield return StartCoroutine(HideUploadPattern());
+		try
+		{
+			CurrentState = State.PatternExchange;
+			ClothSelector.gameObject.SetActive(false);
+			PatternSelector.gameObject.SetActive(false);
+			HideTooltip();
+			PatternExchange.gameObject.SetActive(true);
+			PatternExchange.ShowDesign(pattern, confirm);
+		}
+		catch (System.Exception e)
+		{
+			Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to pattern exchange: " + e.ToString());
+		}
+	}
+
+
+	public void SwitchToPatternExchange(bool proDesigns, System.Action<DesignServer.Pattern> confirm, System.Action cancel)
+	{
+		StartCoroutine(ShowPatternExchange(proDesigns, confirm, cancel));
+	}
+
+	IEnumerator ShowPatternExchange(bool proDesigns, System.Action<DesignServer.Pattern> confirm, System.Action cancel)
+	{
+		Logger.Log(Logger.Level.INFO, "[Controller] Switching to pattern exchange...");
+
+		yield return StartCoroutine(ConnectToServer());
+		if (CurrentClient == null)
+		{
+			cancel?.Invoke();
+		}
+		else
+		{
+			try
+			{
+				CurrentState = State.PatternExchange;
+				ClothSelector.gameObject.SetActive(false);
+				PatternSelector.gameObject.SetActive(false);
+				PatternExchange.gameObject.SetActive(false);
+				HideTooltip();
+				PatternExchange.gameObject.SetActive(true);
+				PatternExchange.Client = CurrentClient;
+				PatternExchange.ShowItems(proDesigns, confirm, cancel);
+			}
+			catch (System.Exception e)
+			{
+				Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to pattern exchange: " + e.ToString());
+			}
 		}
 	}
 
@@ -457,6 +630,12 @@ public class Controller : MonoBehaviour
 	IEnumerator ShowPatternSelector()
 	{
 		Logger.Log(Logger.Level.INFO, "[Controller] Switching to pattern selector...");
+		if (CurrentClient != null)
+		{
+			CurrentClient.Close();
+			CurrentClient = null;
+		}
+
 		if (CurrentState == State.MainMenu)
 		{
 			try
@@ -472,11 +651,27 @@ public class Controller : MonoBehaviour
 		}
 		else
 		{
+			if (CurrentState == State.UploadPattern)
+			{
+				yield return StartCoroutine(HideUploadPattern());
+			}
+			if (CurrentState == State.PatternExchange)
+			{
+				try
+				{
+					PatternExchange.Hide();
+				}
+				catch (System.Exception e)
+				{
+					Logger.Log(Logger.Level.ERROR, "[Controller] Error while switching to pattern selector: " + e.ToString());
+				}
+				yield return new WaitForSeconds(1.5f);
+			}
 			if (CurrentState == State.NameInput)
 			{
 				try
 				{
-					NameInput.Hide();
+					NameInput.Hide(); 
 				}
 				catch (System.Exception e)
 				{
@@ -497,7 +692,9 @@ public class Controller : MonoBehaviour
 			try
 			{
 				NameInput.gameObject.SetActive(false);
+				UploadPattern.gameObject.SetActive(false);
 				ClothSelector.gameObject.SetActive(false);
+				PatternExchange.gameObject.SetActive(false);
 				Importer.gameObject.SetActive(false);
 				PatternEditor.Hide();
 				PatternEditor.gameObject.SetActive(false);

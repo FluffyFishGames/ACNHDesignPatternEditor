@@ -11,6 +11,7 @@ public class NameInput : MonoBehaviour
 	private System.Action Cancel;
 	public MenuButton ConfirmButton;
 	public MenuButton CancelButton;
+	public TMPro.TextMeshProUGUI Label;
 
 	void OnEnable()
 	{
@@ -45,8 +46,12 @@ public class NameInput : MonoBehaviour
 		InputField.text = name;
 	}
 
-	public void Show(System.Action confirm, System.Action cancel)
+	public void Show(System.Action confirm, System.Action cancel, string label = null)
 	{
+		if (label == null)
+			Label.text = "Please enter a name for your design!";
+		else
+			Label.text = label;
 		Confirm = confirm;
 		Cancel = cancel;
 		Animator.SetTrigger("TransitionIn");

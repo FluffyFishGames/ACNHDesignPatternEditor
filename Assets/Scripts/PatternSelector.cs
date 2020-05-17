@@ -30,6 +30,7 @@ public class PatternSelector : MonoBehaviour
 	public EventTrigger DesignsEventTrigger;
 	public EventTrigger ProDesignsEventTrigger;
 	public Menu CurrentMenu;
+	private DesignServer.Pattern UploadedPattern;
 
 	private bool IsOpened = false;
 	private float OpenPhase = 0f;
@@ -301,9 +302,38 @@ public class PatternSelector : MonoBehaviour
 					ActionMenu.Close();
 					Controller.Instance.FormatPopup.Show(
 						"<align=\"center\"><#827157>Which format do you want to import?",
-						(format) => 
+						(format) =>
 						{
-							if (format == FormatPopup.Format.ACNH)
+							if (format == FormatPopup.Format.Online)
+							{
+								Controller.Instance.SwitchToPatternExchange(
+									pattern.Pattern is ProDesignPattern,
+									(DesignServer.Pattern resultPattern) =>
+									{
+										DesignPattern designPattern = null;
+										var acnhFileFormat = new ACNHFileFormat(resultPattern.Bytes);
+										if (acnhFileFormat.IsPro)
+										{
+											designPattern = new ProDesignPattern();
+											designPattern.CopyFrom(acnhFileFormat);
+										}
+										else
+										{
+											designPattern = new SimpleDesignPattern();
+											designPattern.CopyFrom(acnhFileFormat);
+										}
+										pattern.Pattern.CopyFrom(designPattern);
+										pattern.Pattern.ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+										pattern.SetPattern(pattern.Pattern);
+										Controller.Instance.SwitchToPatternMenu();
+									},
+									() =>
+									{
+										Controller.Instance.SwitchToPatternMenu();
+									}
+								);
+							}
+							else if (format == FormatPopup.Format.ACNH)
 							{
 								StandaloneFileBrowser.OpenFilePanelAsync("Import design", "", new ExtensionFilter[] { new ExtensionFilter("ACNH file", new string[] { "acnh" }) }, false,
 									(path) =>
@@ -644,6 +674,7 @@ public class PatternSelector : MonoBehaviour
 						true,
 						true,
 						true,
+						true, 
 						true
 					);
 				})),
@@ -653,6 +684,23 @@ public class PatternSelector : MonoBehaviour
 						"<align=\"center\"><#827157>In which format do you want to export?",
 						(format) =>
 						{
+							if (format == FormatPopup.Format.Online)
+							{
+								Controller.Instance.SwitchToUploadPattern(
+									(DesignServer.Pattern resultPattern) =>
+									{
+										Controller.Instance.SwitchToPatternExchange(resultPattern, () => {
+											Controller.Instance.SwitchToPatternMenu();
+										});
+									},
+									() =>
+									{
+										Controller.Instance.SwitchToPatternMenu();
+									},
+									pattern.Pattern,
+									"Please enter your creator name!"
+								);
+							}
 							if (format == FormatPopup.Format.ACNH)
 							{
 								StandaloneFileBrowser.SaveFilePanelAsync("Export design", "", "design.acnh", new ExtensionFilter[] { new ExtensionFilter("ACNH Pattern file", new string[] { "acnh" }) },
@@ -804,6 +852,7 @@ public class PatternSelector : MonoBehaviour
 						 pattern.Pattern.Type == DesignPattern.TypeEnum.NoSleeveDress3DS ||
 						 pattern.Pattern.Type == DesignPattern.TypeEnum.NoSleeveShirt3DS ||
 						 pattern.Pattern.Type == DesignPattern.TypeEnum.SimplePattern),
+						true,
 						true
 					);
 				}))
@@ -843,6 +892,12 @@ public class PatternSelector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		/*if (UploadedPattern != null)
+		{
+			Controller.Instance.Popup.Close();
+			Controller.Instance.SwitchToPatternExchange(UploadedPattern, () => { });
+			UploadedPattern = null;
+		}*/
 		if (Controller.Instance.CurrentOperation != null)
 		{
 			OperationRunning = true;

@@ -209,46 +209,44 @@ public class ACNLFileFormat
 		null, //0xFF unused (white in-game, editing freezes the game)
 	};
 
-	private static Dictionary<(int, int, int, int), (int, int)> Offsets = new Dictionary<(int, int, int, int), (int, int)>()
+	private static Dictionary<(int, int), int> Offsets = new Dictionary<(int, int), int>()
 	{
 		// front
-		{ ( 0,  0, 16, 32), ( 16,   0) }, 
+		{ ( 0x000, 0x200), 0x200 }, 
 		// back
-		{ (16,  0, 16, 32), (-16,   0) },
+		{ ( 0x200, 0x400), 0x000 },
 		// front bottom
-		{ (16, 32, 16, 16), (  0,   0) },
+		{ ( 0x600, 0x700), 0x600 },
 		// back bottom
-		{ (16, 48, 16, 16), (-16, -16) },
+		{ ( 0x700, 0x800), 0x400 },
 		// left sleeve
-		{ ( 0, 32, 16, 16), (  0,  16) },
+		{ ( 0x400, 0x500), 0x500 },
 		// right sleeve
-		{ ( 0, 48, 16, 16), ( 16,   0) },
+		{ ( 0x500, 0x600), 0x700 },
 	};
 
-	private static void TransformPoint(ref int x, ref int y)
+	private static int TransformIndex(int index)
 	{
 		foreach (var kv in Offsets)
 		{
-			if (x >= kv.Key.Item1 && y >= kv.Key.Item2 && x < kv.Key.Item1 + kv.Key.Item3 && y < kv.Key.Item2 + kv.Key.Item4)
+			if (index >= kv.Key.Item1 && index < kv.Key.Item2)
 			{
-				x += kv.Value.Item1;
-				y += kv.Value.Item2;
-				return;
+				return (index - kv.Key.Item1) + kv.Value;
 			}
 		}
+		return index;
 	}
 
-	private static void InverseTransformPoint(ref int x, ref int y)
+	private static int InverseTransformIndex(int index)
 	{
 		foreach (var kv in Offsets)
 		{
-			if (x >= kv.Key.Item1 + kv.Value.Item1 && y >= kv.Key.Item2 + kv.Value.Item2 && x < kv.Key.Item1 + kv.Key.Item3 + kv.Value.Item1 && y < kv.Key.Item2 + kv.Key.Item4 + kv.Value.Item2)
+			if (index >= kv.Value && index < kv.Value + (kv.Key.Item2 - kv.Key.Item1))
 			{
-				x -= kv.Value.Item1;
-				y -= kv.Value.Item2;
-				return;
+				return (index - kv.Value) + kv.Key.Item1;
 			}
 		}
+		return index;
 	}
 
 	public static byte GetNearestColor(byte r, byte g, byte b)
@@ -393,14 +391,12 @@ public class ACNLFileFormat
 			{
 				for (var x = 0; x < width / 2; x++)
 				{
-					var offset = (x >= width / 4 ? 0x200 : 0x0) + (y >= height / 2 ? 0x400 : 0x0);
 					if (Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
 					{
-						int transformX = x;
-						int transformY = y;
-						TransformPoint(ref transformX, ref transformY);
-						//this.Pixels[x + y * this.Width / 2] = pixels[offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4)];
-						ret[0x6C + offset + x % (width / 4) + (y % (height / 2)) * (width / 4)] = Pixels[transformX + transformY * width / 2];
+						UnityEngine.Debug.Log("EXPORT TRANSFORMED");
+						var offset = (x >= width / 4 ? 0x200 : 0x0) + (y >= height / 2 ? 0x400 : 0x0);
+						int index = offset + x % (width / 4) + (y % (height / 2)) * (width / 4);
+						ret[0x6C + InverseTransformIndex(index)] = Pixels[index];
 					}
 					else
 						ret[0x6C + x + y * width / 2] = Pixels[x + y * width / 2];
@@ -485,11 +481,9 @@ public class ACNLFileFormat
 					var offset = (x >= this.Width / 4 ? 0x200 : 0x0) + (y >= this.Height / 2 ? 0x400 : 0x0);
 					if (Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
 					{
-						int transformX = x;
-						int transformY = y;
-						TransformPoint(ref transformX, ref transformY);
-						//this.Pixels[x + y * this.Width / 2] = pixels[offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4)];
-						this.Pixels[transformX + transformY * this.Width / 2] = pixels[offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4)];
+						UnityEngine.Debug.Log("IMPORT TRANSFORMED");
+						var index = offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4);
+						this.Pixels[TransformIndex(index)] = pixels[index];
 					}
 					else 
 						this.Pixels[x + y * this.Width / 2] = pixels[offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4)];

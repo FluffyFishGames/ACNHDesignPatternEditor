@@ -151,23 +151,31 @@ public class PatternSelectorPattern : MonoBehaviour, IPointerEnterHandler, IPoin
 
 	public void OnPointerEnter(PointerEventData eventData)
 	{
-		Controller.Instance.PlayHoverSound();
-
-		IsMouseOver = true;
+		if (Controller.Instance.CurrentState == Controller.State.PatternSelection)
+		{
+			Controller.Instance.PlayHoverSound();
+			IsMouseOver = true;
+		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData)
 	{
-		HoverAudioPause = 0.2f;
-		Controller.Instance.HideTooltip();
-		IsMouseOver = false;
+		if (Controller.Instance.CurrentState == Controller.State.PatternSelection)
+		{
+			HoverAudioPause = 0.2f;
+			Controller.Instance.HideTooltip();
+			IsMouseOver = false;
+		}
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		if (HoverAudioPause <= 0f)
-			Controller.Instance.PlayClickSound();
-		
-		PatternSelector.SelectPattern(this);
+		if (Controller.Instance.CurrentState == Controller.State.PatternSelection)
+		{
+			if (HoverAudioPause <= 0f)
+				Controller.Instance.PlayClickSound();
+
+			PatternSelector.SelectPattern(this);
+		}
 	}
 }

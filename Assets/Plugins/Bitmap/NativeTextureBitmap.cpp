@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <map>
 #include "IUnityInterface.h"
 #include "IUnityRenderingExtensions.h"
@@ -16,7 +15,7 @@ namespace {
         registered_textures.erase(id);
     }
 
-    void TextureBitmapUpdateCallback(int eventID, void* data)
+    void UNITY_INTERFACE_API TextureBitmapUpdateCallback(int eventID, void* data)
     {
         auto event = static_cast<UnityRenderingExtEventType>(eventID);
 
@@ -28,34 +27,52 @@ namespace {
             if (texture != registered_textures.end())
                 params->texData = texture->second;
         }
-        else if (event == kUnityRenderingExtEventUpdateTextureEndV2)
-        {
-/*            auto params = reinterpret_cast<UnityRenderingExtTextureUpdateParamsV2*>(data);
-            delete[] reinterpret_cast<uint32_t*>(params->texData);*/
-            // no need to free. We do this in c#
-        }
     }
 }
 
-extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnityInterfaces* unityInterfaces)
-{
-}
-
-extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginUnload()
-{
-}
-
-extern "C" void UNITY_INTERFACE_EXPORT RegisterTexture(uint32_t id, uint32_t* ptr)
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(WINAPI_FAMILY)
+extern "C" void __declspec(dllexport) __stdcall RegisterTexture(uint32_t id, void* ptr)
 {
     InternalRegisterTexture(id, ptr);
 }
 
-extern "C" void UNITY_INTERFACE_EXPORT UnregisterTexture(uint32_t id)
+extern "C" void __declspec(dllexport) __stdcall UnregisterTexture(uint32_t id)
 {
     InternalUnregisterTexture(id);
 }
 
-extern "C" UnityRenderingEventAndData UNITY_INTERFACE_EXPORT GetTextureBitmapUpdateCallback()
+extern "C" UnityRenderingEventAndData __declspec(dllexport) __stdcall GetTextureBitmapUpdateCallback()
 {
     return TextureBitmapUpdateCallback;
 }
+#elif defined(__MACH__) || defined(__ANDROID__) || defined(__linux__) || defined(LUMIN)
+extern "C" void __attribute__((visibility("default"))) RegisterTexture(uint32_t id, uint32_t * ptr)
+{
+    InternalRegisterTexture(id, ptr);
+}
+
+extern "C" void __attribute__((visibility("default"))) UnregisterTexture(uint32_t id)
+{
+    InternalUnregisterTexture(id);
+}
+
+extern "C" UnityRenderingEventAndData __attribute__((visibility("default"))) GetTextureBitmapUpdateCallback()
+{
+    return reinterpret_cast<UnityRenderingEventAndData>(TextureBitmapUpdateCallback);
+}
+#else
+extern "C" void RegisterTexture(uint32_t id, uint32_t * ptr)
+{
+    InternalRegisterTexture(id, ptr);
+}
+
+extern "C" void UnregisterTexture(uint32_t id)
+{
+    InternalUnregisterTexture(id);
+}
+
+extern "C" UnityRenderingEventAndData GetTextureBitmapUpdateCallback()
+{
+    return reinterpret_cast<UnityRenderingEventAndData>(TextureBitmapUpdateCallback);
+}
+#endif
