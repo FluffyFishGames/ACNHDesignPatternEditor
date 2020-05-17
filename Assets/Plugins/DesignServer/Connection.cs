@@ -19,7 +19,7 @@ namespace DesignServer
 		private BinaryWriter Writer;
 		private BinaryReader Reader;
 		private NetworkStream Stream;
-		private static byte[] HeloBytes = new byte[] { 0xFF, 0xFE, 0x01, 0xFF };
+		private static byte[] HeloBytes = new byte[] { 0xFF, 0xFE, 0x02, 0xFF };
 		private Thread ReaderThread;
 		private bool Closed = false;
 		private const int MAX_MESSAGE_LENGTH = 100000;

@@ -64,6 +64,8 @@ namespace DesignServer
 			bool searchByCode = (flags & 0x10) == 0x10;
 			query.ProDesigns = (flags & 0x20) == 0x20;
 			offset += 1;
+			query.Page = binaryData.ReadS32(offset);
+			offset += 4;
 			if (searchByName)
 			{
 				byte phraseLength = binaryData.ReadU8(offset);
@@ -116,6 +118,7 @@ namespace DesignServer
 			if (ProDesigns) flags |= 0x20;
 
 			writer.Write(flags);
+			writer.Write(Page);
 			if (Phrase != null && Phrase != "")
 			{
 				byte[] phraseBytes = System.Text.Encoding.Unicode.GetBytes(Phrase);
