@@ -228,7 +228,7 @@ public class PatternSelector : MonoBehaviour
 			var resultPattern = Controller.Instance.PatternEditor.Save();
 			//resultPattern.IsPro = resultPattern.Type != DesignPattern.TypeEnum.SimplePattern;
 			resultPattern.Index = editPattern.Index;
-			resultPattern.PersonalID = new PersonalID() { UniqueId = 0xFFFFFFFF, TownId = Controller.Instance.CurrentSavegame.PersonalID.TownId, Name = Controller.Instance.CurrentSavegame.PersonalID.Name };
+			resultPattern.ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 			resultPattern.Name = editPattern.Name;
 			SavePattern(resultPattern);
 		},
@@ -323,6 +323,7 @@ public class PatternSelector : MonoBehaviour
 											designPattern.CopyFrom(acnhFileFormat);
 										}
 										pattern.Pattern.CopyFrom(designPattern);
+										pattern.Pattern.Name = resultPattern.Name;
 										pattern.Pattern.ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 										pattern.SetPattern(pattern.Pattern);
 										Controller.Instance.SwitchToPatternMenu();
@@ -358,11 +359,13 @@ public class PatternSelector : MonoBehaviour
 															if (pattern.Pattern is ProDesignPattern)
 															{
 																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 															}
 															else
 															{
 																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 															}
 														}
@@ -403,11 +406,13 @@ public class PatternSelector : MonoBehaviour
 															if (pattern.Pattern is ProDesignPattern)
 															{
 																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 															}
 															else
 															{
 																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 															}
 														}
@@ -447,6 +452,7 @@ public class PatternSelector : MonoBehaviour
 																		{
 																			string name = Controller.Instance.NameInput.GetName();
 																			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].FromBitmap(final);
+																			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Type = type;
 																			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Name = name;
 																			pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
@@ -476,6 +482,7 @@ public class PatternSelector : MonoBehaviour
 																	{
 																		string name = Controller.Instance.NameInput.GetName();
 																		Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].FromBitmap(bmp);
+																		Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																		Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Type = type;
 																		Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Name = name;
 																		pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
@@ -507,6 +514,7 @@ public class PatternSelector : MonoBehaviour
 																{
 																	string name = Controller.Instance.NameInput.GetName();
 																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].FromBitmap(final);
+																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
 																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Name = name;
 																	pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
@@ -535,6 +543,7 @@ public class PatternSelector : MonoBehaviour
 															{
 																string name = Controller.Instance.NameInput.GetName();
 																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].FromBitmap(bmp);
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
 																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Name = name;
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
@@ -593,29 +602,15 @@ public class PatternSelector : MonoBehaviour
 													result = GetResult(scanner.DecodeMultiple(bmp));
 													if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
 													{
-														/*try
+														for (int i = 250; i > 10; i-=10)
 														{
-															var resultImage = QRCodeExtractor.ExtractQRCode(bmp);
-															bmp.Dispose();
-															bmp = resultImage;
+															var check = bmp.Clone();
+															check.UltraContrast(i);
+															result = GetResult(scanner.DecodeMultiple(check));
+															check.Dispose();
+															if (result != null && result.Type != DesignPattern.TypeEnum.Unsupported)
+																break;
 														}
-														catch (System.Exception ex)
-														{
-															Debug.LogException(ex);
-														}
-														result = GetResult(scanner.DecodeMultiple(bmp));
-														if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
-														{*/
-															for (int i = 250; i > 10; i-=10)
-															{
-																var check = bmp.Clone();
-																check.UltraContrast(i);
-																result = GetResult(scanner.DecodeMultiple(check));
-																check.Dispose();
-																if (result != null && result.Type != DesignPattern.TypeEnum.Unsupported)
-																	break;
-															}
-														//}
 													}
 												}
 												bmp.Dispose();
@@ -637,20 +632,16 @@ public class PatternSelector : MonoBehaviour
 															Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
 														else
 														{
-															var personalID = new PersonalID();
-															personalID.Name = Controller.Instance.CurrentSavegame.PersonalID.Name;
-															personalID.UniqueId = 0xFFFFFFFF;
-															personalID.TownId = Controller.Instance.CurrentSavegame.PersonalID.TownId;
 															if (pattern.Pattern is ProDesignPattern)
 															{
 																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(result);
-																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].PersonalID = personalID;
+																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 															}
 															else
 															{
 																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(result);
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].PersonalID = personalID;
+																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
 																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 															}
 														}

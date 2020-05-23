@@ -41,7 +41,6 @@ public unsafe class Savegame : BinaryData, IDesignPatternContainer
         try
         {
             var bytes = SaveEncryption.Decrypt(headerBytes, mainBytes);
-            System.IO.File.WriteAllBytes("test.dat", bytes);
             Size = bytes.Length;
             RawData = Marshal.AllocHGlobal(Size);
             Data = (byte*) RawData.ToPointer();

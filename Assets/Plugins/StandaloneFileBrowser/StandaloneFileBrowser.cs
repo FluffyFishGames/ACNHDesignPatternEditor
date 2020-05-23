@@ -15,17 +15,17 @@ namespace SFB {
         private static IStandaloneFileBrowser _platformWrapper = null;
 
         static StandaloneFileBrowser() {
-#if UNITY_STANDALONE_OSX
+#if UNITY_EDITOR
+            _platformWrapper = new StandaloneFileBrowserEditor();
+#elif UNITY_STANDALONE_OSX
             _platformWrapper = new StandaloneFileBrowserMac();
 #elif UNITY_STANDALONE_WIN
             //if (UnityEngine.SystemInfo.operatingSystem.StartsWith("Windows 7"))
-                _platformWrapper = new StandaloneFileBrowserWindows7();
+            _platformWrapper = new StandaloneFileBrowserWindows7();
 /*            else 
                 _platformWrapper = new StandaloneFileBrowserWindows();*/
 #elif UNITY_STANDALONE_LINUX
             _platformWrapper = new StandaloneFileBrowserLinux();
-#elif UNITY_EDITOR
-            _platformWrapper = new StandaloneFileBrowserEditor();
 #endif
         }
 

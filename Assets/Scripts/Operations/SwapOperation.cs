@@ -30,24 +30,24 @@
 
 	public void SelectPattern(DesignPattern pattern)
 	{
-		/*
 		if (pattern == Pattern) return;
-		var backup = new DesignPattern();
 		
-		if (Pattern.IsPro)
+		if (Pattern is ProDesignPattern)
 		{
+			var backup = new ProDesignPattern();
 			backup.CopyFrom(Controller.Instance.CurrentSavegame.ProDesignPatterns[Pattern.Index]);
 			Controller.Instance.CurrentSavegame.ProDesignPatterns[Pattern.Index].CopyFrom(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Index]);
 			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Index].CopyFrom(backup);
 		}
 		else
 		{
-			backup.CopyFrom(Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index]);
-			Controller.Instance.CurrentSavegame.DesignPatterns[Pattern.Index].CopyFrom(Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Index]);
-			Controller.Instance.CurrentSavegame.DesignPatterns[pattern.Index].CopyFrom(backup);
+			var backup = new SimpleDesignPattern();
+			backup.CopyFrom(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[Pattern.Index]);
+			Controller.Instance.CurrentSavegame.SimpleDesignPatterns[Pattern.Index].CopyFrom(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Index]);
+			Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Index].CopyFrom(backup);
 		}
    
-		_IsFinished = true;*/
+		_IsFinished = true;
 	}
 
 	public void Start()

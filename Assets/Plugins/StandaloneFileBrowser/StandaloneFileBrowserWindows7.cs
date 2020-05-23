@@ -1,6 +1,7 @@
 ﻿#if UNITY_STANDALONE_WIN
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -66,13 +67,17 @@ namespace SFB
 
             ofn.structSize = Marshal.SizeOf(ofn);
 
+            var allExts = new List<string>();
             string filter = "";
             for (int i = 0; i < extensions.Length; i++)
             {
                 var exts = "";
                 for (var j = 0; j < extensions[i].Extensions.Length; j++)
+                {
                     exts += (j > 0 ? ";" : "") + "*." + (extensions[i].Extensions[j]);
-                filter += extensions[i].Name + "\0" + exts + "\0";
+                    allExts.Add(extensions[i].Extensions[j]);
+                }
+                filter += extensions[i].Name + " ("+exts+")\0" + exts + "\0";
             }
             ofn.filter = filter;
             ofn.file = new String(new char[256]);
@@ -84,7 +89,20 @@ namespace SFB
 
             if (LibWrap.GetOpenFileName(ofn))
             {
-                return new string[] { ofn.file };
+                string fileName = ofn.file;
+                bool foundExtension = false;
+                foreach (var ext in allExts)
+                {
+                    if (fileName.EndsWith("." + ext))
+                    {
+                        foundExtension = true;
+                        break;
+                    }
+                }
+                if (!foundExtension)
+                    fileName = fileName + "." + allExts[0];
+
+                return new string[] { fileName };
             }
             return null;
         }
@@ -110,13 +128,17 @@ namespace SFB
 
             ofn.structSize = Marshal.SizeOf(ofn);
 
+            var allExts = new List<string>();
             string filter = "";
             for (int i = 0; i < extensions.Length; i++)
             {
                 var exts = "";
                 for (var j = 0; j < extensions[i].Extensions.Length; j++)
+                {
                     exts += (j > 0 ? ";" : "") + "*." + (extensions[i].Extensions[j]);
-                filter += extensions[i].Name + "\0" + exts + "\0";
+                    allExts.Add(extensions[i].Extensions[j]);
+                }
+                filter += extensions[i].Name + " ("+exts+")\0" + exts + "\0";
             }
             ofn.filter = filter;
             ofn.file = new String(new char[256]);
@@ -128,7 +150,19 @@ namespace SFB
 
             if (LibWrap.GetSaveFileName(ofn))
             {
-                return ofn.file;
+                string fileName = ofn.file;
+                bool foundExtension = false;
+                foreach (var ext in allExts)
+                {
+                    if (fileName.EndsWith("." + ext))
+                    {
+                        foundExtension = true;
+                        break;
+                    }
+                }
+                if (!foundExtension)
+                    fileName = fileName + "." + allExts[0];
+                return fileName;
             }
             return null;
         }

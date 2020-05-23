@@ -383,7 +383,7 @@ public class ACNLFileFormat
 			height = 32;
 		}
 
-		if (IsPro)
+		if (IsPro && Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
 		{
 			//this.Pixels = pixels;
 
@@ -393,19 +393,18 @@ public class ACNLFileFormat
 				{
 					if (Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
 					{
-						UnityEngine.Debug.Log("EXPORT TRANSFORMED");
 						var offset = (x >= width / 4 ? 0x200 : 0x0) + (y >= height / 2 ? 0x400 : 0x0);
 						int index = offset + x % (width / 4) + (y % (height / 2)) * (width / 4);
 						ret[0x6C + InverseTransformIndex(index)] = Pixels[index];
 					}
-					else
-						ret[0x6C + x + y * width / 2] = Pixels[x + y * width / 2];
+//					else
+//						ret[0x6C + x + y * width / 2] = Pixels[x + y * width / 2];
 				}
 			}
 		}
 		else
 		{
-			Array.Copy(Pixels, 0, ret, 0x6C, Pixels.Length);
+			Array.Copy(Pixels, 0, ret, 0x6C, 0x200);
 		}
 		return ret;
 	}
@@ -450,10 +449,8 @@ public class ACNLFileFormat
 			Type = DesignPattern.TypeEnum.SimplePattern;
 		else
 		{
-			UnityEngine.Debug.Log(PatternType + "??");
 			Type = DesignPattern.TypeEnum.Unsupported;
 		}
-		UnityEngine.Debug.Log(PatternType + " = " + Type);
 		IsPro = Type != DesignPattern.TypeEnum.SimplePattern;
 
 		if (IsPro)
@@ -467,7 +464,7 @@ public class ACNLFileFormat
 			Height = 32;
 		}
 		this.Pixels = new byte[(Width / 2) * Height];
-		if (IsPro)
+		if (IsPro && Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
 		{
 			byte[] pixels = new byte[(Width / 2) * Height];
 			
@@ -479,20 +476,22 @@ public class ACNLFileFormat
 				for (var x = 0; x < Width / 2; x++)
 				{
 					var offset = (x >= this.Width / 4 ? 0x200 : 0x0) + (y >= this.Height / 2 ? 0x400 : 0x0);
-					if (Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
-					{
-						UnityEngine.Debug.Log("IMPORT TRANSFORMED");
-						var index = offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4);
-						this.Pixels[TransformIndex(index)] = pixels[index];
-					}
-					else 
-						this.Pixels[x + y * this.Width / 2] = pixels[offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4)];
+					//if (Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
+					//{
+					var index = offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4);
+					this.Pixels[TransformIndex(index)] = pixels[index];
+					//}
+					//else 
+					//	this.Pixels[x + y * this.Width / 2] = pixels[offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4)];
 				}
 			}
 		}
 		else
 		{
-			Array.Copy(bytes, 0x6C, Pixels, 0, Pixels.Length);
+			if (Type == DesignPattern.TypeEnum.Hat3DS || Type == DesignPattern.TypeEnum.HornHat3DS)
+				Array.Copy(bytes, 0x6C, Pixels, 0, bytes.Length - 0x6C);
+			else 
+				Array.Copy(bytes, 0x6C, Pixels, 0, Pixels.Length);
 		}
 	}
 

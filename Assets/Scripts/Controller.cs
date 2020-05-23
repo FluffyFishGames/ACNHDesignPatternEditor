@@ -204,6 +204,12 @@ public class Controller : MonoBehaviour
 		}
 	}
 
+	private void OnApplicationQuit()
+	{
+		if (this.CurrentClient != null)
+			this.CurrentClient.Close();
+	}
+
 	public void Save()
 	{
 		SavegameSaving = true;

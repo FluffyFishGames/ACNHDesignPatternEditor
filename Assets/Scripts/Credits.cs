@@ -59,8 +59,8 @@ public class Credits : MonoBehaviour
         {
             if (CreditsPhase < 1f)
             {
-                CreditsPhase = Mathf.Min(1f, CreditsPhase + Time.deltaTime / 120f);
-                CreditsContainer.anchoredPosition = new Vector2(0f, CreditsPhase * 5000f);
+                CreditsPhase = Mathf.Min(1f, CreditsPhase + Time.deltaTime / 160f);
+                CreditsContainer.anchoredPosition = new Vector2(0f, CreditsPhase * 6000f);
             }
         }
         Container.anchoredPosition = new Vector2(0f - LeftPhase * 550f, 0f);

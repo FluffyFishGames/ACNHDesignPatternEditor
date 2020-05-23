@@ -65,6 +65,12 @@ public class PatternExchangePattern : MonoBehaviour, IPointerEnterHandler, IPoin
         CurrentTexture.Dispose();
         CurrentTexture = null;
     }
+
+    private void OnApplicationQuit()
+    {
+        CurrentTexture.Dispose();
+        CurrentTexture = null;
+    }
     // Start is called before the first frame update
     void Start()
     {
