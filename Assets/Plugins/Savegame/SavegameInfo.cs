@@ -15,7 +15,8 @@ public class SavegameInfo
         new Header(0x6D,    0x78,    2, 0, 2, 4, "1.1.3", 1),
         new Header(0x6D,    0x78,    2, 0, 2, 5, "1.1.4", 1),
         new Header(0x20006, 0x20008, 2, 0, 2, 6, "1.2.0", 2),
-        new Header(0x20006, 0x20008, 2, 0, 2, 7, "1.2.1", 2)
+        new Header(0x20006, 0x20008, 2, 0, 2, 7, "1.2.1", 2),
+        new Header(0x40002, 0x40008, 2, 0, 2, 8, "1.3.0", 3)
     };
 
     private static List<Info> Infos = new List<Info>()
@@ -82,6 +83,27 @@ public class SavegameInfo
             new HashRegion(0x7F8D80, 0x7F8D84, 0x035D2C),
             new HashRegion(0x82EAB0, 0x82EAB4, 0x03787C),
             new HashRegion(0x866330, 0x866334, 0x26899C)
+        }),
+        new Info(0xACED80, 0x1D7310, 0x1DF7E0, new HashRegion[] {
+            new HashRegion(0x000110, 0x1D6D5C),
+            new HashRegion(0x1D6E70, 0x323EEC),
+            new HashRegion(0x4FAE70, 0x035D2C),
+            new HashRegion(0x530BA0, 0x03788C),
+            new HashRegion(0x568540, 0x035D2C),
+            new HashRegion(0x59E270, 0x03788C),
+            new HashRegion(0x5D5c10, 0x035D2C),
+            new HashRegion(0x60B940, 0x03788C),
+            new HashRegion(0x6432E0, 0x035D2C),
+            new HashRegion(0x679010, 0x03788C),
+            new HashRegion(0x6B09B0, 0x035D2C),
+            new HashRegion(0x6E66E0, 0x03788C),
+            new HashRegion(0x71E080, 0x035D2C),
+            new HashRegion(0x753DB0, 0x03788C),
+            new HashRegion(0x78B750, 0x035D2C),
+            new HashRegion(0x7C1480, 0x03788C),
+            new HashRegion(0x7F8E20, 0x035D2C),
+            new HashRegion(0x82EB50, 0x03788C),
+            new HashRegion(0x8663E0, 0x26899C)
         })
     };
 
@@ -126,6 +148,12 @@ public class SavegameInfo
         {
             HashOffset = hashOfs;
             BeginOffset = begOfs;
+            Size = size;
+        }
+        public HashRegion(int hashOfs, uint size)
+        {
+            HashOffset = hashOfs;
+            BeginOffset = hashOfs + 0x04;
             Size = size;
         }
     }
