@@ -36,13 +36,11 @@ public class ExportOperation : IOperation, IPatternOperation
 				bitmap.SetPixel(x, y, new TextureBitmap.Color((byte) (colors[x + y * Pattern.Width].a * 255f), (byte) (colors[x + y * Pattern.Width].r * 255f), (byte) (colors[x + y * Pattern.Width].g * 255f), (byte) (colors[x + y * Pattern.Width].b * 255f)));
 			}
 		}
-		StandaloneFileBrowser.SaveFilePanelAsync("Export image", "", "image.png", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif" }) }, (path) =>
+		var path = StandaloneFileBrowser.SaveFilePanel("Export image", "", "image.png", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif" }) });
+		if (path != null && path.Length > 0)
 		{
-			if (path != null && path.Length > 0)
-			{
-				bitmap.Save(path);
-				_IsFinished = true;
-			}
-		});
+			bitmap.Save(path);
+			_IsFinished = true;
+		}
 	}
 }

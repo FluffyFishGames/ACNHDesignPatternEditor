@@ -1,4 +1,8 @@
+using Boo.Lang;
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using ZXing;
 
 namespace SFB {
     public struct ExtensionFilter {
@@ -38,8 +42,9 @@ namespace SFB {
         /// <param name="multiselect">Allow multiple file selection</param>
         /// <returns>Returns array of chosen paths. Zero length array when cancelled</returns>
         public static string[] OpenFilePanel(string title, string directory, string extension, bool multiselect) {
-            var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
-            return OpenFilePanel(title, directory, extensions, multiselect);
+            return new string[] { tinyfd.TinyFileDialogs.OpenFileDialog(title, directory, new string[] { "*." + extension }, null, multiselect) };
+            /*var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
+            return OpenFilePanel(title, directory, extensions, multiselect);*/
         }
 
         /// <summary>
@@ -51,7 +56,15 @@ namespace SFB {
         /// <param name="multiselect">Allow multiple file selection</param>
         /// <returns>Returns array of chosen paths. Zero length array when cancelled</returns>
         public static string[] OpenFilePanel(string title, string directory, ExtensionFilter[] extensions, bool multiselect) {
-            return _platformWrapper.OpenFilePanel(title, directory, extensions, multiselect);
+            List<string> filters = new List<string>();
+            string filterName = "";
+            for (var i = 0; i < extensions.Length; i++)
+            {
+                filterName = extensions[i].Name;
+                foreach (var k in extensions[i].Extensions)
+                    filters.Add("*." + k);
+            }
+            return new string[] { tinyfd.TinyFileDialogs.OpenFileDialog(title, directory, filters.ToArray(), filterName, multiselect) };
         }
 
         /// <summary>
@@ -63,8 +76,11 @@ namespace SFB {
         /// <param name="multiselect">Allow multiple file selection</param>
         /// <param name="cb">Callback")</param>
         public static void OpenFilePanelAsync(string title, string directory, string extension, bool multiselect, Action<string[]> cb) {
-            var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
-            OpenFilePanelAsync(title, directory, extensions, multiselect, cb);
+            Task t = Task.Run(() =>
+            {
+                var result = new string[] { tinyfd.TinyFileDialogs.OpenFileDialog(title, directory, new string[] { "*." + extension }, null, multiselect) };
+                cb(result);
+            });
         }
 
         /// <summary>
@@ -76,7 +92,19 @@ namespace SFB {
         /// <param name="multiselect">Allow multiple file selection</param>
         /// <param name="cb">Callback")</param>
         public static void OpenFilePanelAsync(string title, string directory, ExtensionFilter[] extensions, bool multiselect, Action<string[]> cb) {
-            _platformWrapper.OpenFilePanelAsync(title, directory, extensions, multiselect, cb);
+            Task t = Task.Run(() =>
+            {
+                List<string> filters = new List<string>();
+                string filterName = "";
+                for (var i = 0; i < extensions.Length; i++)
+                {
+                    filterName = extensions[i].Name;
+                    foreach (var k in extensions[i].Extensions)
+                        filters.Add("*." + k);
+                }
+                var result = new string[] { tinyfd.TinyFileDialogs.OpenFileDialog(title, directory, filters.ToArray(), filterName, multiselect) };
+                cb(result);
+            });
         }
 
         /// <summary>
@@ -112,8 +140,8 @@ namespace SFB {
         /// <param name="extension">File extension</param>
         /// <returns>Returns chosen path. Empty string when cancelled</returns>
         public static string SaveFilePanel(string title, string directory, string defaultName , string extension) {
-            var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
-            return SaveFilePanel(title, directory, defaultName, extensions);
+            var result = tinyfd.TinyFileDialogs.SaveFileDialog(title, System.IO.Path.Combine(directory, defaultName), new string[] { "*." + extension }, null);
+            return result;
         }
 
         /// <summary>
@@ -125,7 +153,17 @@ namespace SFB {
         /// <param name="extensions">List of extension filters. Filter Example: new ExtensionFilter("Image Files", "jpg", "png")</param>
         /// <returns>Returns chosen path. Empty string when cancelled</returns>
         public static string SaveFilePanel(string title, string directory, string defaultName, ExtensionFilter[] extensions) {
-            return _platformWrapper.SaveFilePanel(title, directory, defaultName, extensions);
+
+            List<string> filters = new List<string>();
+            string filterName = "";
+            for (var i = 0; i < extensions.Length; i++)
+            {
+                filterName = extensions[i].Name;
+                foreach (var k in extensions[i].Extensions)
+                    filters.Add("*." + k);
+            }
+            var result = tinyfd.TinyFileDialogs.SaveFileDialog(title, System.IO.Path.Combine(directory, defaultName), filters.ToArray(), null);
+            return result;
         }
 
         /// <summary>
@@ -137,8 +175,12 @@ namespace SFB {
         /// <param name="extension">File extension</param>
         /// <param name="cb">Callback")</param>
         public static void SaveFilePanelAsync(string title, string directory, string defaultName , string extension, Action<string> cb) {
-            var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
-            SaveFilePanelAsync(title, directory, defaultName, extensions, cb);
+            Task.Run(() =>
+            {
+                var result = tinyfd.TinyFileDialogs.SaveFileDialog(title, System.IO.Path.Combine(directory, defaultName), new string[] { "*." + extension }, null);
+                UnityEngine.Debug.Log(result);
+                cb(result);
+            });
         }
 
         /// <summary>
@@ -150,7 +192,20 @@ namespace SFB {
         /// <param name="extensions">List of extension filters. Filter Example: new ExtensionFilter("Image Files", "jpg", "png")</param>
         /// <param name="cb">Callback")</param>
         public static void SaveFilePanelAsync(string title, string directory, string defaultName, ExtensionFilter[] extensions, Action<string> cb) {
-            _platformWrapper.SaveFilePanelAsync(title, directory, defaultName, extensions, cb);
+            Task.Run(() =>
+            {
+                List<string> filters = new List<string>();
+                string filterName = "";
+                for (var i = 0; i < extensions.Length; i++)
+                {
+                    filterName = extensions[i].Name;
+                    foreach (var k in extensions[i].Extensions)
+                        filters.Add("*." + k);
+                }
+                var result = tinyfd.TinyFileDialogs.SaveFileDialog(title, System.IO.Path.Combine(directory, defaultName), filters.ToArray(), null);
+                UnityEngine.Debug.Log(result);
+                cb(result);
+            });
         }
     }
 }

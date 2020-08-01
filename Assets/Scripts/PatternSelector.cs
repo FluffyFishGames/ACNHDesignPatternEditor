@@ -336,176 +336,104 @@ public class PatternSelector : MonoBehaviour
 							}
 							else if (format == FormatPopup.Format.ACNH)
 							{
-								StandaloneFileBrowser.OpenFilePanelAsync("Import design", "", new ExtensionFilter[] { new ExtensionFilter("ACNH file", new string[] { "acnh" }) }, false,
-									(path) =>
+								var path = StandaloneFileBrowser.OpenFilePanel("Import design", "", new ExtensionFilter[] { new ExtensionFilter("ACNH file", new string[] { "acnh" }) }, false);
+								if (path != null && path.Length > 0)
+								{
+									try
 									{
-										if (path != null && path.Length > 0)
+										if (path[0].EndsWith(".acnh"))
 										{
-											try
+											var file = new ACNHFileFormat(System.IO.File.ReadAllBytes(path[0]));
+											if (file.IsPro != (pattern.Pattern is ProDesignPattern))
 											{
-												if (path[0].EndsWith(".acnh"))
+												Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (file.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+											}
+											else
+											{
+												if (file.Type == DesignPattern.TypeEnum.Unsupported)
+													Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
+												else
 												{
-													var file = new ACNHFileFormat(System.IO.File.ReadAllBytes(path[0]));
-													if (file.IsPro != (pattern.Pattern is ProDesignPattern))
+													if (pattern.Pattern is ProDesignPattern)
 													{
-														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (file.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+														Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+														Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+														pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 													}
 													else
 													{
-														if (file.Type == DesignPattern.TypeEnum.Unsupported)
-															Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
-														else
-														{
-															if (pattern.Pattern is ProDesignPattern)
-															{
-																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
-																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
-															}
-															else
-															{
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
-															}
-														}
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+														pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 													}
 												}
 											}
-											catch (System.Exception e)
-											{
-												Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-											}
 										}
 									}
-								);
+									catch (System.Exception e)
+									{
+										Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+									}
+								}
 							}
 							else if (format == FormatPopup.Format.ACNL)
 							{
-								StandaloneFileBrowser.OpenFilePanelAsync("Import design", "", new ExtensionFilter[] { new ExtensionFilter("ACNL file", new string[] { "acnl" }) }, false, 
-									(path) =>
+								var path = StandaloneFileBrowser.OpenFilePanel("Import design", "", new ExtensionFilter[] { new ExtensionFilter("ACNL file", new string[] { "acnl" }) }, false);
+								if (path != null && path.Length > 0)
+								{
+									try
 									{
-										if (path != null && path.Length > 0)
+										if (path[0].EndsWith(".acnl"))
 										{
-											try
-											{
-												if (path[0].EndsWith(".acnl"))
-												{
-													var file = new ACNLFileFormat(System.IO.File.ReadAllBytes(path[0]));
+											var file = new ACNLFileFormat(System.IO.File.ReadAllBytes(path[0]));
 													
-													if (file.IsPro != pattern.Pattern is ProDesignPattern)
+											if (file.IsPro != pattern.Pattern is ProDesignPattern)
+											{
+												Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (file.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+											}
+											else
+											{
+												if (file.Type == DesignPattern.TypeEnum.Unsupported)
+													Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
+												else
+												{
+													if (pattern.Pattern is ProDesignPattern)
 													{
-														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (file.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+														Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+														Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+														pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 													}
 													else
 													{
-														if (file.Type == DesignPattern.TypeEnum.Unsupported)
-															Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
-														else
-														{
-															if (pattern.Pattern is ProDesignPattern)
-															{
-																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
-																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
-															}
-															else
-															{
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
-															}
-														}
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(file);
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+														pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 													}
 												}
 											}
-											catch (System.Exception e)
-											{
-												Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-											}
 										}
 									}
-								);
+									catch (System.Exception e)
+									{
+										Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+									}
+								}
 							}
 							else if (format == FormatPopup.Format.Image)
 							{
-								StandaloneFileBrowser.OpenFilePanelAsync("Import design", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "webp"}) }, false, 
-									(path) =>
+								var path = StandaloneFileBrowser.OpenFilePanel("Import design", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "webp"}) }, false); 
+								if (path != null && path.Length > 0)
+								{
+									TextureBitmap bmp = null;
+									try
 									{
-										if (path != null && path.Length > 0)
-										{
-											TextureBitmap bmp = null;
-											try
-											{
-												bmp = TextureBitmap.Load(path[0], false);
+										bmp = TextureBitmap.Load(path[0], false);
 												
-												if (pattern.Pattern is ProDesignPattern)
-												{
-													Controller.Instance.SwitchToClothSelector(
-														(type) => {
-															var result = ACNHDesignExtractor.FindPattern(bmp, type);
-															if (result.Item1 != -1 && result.Item2 != -1 && result.Item3 != -1 && result.Item4 != -1)
-															{
-																Controller.Instance.SwitchToImporter(bmp, result, pattern.Pattern is ProDesignPattern ? (64, 64) : (32, 32), (final) => {
-																	Controller.Instance.SwitchToNameInput(
-																		() =>
-																		{
-																			string name = Controller.Instance.NameInput.GetName();
-																			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].FromBitmap(final);
-																			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Type = type;
-																			Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Name = name;
-																			pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
-																			bmp.Dispose();
-																			final.Dispose();
-																			Controller.Instance.SwitchToPatternMenu();
-																		},
-																		() =>
-																		{
-																			bmp.Dispose();
-																			Controller.Instance.SwitchToPatternMenu();
-																		}
-																	);
-																}, () => {
-																	bmp.Dispose();
-																	Controller.Instance.SwitchToPatternMenu();
-																});
-															}
-															else
-															{
-																if (bmp.Width > 64 || bmp.Height > 64)
-																	bmp.Resample(ResamplingFilters.Lanczos8, 64, 64);
-
-																bmp.Quantize(new WuColorQuantizer(), 15);
-																Controller.Instance.SwitchToNameInput(
-																	() =>
-																	{
-																		string name = Controller.Instance.NameInput.GetName();
-																		Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].FromBitmap(bmp);
-																		Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																		Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Type = type;
-																		Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Name = name;
-																		pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
-																		bmp.Dispose();
-																		Controller.Instance.SwitchToPatternMenu();
-																	},
-																	() =>
-																	{
-																		bmp.Dispose();
-																		Controller.Instance.SwitchToPatternMenu();
-																	}
-																);
-															}
-														},
-														() => {
-															bmp.Dispose();
-															Controller.Instance.SwitchToPatternMenu();
-														}
-													);
-												}
-												else
-												{
-													var result = ACNHDesignExtractor.FindPattern(bmp, DesignPattern.TypeEnum.SimplePattern);
+										if (pattern.Pattern is ProDesignPattern)
+										{
+											Controller.Instance.SwitchToClothSelector(
+												(type) => {
+													var result = ACNHDesignExtractor.FindPattern(bmp, type);
 													if (result.Item1 != -1 && result.Item2 != -1 && result.Item3 != -1 && result.Item4 != -1)
 													{
 														Controller.Instance.SwitchToImporter(bmp, result, pattern.Pattern is ProDesignPattern ? (64, 64) : (32, 32), (final) => {
@@ -513,11 +441,11 @@ public class PatternSelector : MonoBehaviour
 																() =>
 																{
 																	string name = Controller.Instance.NameInput.GetName();
-																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].FromBitmap(final);
-																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
-																	Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Name = name;
-																	pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
+																	Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].FromBitmap(final);
+																	Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+																	Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Type = type;
+																	Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Name = name;
+																	pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 																	bmp.Dispose();
 																	final.Dispose();
 																	Controller.Instance.SwitchToPatternMenu();
@@ -535,18 +463,19 @@ public class PatternSelector : MonoBehaviour
 													}
 													else
 													{
-														if (bmp.Width > 32 || bmp.Height > 32)
-															bmp.Resample(ResamplingFilters.Lanczos8, 32, 32);
+														if (bmp.Width > 64 || bmp.Height > 64)
+															bmp.Resample(ResamplingFilters.Lanczos8, 64, 64);
+
 														bmp.Quantize(new WuColorQuantizer(), 15);
 														Controller.Instance.SwitchToNameInput(
 															() =>
 															{
 																string name = Controller.Instance.NameInput.GetName();
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].FromBitmap(bmp);
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Name = name;
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
+																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].FromBitmap(bmp);
+																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Type = type;
+																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].Name = name;
+																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 																bmp.Dispose();
 																Controller.Instance.SwitchToPatternMenu();
 															},
@@ -557,106 +486,161 @@ public class PatternSelector : MonoBehaviour
 															}
 														);
 													}
-												}
-											}
-											catch (System.Exception e)
-											{
-												if (bmp != null)
+												},
+												() => {
 													bmp.Dispose();
-												Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-												Debug.LogException(e);
+													Controller.Instance.SwitchToPatternMenu();
+												}
+											);
+										}
+										else
+										{
+											var result = ACNHDesignExtractor.FindPattern(bmp, DesignPattern.TypeEnum.SimplePattern);
+											if (result.Item1 != -1 && result.Item2 != -1 && result.Item3 != -1 && result.Item4 != -1)
+											{
+												Controller.Instance.SwitchToImporter(bmp, result, pattern.Pattern is ProDesignPattern ? (64, 64) : (32, 32), (final) => {
+													Controller.Instance.SwitchToNameInput(
+														() =>
+														{
+															string name = Controller.Instance.NameInput.GetName();
+															Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].FromBitmap(final);
+															Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+															Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
+															Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Name = name;
+															pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
+															bmp.Dispose();
+															final.Dispose();
+															Controller.Instance.SwitchToPatternMenu();
+														},
+														() =>
+														{
+															bmp.Dispose();
+															Controller.Instance.SwitchToPatternMenu();
+														}
+													);
+												}, () => {
+													bmp.Dispose();
+													Controller.Instance.SwitchToPatternMenu();
+												});
+											}
+											else
+											{
+												if (bmp.Width > 32 || bmp.Height > 32)
+													bmp.Resample(ResamplingFilters.Lanczos8, 32, 32);
+												bmp.Quantize(new WuColorQuantizer(), 15);
+												Controller.Instance.SwitchToNameInput(
+													() =>
+													{
+														string name = Controller.Instance.NameInput.GetName();
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].FromBitmap(bmp);
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Type = DesignPattern.TypeEnum.SimplePattern;
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].Name = name;
+														pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
+														bmp.Dispose();
+														Controller.Instance.SwitchToPatternMenu();
+													},
+													() =>
+													{
+														bmp.Dispose();
+														Controller.Instance.SwitchToPatternMenu();
+													}
+												);
 											}
 										}
 									}
-								);
+									catch (System.Exception e)
+									{
+										if (bmp != null)
+											bmp.Dispose();
+										Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+										Debug.LogException(e);
+									}
+								}
 							}
 							else if (format == FormatPopup.Format.QR)
 							{
-								StandaloneFileBrowser.OpenFilePanelAsync("Import image", "", new ExtensionFilter[] { new ExtensionFilter("QR Code Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "webp" }) }, false, 
-									(path) =>
+								var path = StandaloneFileBrowser.OpenFilePanel("Import image", "", new ExtensionFilter[] { new ExtensionFilter("QR Code Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif", "webp" }) }, false);
+								if (path != null && path.Length > 0)
+								{
+									TextureBitmap bmp = null;
+									try
 									{
-										if (path != null && path.Length > 0)
+										bmp = TextureBitmap.Load(path[0], false);
+										var scanner = new BarcodeReader()
 										{
-											TextureBitmap bmp = null;
-											try
+											TryInverted = true,
+											AutoRotate = true,
+
+											Options = new ZXing.Common.DecodingOptions()
 											{
-												bmp = TextureBitmap.Load(path[0], false);
-												var scanner = new BarcodeReader()
-												{
-													TryInverted = true,
-													AutoRotate = true,
+												TryHarder = true,
+												PureBarcode = true,
+												CharacterSet = "ISO-8859-1",
+												PossibleFormats = new List<BarcodeFormat>() { BarcodeFormat.QR_CODE }
+											}
+										};
 
-													Options = new ZXing.Common.DecodingOptions()
-													{
-														TryHarder = true,
-														PureBarcode = true,
-														CharacterSet = "ISO-8859-1",
-														PossibleFormats = new List<BarcodeFormat>() { BarcodeFormat.QR_CODE }
-													}
-												};
-
-												var result = GetResult(scanner.DecodeMultiple(bmp));
-												if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
+										var result = GetResult(scanner.DecodeMultiple(bmp));
+										if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
+										{
+											bmp.Resample(ResamplingFilters.Lanczos8, bmp.Width * 2, bmp.Height * 2);
+											result = GetResult(scanner.DecodeMultiple(bmp));
+											if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
+											{
+												for (int i = 250; i > 10; i-=10)
 												{
-													bmp.Resample(ResamplingFilters.Lanczos8, bmp.Width * 2, bmp.Height * 2);
-													result = GetResult(scanner.DecodeMultiple(bmp));
-													if (result == null || result.Type == DesignPattern.TypeEnum.Unsupported)
-													{
-														for (int i = 250; i > 10; i-=10)
-														{
-															var check = bmp.Clone();
-															check.UltraContrast(i);
-															result = GetResult(scanner.DecodeMultiple(check));
-															check.Dispose();
-															if (result != null && result.Type != DesignPattern.TypeEnum.Unsupported)
-																break;
-														}
-													}
+													var check = bmp.Clone();
+													check.UltraContrast(i);
+													result = GetResult(scanner.DecodeMultiple(check));
+													check.Dispose();
+													if (result != null && result.Type != DesignPattern.TypeEnum.Unsupported)
+														break;
 												}
-												bmp.Dispose();
+											}
+										}
+										bmp.Dispose();
 
-												if (result == null)
-												{
-													Controller.Instance.Popup.SetText("Couldn't find a QR code in the provided image file.", false, () => { return true; });
-												}
+										if (result == null)
+										{
+											Controller.Instance.Popup.SetText("Couldn't find a QR code in the provided image file.", false, () => { return true; });
+										}
+										else
+										{
+													
+											if (result.IsPro != pattern.Pattern is ProDesignPattern)
+											{
+												Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (result.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+											}
+											else
+											{
+												if (result.Type == DesignPattern.TypeEnum.Unsupported)
+													Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
 												else
 												{
-													
-													if (result.IsPro != pattern.Pattern is ProDesignPattern)
+													if (pattern.Pattern is ProDesignPattern)
 													{
-														Controller.Instance.Popup.SetText("Basic and pro designs are not interchangeable. (You selected a " + (pattern.Pattern is ProDesignPattern ? "pro design" : "basic design") + " but wanted to import a "+ (result.IsPro ? "pro design" : "basic design") + ")", false, () => { return true; });
+														Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(result);
+														Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+														pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
 													}
 													else
 													{
-														if (result.Type == DesignPattern.TypeEnum.Unsupported)
-															Controller.Instance.Popup.SetText("The design you tried to import is unspported by Animal Crossing: New Horizons.", false, () => { return true; });
-														else
-														{
-															if (pattern.Pattern is ProDesignPattern)
-															{
-																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].CopyFrom(result);
-																Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.ProDesignPatterns[pattern.Pattern.Index]);
-															}
-															else
-															{
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(result);
-																Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
-																pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
-															}
-														}
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].CopyFrom(result);
+														Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index].ChangeOwnership(Controller.Instance.CurrentSavegame.PersonalID);
+														pattern.SetPattern(Controller.Instance.CurrentSavegame.SimpleDesignPatterns[pattern.Pattern.Index]);
 													}
 												}
 											}
-											catch (System.Exception e)
-											{
-												if (bmp != null) 
-													bmp.Dispose();
-												Debug.LogException(e);
-											}
 										}
 									}
-								);
+									catch (System.Exception e)
+									{
+										if (bmp != null) 
+											bmp.Dispose();
+										Debug.LogException(e);
+									}
+								}
 							}
 						}, 
 						() => 
@@ -694,131 +678,117 @@ public class PatternSelector : MonoBehaviour
 							}
 							if (format == FormatPopup.Format.ACNH)
 							{
-								StandaloneFileBrowser.SaveFilePanelAsync("Export design", "", "design.acnh", new ExtensionFilter[] { new ExtensionFilter("ACNH Pattern file", new string[] { "acnh" }) },
-									(path) =>
+								var path = StandaloneFileBrowser.SaveFilePanel("Export design", "", "design.acnh", new ExtensionFilter[] { new ExtensionFilter("ACNH Pattern file", new string[] { "acnh" }) });
+								if (path != null && path.Length > 0)
+								{
+									try
 									{
-										if (path != null && path.Length > 0)
-										{
-											try
-											{
-												var file = ACNHFileFormat.FromPattern(pattern.Pattern);
-												var bytes = file.ToBytes();
-												System.IO.File.WriteAllBytes(path, bytes);
-											}
-											catch (System.Exception e)
-											{
-												Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-												Debug.LogException(e);
-											}
-										}
+										var file = ACNHFileFormat.FromPattern(pattern.Pattern);
+										var bytes = file.ToBytes();
+										System.IO.File.WriteAllBytes(path, bytes);
 									}
-								);
+									catch (System.Exception e)
+									{
+										Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+										Debug.LogException(e);
+									}
+								}
 							}
 							else if (format == FormatPopup.Format.ACNL)
 							{
-								StandaloneFileBrowser.SaveFilePanelAsync("Export design", "", "design.acnl", new ExtensionFilter[] { new ExtensionFilter("ACNL Pattern file", new string[] { "acnl" }) },
-									(path) =>
+								var path = StandaloneFileBrowser.SaveFilePanel("Export design", "", "design.acnl", new ExtensionFilter[] { new ExtensionFilter("ACNL Pattern file", new string[] { "acnl" }) });
+								if (path != null && path.Length > 0)
+								{
+									try
 									{
-										if (path != null && path.Length > 0)
-										{
-											try
-											{
-												var file = ACNLFileFormat.FromPattern(pattern.Pattern);
-												var bytes = file.ToBytes();
-												System.IO.File.WriteAllBytes(path, bytes);
-											}
-											catch (System.Exception e)
-											{
-												Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-												Debug.LogException(e);
-											}
-										}
+										var file = ACNLFileFormat.FromPattern(pattern.Pattern);
+										var bytes = file.ToBytes();
+										System.IO.File.WriteAllBytes(path, bytes);
 									}
-								);
+									catch (System.Exception e)
+									{
+										Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+										Debug.LogException(e);
+									}
+								}
 							}
 							else if (format == FormatPopup.Format.Image)
 							{
-								StandaloneFileBrowser.SaveFilePanelAsync("Export image", "", "image.png", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif" }) }, (path) =>
+								var path = StandaloneFileBrowser.SaveFilePanel("Export image", "", "image.png", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif" }) });
+								if (path != null && path.Length > 0)
 								{
-									if (path != null && path.Length > 0)
-									{
-										var bitmap = pattern.Pattern.GetBitmap();
-										bitmap.Save(path);
-										bitmap.Dispose();
-									}
-								});
+									var bitmap = pattern.Pattern.GetBitmap();
+									bitmap.Save(path);
+									bitmap.Dispose();
+								}
 							}
 							else if (format == FormatPopup.Format.QR)
 							{
-								StandaloneFileBrowser.SaveFilePanelAsync("Export design", "", "qrcode.png", new ExtensionFilter[] { new ExtensionFilter("QR Code", new string[] { "png" }) }, 
-									(path) =>
+								var path = StandaloneFileBrowser.SaveFilePanel("Export design", "", "qrcode.png", new ExtensionFilter[] { new ExtensionFilter("QR Code", new string[] { "png" }) });
+								if (path != null && path.Length > 0)
+								{
+									try
 									{
-										if (path != null && path.Length > 0)
+										var file = ACNLFileFormat.FromPattern(pattern.Pattern);
+										var bytes = file.ToBytes();
+										ZXing.QrCode.Internal.Encoder.ForceByte = true;
+										ZXing.BarcodeWriter writer = new BarcodeWriter();
+										writer.Format = BarcodeFormat.QR_CODE;
+										if (bytes.Length > 620)
 										{
-											try
+											int parity = Random.Range(0, 255);
+											TextureBitmap[] bitmaps = new TextureBitmap[4];
+											for (int i = 0; i < 4; i++)
 											{
-												var file = ACNLFileFormat.FromPattern(pattern.Pattern);
-												var bytes = file.ToBytes();
-												ZXing.QrCode.Internal.Encoder.ForceByte = true;
-												ZXing.BarcodeWriter writer = new BarcodeWriter();
-												writer.Format = BarcodeFormat.QR_CODE;
-												if (bytes.Length > 620)
+												var qr = new QrCodeEncodingOptions()
 												{
-													int parity = Random.Range(0, 255);
-													TextureBitmap[] bitmaps = new TextureBitmap[4];
-													for (int i = 0; i < 4; i++)
-													{
-														var qr = new QrCodeEncodingOptions()
-														{
-															ErrorCorrection = ZXing.QrCode.Internal.ErrorCorrectionLevel.M,
-															Height = 400,
-															Width = 400
-														};
-														qr.Hints.Add(EncodeHintType.STRUCTURED_APPEND, new int[] { i, 3, parity });
-														qr.Hints[EncodeHintType.WIDTH] = 400;
-														qr.Hints[EncodeHintType.HEIGHT] = 400;
-														writer.Options = qr;
-														byte[] part = new byte[540];
-														System.Array.Copy(bytes, 540 * i, part, 0, 540);
+													ErrorCorrection = ZXing.QrCode.Internal.ErrorCorrectionLevel.M,
+													Height = 400,
+													Width = 400
+												};
+												qr.Hints.Add(EncodeHintType.STRUCTURED_APPEND, new int[] { i, 3, parity });
+												qr.Hints[EncodeHintType.WIDTH] = 400;
+												qr.Hints[EncodeHintType.HEIGHT] = 400;
+												writer.Options = qr;
+												byte[] part = new byte[540];
+												System.Array.Copy(bytes, 540 * i, part, 0, 540);
 
-														bitmaps[i] = writer.Write(System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(part));
-														bitmaps[i].FlipY();
-														bitmaps[i].CreateBackgroundTexture();
-														bitmaps[i].Apply();
-													}
-													var b = Controller.Instance.QRCode.Render(pattern.Pattern, bitmaps[0], bitmaps[1], bitmaps[2], bitmaps[3]);
-													System.IO.File.WriteAllBytes(path, b);
-													bitmaps[0].Dispose();
-													bitmaps[1].Dispose();
-													bitmaps[2].Dispose();
-													bitmaps[3].Dispose();
-												}
-												else
-												{
-													var qr = new QrCodeEncodingOptions()
-													{
-														ErrorCorrection = ZXing.QrCode.Internal.ErrorCorrectionLevel.M,
-														Height = 700,
-														Width = 700
-													};
-													writer.Options = qr;
-													TextureBitmap bitmap = writer.Write(System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(bytes));
-													bitmap.FlipY();
-													bitmap.CreateBackgroundTexture();
-													bitmap.Apply();
-
-													System.IO.File.WriteAllBytes(path, Controller.Instance.QRCode.Render(pattern.Pattern, bitmap));
-													bitmap.Dispose();
-												}
+												bitmaps[i] = writer.Write(System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(part));
+												bitmaps[i].FlipY();
+												bitmaps[i].CreateBackgroundTexture();
+												bitmaps[i].Apply();
 											}
-											catch (System.Exception e)
+											var b = Controller.Instance.QRCode.Render(pattern.Pattern, bitmaps[0], bitmaps[1], bitmaps[2], bitmaps[3]);
+											System.IO.File.WriteAllBytes(path, b);
+											bitmaps[0].Dispose();
+											bitmaps[1].Dispose();
+											bitmaps[2].Dispose();
+											bitmaps[3].Dispose();
+										}
+										else
+										{
+											var qr = new QrCodeEncodingOptions()
 											{
-												Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-												Debug.LogException(e);
-											}
+												ErrorCorrection = ZXing.QrCode.Internal.ErrorCorrectionLevel.M,
+												Height = 700,
+												Width = 700
+											};
+											writer.Options = qr;
+											TextureBitmap bitmap = writer.Write(System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(bytes));
+											bitmap.FlipY();
+											bitmap.CreateBackgroundTexture();
+											bitmap.Apply();
+
+											System.IO.File.WriteAllBytes(path, Controller.Instance.QRCode.Render(pattern.Pattern, bitmap));
+											bitmap.Dispose();
 										}
 									}
-								);
+									catch (System.Exception e)
+									{
+										Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+										Debug.LogException(e);
+									}
+								}
 							}
 						},
 						() =>

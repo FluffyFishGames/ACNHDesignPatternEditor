@@ -829,58 +829,50 @@ BrushOptions.PopUp();
 
 		SaveProjectButton.OnClick = () =>
 		{
-			StandaloneFileBrowser.SaveFilePanelAsync("Save project", "", "project.acnhp", new ExtensionFilter[] { new ExtensionFilter("ACNH project", new string[] { "acnhp" }) },
-				(path) =>
+			var path = StandaloneFileBrowser.SaveFilePanel("Save project", "", "project.acnhp", new ExtensionFilter[] { new ExtensionFilter("ACNH project", new string[] { "acnhp" }) });
+			if (path != null && path.Length > 0)
+			{
+				try
 				{
-					if (path != null && path.Length > 0)
+					if (path.EndsWith(".acnhp"))
 					{
-						try
-						{
-							if (path.EndsWith(".acnhp"))
-							{
-								System.IO.File.WriteAllBytes(path, Editor.CurrentPattern.ToBytes());
-							}
-						}
-						catch (System.Exception e)
-						{
-							UnityEngine.Debug.LogException(e);
-							Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-						}
+						System.IO.File.WriteAllBytes(path, Editor.CurrentPattern.ToBytes());
 					}
 				}
-			);
+				catch (System.Exception e)
+				{
+					UnityEngine.Debug.LogException(e);
+					Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+				}
+			}
 		};
 
 		LoadProjectButton.OnClick = () =>
 		{
-			StandaloneFileBrowser.OpenFilePanelAsync("Load project", "", new ExtensionFilter[] { new ExtensionFilter("ACNH project", new string[] { "acnhp" }) }, false, 
-				(path) =>
+			var path = StandaloneFileBrowser.OpenFilePanel("Load project", "", new ExtensionFilter[] { new ExtensionFilter("ACNH project", new string[] { "acnhp" }) }, false);
+			if (path != null && path.Length > 0)
+			{
+				try
 				{
-					if (path != null && path.Length > 0)
+					if (path[0].EndsWith(".acnhp"))
 					{
-						try
-						{
-							if (path[0].EndsWith(".acnhp"))
-							{
-								Editor.OpenProject(System.IO.File.ReadAllBytes(path[0]));
-							}
-						}
-						catch (System.ArgumentException e)
-						{
-							UnityEngine.Debug.LogException(e);
-							if (e.ParamName == "project")
-								Controller.Instance.Popup.SetText(e.Message, false, () => { return true; });
-							else 
-								Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-						}
-						catch (System.Exception e)
-						{
-							UnityEngine.Debug.LogException(e);
-							Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
-						}
+						Editor.OpenProject(System.IO.File.ReadAllBytes(path[0]));
 					}
 				}
-			);
+				catch (System.ArgumentException e)
+				{
+					UnityEngine.Debug.LogException(e);
+					if (e.ParamName == "project")
+						Controller.Instance.Popup.SetText(e.Message, false, () => { return true; });
+					else 
+						Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+				}
+				catch (System.Exception e)
+				{
+					UnityEngine.Debug.LogException(e);
+					Controller.Instance.Popup.SetText("Unknown error occured.", false, () => { return true; });
+				}
+			}
 		};
 	}
 }

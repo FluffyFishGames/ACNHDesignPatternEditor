@@ -136,54 +136,50 @@ public class Layers : MonoBehaviour
 	private void ImportImage()
 	{
 		Controller.Instance.Popup.SetText("Please select any <#FF6666>Image<#FFFFFF> file to import.", false, () => {
-			StandaloneFileBrowser.OpenFilePanelAsync("Import image", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif" }) }, false, (path) =>
+			var path = StandaloneFileBrowser.OpenFilePanel("Import image", "", new ExtensionFilter[] { new ExtensionFilter("Image", new string[] { "png", "jpg", "jpeg", "bmp", "gif" }) }, false);
+			if (path.Length > 0)
 			{
-				if (path.Length > 0)
+				try
 				{
-					try
-					{
-						int x = 0;
-						int y = 0;
-						int width = Editor.CurrentPattern.CurrentSubPattern.Width;
-						int height = Editor.CurrentPattern.CurrentSubPattern.Height;
-						var bmp = TextureBitmap.Load(path[0]);
-						var newLayer = new SmartObjectLayer(Editor.CurrentPattern.CurrentSubPattern, System.IO.Path.GetFileNameWithoutExtension(path[0]), bmp, x, y, width, height);
-						newLayer.UpdateColors();
-						var index = Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(Editor.CurrentPattern.CurrentSubPattern.SelectedLayer) + 1;
-						Editor.CurrentPattern.CurrentSubPattern.Layers.Insert(index, newLayer);
-						Editor.CurrentPattern.CurrentSubPattern.SelectedLayer = newLayer;
-						Editor.LayersChanged();
-						Editor.CurrentPattern.CurrentSubPattern.SelectLayer(newLayer);
-						Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
+					int x = 0;
+					int y = 0;
+					int width = Editor.CurrentPattern.CurrentSubPattern.Width;
+					int height = Editor.CurrentPattern.CurrentSubPattern.Height;
+					var bmp = TextureBitmap.Load(path[0]);
+					var newLayer = new SmartObjectLayer(Editor.CurrentPattern.CurrentSubPattern, System.IO.Path.GetFileNameWithoutExtension(path[0]), bmp, x, y, width, height);
+					newLayer.UpdateColors();
+					var index = Editor.CurrentPattern.CurrentSubPattern.Layers.IndexOf(Editor.CurrentPattern.CurrentSubPattern.SelectedLayer) + 1;
+					Editor.CurrentPattern.CurrentSubPattern.Layers.Insert(index, newLayer);
+					Editor.CurrentPattern.CurrentSubPattern.SelectedLayer = newLayer;
+					Editor.LayersChanged();
+					Editor.CurrentPattern.CurrentSubPattern.SelectLayer(newLayer);
+					Editor.CurrentPattern.CurrentSubPattern.UpdateImage();
 
-						Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.LayerCreatedAction("Created: " + newLayer.Name, index, newLayer));
+					Editor.CurrentPattern.CurrentSubPattern.History.AddEvent(new History.LayerCreatedAction("Created: " + newLayer.Name, index, newLayer));
 
-						Controller.Instance.Popup.Close();
-					}
-					catch (System.IO.FileLoadException e)
-					{
-						Debug.LogException(e);
-						Controller.Instance.Popup.SetText("Failed to load the file. File error.", false, () =>
-						{
-							return true;
-						});
-						return;
-					}
-					catch (System.Exception e)
-					{
-						Debug.LogException(e);
-						Controller.Instance.Popup.SetText("Invalid image file.", false, () =>
-						{
-							return true;
-						});
-						return;
-					}
-				}
-				else
-				{
 					Controller.Instance.Popup.Close();
 				}
-			});
+				catch (System.IO.FileLoadException e)
+				{
+					Debug.LogException(e);
+					Controller.Instance.Popup.SetText("Failed to load the file. File error.", false, () =>
+					{
+						return true;
+					});
+				}
+				catch (System.Exception e)
+				{
+					Debug.LogException(e);
+					Controller.Instance.Popup.SetText("Invalid image file.", false, () =>
+					{
+						return true;
+					});
+				}
+			}
+			else
+			{
+				Controller.Instance.Popup.Close();
+			}
 			return false;
 		});
 	}

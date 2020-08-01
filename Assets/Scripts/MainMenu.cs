@@ -86,16 +86,14 @@ public class MainMenu : MonoBehaviour
 				if (Controller.Instance.CurrentState == Controller.State.MainMenu)
 				{
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "dat", false, (path) =>
+					var path = StandaloneFileBrowser.OpenFilePanel("Open savegame", "", "dat", false);
 #elif UNITY_EDITOR || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
-					StandaloneFileBrowser.OpenFilePanelAsync("Open savegame", "", "dat", false, (path) =>
+					var path = StandaloneFileBrowser.OpenFilePanel("Open savegame", "", "dat", false);
 #endif
+					if (path.Length > 0)
 					{
-						if (path.Length > 0)
-						{
-							LoadSavegame(path[0]);
-						}
-					});
+						LoadSavegame(path[0]);
+					}
 				}
 			}
 		};
@@ -106,13 +104,11 @@ public class MainMenu : MonoBehaviour
 			{
 				if (Controller.Instance.CurrentState == Controller.State.MainMenu)
 				{
-					StandaloneFileBrowser.OpenFilePanelAsync("Open designs", "", new ExtensionFilter[] { new ExtensionFilter("Designs", new string[] { "designs" }) }, false, (path) =>
+					var path = StandaloneFileBrowser.OpenFilePanel("Open designs", "", new ExtensionFilter[] { new ExtensionFilter("Designs", new string[] { "designs" }) }, false);
+					if (path != null && path.Length > 0)
 					{
-						if (path != null && path.Length > 0)
-						{
-							LoadDesigns(path[0]);
-						}
-					});
+						LoadDesigns(path[0]);
+					}
 				}
 			}
 		};
@@ -123,15 +119,15 @@ public class MainMenu : MonoBehaviour
 			{
 				if (Controller.Instance.CurrentState == Controller.State.MainMenu)
 				{
-					StandaloneFileBrowser.SaveFilePanelAsync("Create designs", "", "myDesigns.designs", new ExtensionFilter[] { new ExtensionFilter("Designs", new string[] { "designs" }) }, (path) =>
+					string path = StandaloneFileBrowser.SaveFilePanel("Create designs", "", "myDesigns.designs", new ExtensionFilter[] { new ExtensionFilter("Designs", new string[] { "designs" }) });
+					if (path != null && path.Length > 0)
 					{
-						if (path != null && path.Length > 0)
-						{
-							if (!path.ToLowerInvariant().EndsWith(".designs"))
-								path = path + ".designs";
-							LoadDesigns(path);
-						}
-					});
+						UnityEngine.Debug.Log(path);
+						if (!path.ToLowerInvariant().EndsWith(".designs"))
+							path = path + ".designs";
+						UnityEngine.Debug.Log(path);
+						LoadDesigns(path);
+					}
 				}
 			}
 		};
