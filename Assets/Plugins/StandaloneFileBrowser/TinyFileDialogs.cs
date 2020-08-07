@@ -30,7 +30,7 @@ namespace tinyfd
 		#if UNITY_IPHONE && !UNITY_EDITOR
 		private const string DLL_NAME = "__Internal";
 		#else
-		private const string DLL_NAME = "__Internal";
+		private const string DLL_NAME = "tinyfiledialogs.dll";
 		#endif
 
 		private static string PtrToNullableString(IntPtr ptr) {

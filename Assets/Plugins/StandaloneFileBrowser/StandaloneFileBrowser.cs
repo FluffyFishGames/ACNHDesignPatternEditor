@@ -42,7 +42,12 @@ namespace SFB {
         /// <param name="multiselect">Allow multiple file selection</param>
         /// <returns>Returns array of chosen paths. Zero length array when cancelled</returns>
         public static string[] OpenFilePanel(string title, string directory, string extension, bool multiselect) {
+#if !UNITY_STANDALONE_WIN
             return new string[] { tinyfd.TinyFileDialogs.OpenFileDialog(title, directory, new string[] { "*." + extension }, null, multiselect) };
+#else
+
+#endif
+            return _platformWrapper.OpenFilePanel(title, directory, new ExtensionFilter[] { new ExtensionFilter(null, new string[] { extension }) }, multiselect);
             /*var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
             return OpenFilePanel(title, directory, extensions, multiselect);*/
         }
@@ -56,6 +61,7 @@ namespace SFB {
         /// <param name="multiselect">Allow multiple file selection</param>
         /// <returns>Returns array of chosen paths. Zero length array when cancelled</returns>
         public static string[] OpenFilePanel(string title, string directory, ExtensionFilter[] extensions, bool multiselect) {
+#if !UNITY_STANDALONE_WIN
             List<string> filters = new List<string>();
             string filterName = "";
             for (var i = 0; i < extensions.Length; i++)
@@ -65,6 +71,9 @@ namespace SFB {
                     filters.Add("*." + k);
             }
             return new string[] { tinyfd.TinyFileDialogs.OpenFileDialog(title, directory, filters.ToArray(), filterName, multiselect) };
+#else
+            return _platformWrapper.OpenFilePanel(title, directory, extensions, multiselect);
+#endif
         }
 
         /// <summary>
@@ -140,8 +149,13 @@ namespace SFB {
         /// <param name="extension">File extension</param>
         /// <returns>Returns chosen path. Empty string when cancelled</returns>
         public static string SaveFilePanel(string title, string directory, string defaultName , string extension) {
+#if !UNITY_STANDALONE_WIN
             var result = tinyfd.TinyFileDialogs.SaveFileDialog(title, System.IO.Path.Combine(directory, defaultName), new string[] { "*." + extension }, null);
             return result;
+#else
+            return _platformWrapper.SaveFilePanel(title, directory, defaultName, new ExtensionFilter[] { new ExtensionFilter(null, new string[] { extension }) } );
+#endif
+
         }
 
         /// <summary>
@@ -154,6 +168,7 @@ namespace SFB {
         /// <returns>Returns chosen path. Empty string when cancelled</returns>
         public static string SaveFilePanel(string title, string directory, string defaultName, ExtensionFilter[] extensions) {
 
+#if !UNITY_STANDALONE_WIN
             List<string> filters = new List<string>();
             string filterName = "";
             for (var i = 0; i < extensions.Length; i++)
@@ -164,6 +179,9 @@ namespace SFB {
             }
             var result = tinyfd.TinyFileDialogs.SaveFileDialog(title, System.IO.Path.Combine(directory, defaultName), filters.ToArray(), null);
             return result;
+#else
+            return _platformWrapper.SaveFilePanel(title, directory, defaultName, extensions);
+#endif
         }
 
         /// <summary>
