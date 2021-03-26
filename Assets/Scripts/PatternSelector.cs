@@ -36,7 +36,7 @@ public class PatternSelector : MonoBehaviour
 	private float OpenPhase = 0f;
 	private float LastOpenPhase = -1f;
 	private PatternSelectorPattern Selected = null;
-	private PatternSelectorPattern[] PatternObjects = new PatternSelectorPattern[50];
+	private PatternSelectorPattern[] PatternObjects = new PatternSelectorPattern[100];
 	public enum Menu
 	{
 		None,

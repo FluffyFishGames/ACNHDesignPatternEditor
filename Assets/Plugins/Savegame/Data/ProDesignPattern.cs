@@ -42,6 +42,19 @@ public unsafe class ProDesignPattern : DesignPattern
 			ret._Palette[i] = DesignPattern.Color.Read(data, offset + 0x78 + 0x03 * i);
 		ret._Image = data.ReadBytes(offset + 0xA5, 0x800);
 		ret._Type = data.ReadU8(offset + 0x8A5);
+		if (ret._Type == (byte) DesignPattern.TypeEnum.Standee)
+        {
+			var c = "";
+			for (var y = 0; y < 64; y++)
+			{ 
+				for (var x = 0; x < 64; x++)
+                {
+					c += ret.GetPixel(x, y) + " ";
+                }
+				c += "\r\n";
+            }
+			UnityEngine.Debug.Log(c);
+        }
 		return ret;
 	}
 

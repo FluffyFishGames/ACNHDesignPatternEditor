@@ -115,7 +115,7 @@ public static class DesignPatternExtension
 		catch (Exception e)
 		{
 			Debug.LogException(e);
-			Debug.LogError("Pattern type " + pattern.Type);
+			Debug.LogError("Pattern type " + pattern.Type + " Name: " + pattern.Name);
 		}
 		for (var i = 0; i < visible.Length; i++)
 			resultPixels[i] = visible[i] ? resultPixels[i] : new UnityEngine.Color(0f, 0f, 0f, 0f);

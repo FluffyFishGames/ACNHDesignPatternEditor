@@ -94,6 +94,11 @@ public abstract class DesignPattern
 		NoSleeveShirt3DS    = 0x17,
 		Hat3DS              = 0x18,
 		HornHat3DS          = 0x19,
+		Standee3DS          = 0x1E,
+		Standee             = 0x1A,
+		Umbrella            = 0x1B,
+		Flag                = 0x1C,
+		Fan                 = 0x1D,
 		Unsupported         = 0xFF
 	}
 

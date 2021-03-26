@@ -17,8 +17,8 @@ public unsafe class Savegame : BinaryData, IDesignPatternContainer
     private IntPtr RawData;
     private SavegameInfo.Info Info;
 
-    private SimpleDesignPattern[] _SimpleDesignPatterns = new SimpleDesignPattern[50];
-    private ProDesignPattern[] _ProDesignPatterns = new ProDesignPattern[50];
+    private SimpleDesignPattern[] _SimpleDesignPatterns;
+    private ProDesignPattern[] _ProDesignPatterns;
     private PersonalID _PersonalID;
 
     public Savegame(FileInfo file)
@@ -40,7 +40,10 @@ public unsafe class Savegame : BinaryData, IDesignPatternContainer
             throw new Exception("Game version is not supported.");
         try
         {
+            _SimpleDesignPatterns = new SimpleDesignPattern[Info.SimpleDesignCount];
+            _ProDesignPatterns = new ProDesignPattern[Info.ProDesignCount];
             var bytes = SaveEncryption.Decrypt(headerBytes, mainBytes);
+            //System.IO.File.WriteAllBytes(HeaderFile.DirectoryName + "/decrypted", bytes);
             Size = bytes.Length;
             RawData = Marshal.AllocHGlobal(Size);
             Data = (byte*) RawData.ToPointer();

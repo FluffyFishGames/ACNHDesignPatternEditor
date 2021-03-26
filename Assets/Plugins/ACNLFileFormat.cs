@@ -225,6 +225,18 @@ public class ACNLFileFormat
 		{ ( 0x500, 0x600), 0x700 },
 	};
 
+	private static Dictionary<(int, int), int> StandeeOffsets = new Dictionary<(int, int), int>()
+	{
+		// top left
+		{ ( 0x000, 0x200), 0x000 }, 
+		// bottom left
+		{ ( 0x200, 0x400), 0x400 },
+		// top right
+		{ ( 0x400, 0x600), 0x200 },
+		// bottom right
+		{ ( 0x600, 0x800), 0x600 }
+	};
+
 	private static int TransformIndex(int index)
 	{
 		foreach (var kv in Offsets)
@@ -237,7 +249,31 @@ public class ACNLFileFormat
 		return index;
 	}
 
+	private static int TransformStandeeIndex(int index)
+	{
+		foreach (var kv in StandeeOffsets)
+		{
+			if (index >= kv.Key.Item1 && index < kv.Key.Item2)
+			{
+				return (index - kv.Key.Item1) + kv.Value;
+			}
+		}
+		return index;
+	}
+
 	private static int InverseTransformIndex(int index)
+	{
+		foreach (var kv in Offsets)
+		{
+			if (index >= kv.Value && index < kv.Value + (kv.Key.Item2 - kv.Key.Item1))
+			{
+				return (index - kv.Value) + kv.Key.Item1;
+			}
+		}
+		return index;
+	}
+
+	private static int InverseTransformStandeeIndex(int index)
 	{
 		foreach (var kv in Offsets)
 		{
@@ -291,6 +327,8 @@ public class ACNLFileFormat
 			result.PatternType = 0x06;
 		else if (pattern.Type == DesignPattern.TypeEnum.Hat3DS)
 			result.PatternType = 0x07;
+		else if (pattern.Type == DesignPattern.TypeEnum.Standee3DS)
+			result.PatternType = 0x08;
 		else if (pattern.Type == DesignPattern.TypeEnum.SimplePattern)
 			result.PatternType = 0x09;
 
@@ -395,7 +433,7 @@ public class ACNLFileFormat
 					{
 						var offset = (x >= width / 4 ? 0x200 : 0x0) + (y >= height / 2 ? 0x400 : 0x0);
 						int index = offset + x % (width / 4) + (y % (height / 2)) * (width / 4);
-						ret[0x6C + InverseTransformIndex(index)] = Pixels[index];
+						ret[0x6C + (Type == DesignPattern.TypeEnum.Standee3DS ? InverseTransformStandeeIndex(index) : InverseTransformIndex(index))] = Pixels[index];
 					}
 //					else
 //						ret[0x6C + x + y * width / 2] = Pixels[x + y * width / 2];
@@ -445,10 +483,13 @@ public class ACNLFileFormat
 			Type = DesignPattern.TypeEnum.HornHat3DS;
 		else if (PatternType == 0x07)
 			Type = DesignPattern.TypeEnum.Hat3DS;
+		else if (PatternType == 0x08)
+			Type = DesignPattern.TypeEnum.Standee3DS;
 		else if (PatternType == 0x09)
 			Type = DesignPattern.TypeEnum.SimplePattern;
 		else
 		{
+			UnityEngine.Debug.Log(PatternType);
 			Type = DesignPattern.TypeEnum.Unsupported;
 		}
 		IsPro = Type != DesignPattern.TypeEnum.SimplePattern;
@@ -464,25 +505,23 @@ public class ACNLFileFormat
 			Height = 32;
 		}
 		this.Pixels = new byte[(Width / 2) * Height];
+		UnityEngine.Debug.Log(this.Pixels.Length);
+		UnityEngine.Debug.Log(Width);
+		UnityEngine.Debug.Log(Height);
+		UnityEngine.Debug.Log(Type);
 		if (IsPro && Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
 		{
 			byte[] pixels = new byte[(Width / 2) * Height];
-			
+
 			Array.Copy(bytes, 0x6C, pixels, 0, UnityEngine.Mathf.Min(bytes.Length - 0x6C, pixels.Length));
-			//this.Pixels = pixels;
 
 			for (var y = 0; y < Height; y++)
 			{
 				for (var x = 0; x < Width / 2; x++)
 				{
 					var offset = (x >= this.Width / 4 ? 0x200 : 0x0) + (y >= this.Height / 2 ? 0x400 : 0x0);
-					//if (Type != DesignPattern.TypeEnum.HornHat3DS && Type != DesignPattern.TypeEnum.Hat3DS)
-					//{
 					var index = offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4);
-					this.Pixels[TransformIndex(index)] = pixels[index];
-					//}
-					//else 
-					//	this.Pixels[x + y * this.Width / 2] = pixels[offset + x % (this.Width / 4) + (y % (this.Height / 2)) * (this.Width / 4)];
+					this.Pixels[Type == DesignPattern.TypeEnum.Standee3DS ? TransformStandeeIndex(index) : TransformIndex(index)] = pixels[index];
 				}
 			}
 		}

@@ -35,6 +35,11 @@ public class PatternEditor : MonoBehaviour
 	public GameObject HatTop;
 	public GameObject HatMiddle;
 	public GameObject HatBottom;
+	public GameObject FanFront;
+	public GameObject FanBack;
+	public GameObject FlagFront;
+	public GameObject FlagBack;
+	public GameObject FlagPole;
 
 	[HideInInspector]
 	public Pattern CurrentPattern;
@@ -296,7 +301,12 @@ public class PatternEditor : MonoBehaviour
 				{ DesignPatternInformation.PartType.CapBrim, CapBrim },
 				{ DesignPatternInformation.PartType.HatTop, HatTop },
 				{ DesignPatternInformation.PartType.HatMiddle, HatMiddle },
-				{ DesignPatternInformation.PartType.HatBottom, HatBottom }
+				{ DesignPatternInformation.PartType.HatBottom, HatBottom },
+				{ DesignPatternInformation.PartType.FanFront, FanFront },
+				{ DesignPatternInformation.PartType.FanBack, FanBack },
+				{ DesignPatternInformation.PartType.FlagFront, FlagFront },
+				{ DesignPatternInformation.PartType.FlagBack, FlagBack },
+				{ DesignPatternInformation.PartType.FlagPole, FlagPole }
 			};
 		}
 		catch (System.Exception e) { Logger.Log(Logger.Level.ERROR, "[PatternEditor] Error while initializing PatternEditor: " + e.ToString()); }

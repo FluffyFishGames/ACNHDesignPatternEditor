@@ -25,12 +25,13 @@ public class SavegameInfo
         new Header(0x60001, 0x6000C, 2, 0, 2, 14, "1.5.1", 5),
         new Header(0x70001, 0x70006, 2, 0, 2, 15, "1.6.0", 6),
 		new Header(0x74001, 0x74005, 2, 0, 2, 16, "1.7.0", 7),
-		new Header(0x78001, 0x78001, 2, 0, 2, 17, "1.8.0", 8)
+        new Header(0x78001, 0x78001, 2, 0, 2, 17, "1.8.0", 8),
+        new Header(0x7C001, 0x7C006, 2, 0, 2, 18, "1.9.0", 9)
     };
 
     private static List<Info> Infos = new List<Info>()
     {
-        new Info(0xAC0938, 0x1D72F0, 0x1DF7C0, new HashRegion[] {
+        new Info(0xAC0938, 0x1D72F0, 0x1DF7C0, 50, 50, new HashRegion[] {
             new HashRegion(0x000108, 0x00010C, 0x1D6D4C),
             new HashRegion(0x1D6E58, 0x1D6E5C, 0x323384),
             new HashRegion(0x4FA2E8, 0x4FA2EC, 0x035AC4),
@@ -51,7 +52,7 @@ public class SavegameInfo
             new HashRegion(0x8223E0, 0x8223E4, 0x03607C),
             new HashRegion(0x858460, 0x858464, 0x2684D4)
         }),
-        new Info(0xAC2AA0, 0x1D7310, 0x1DF7E0, new HashRegion[] {
+        new Info(0xAC2AA0, 0x1D7310, 0x1DF7E0, 50, 50, new HashRegion[] {
             new HashRegion(0x000110, 0x000114, 0x1D6D5C),
             new HashRegion(0x1D6E70, 0x1D6E74, 0x323C0C),
             new HashRegion(0x4FAB90, 0x4FAB94, 0x035AFC),
@@ -72,7 +73,7 @@ public class SavegameInfo
             new HashRegion(0x823E40, 0x823E44, 0x0362BC),
             new HashRegion(0x85A100, 0x85A104, 0x26899C)
         }),
-        new Info(0xACECD0, 0x1D7310, 0x1DF7E0, new HashRegion[] {
+        new Info(0xACECD0, 0x1D7310, 0x1DF7E0, 50, 50, new HashRegion[] {
             new HashRegion(0x000110, 0x000114, 0x1D6D5C),
             new HashRegion(0x1D6E70, 0x1D6E74, 0x323EBC),
             new HashRegion(0x4FAE40, 0x4FAE44, 0x035D2C),
@@ -93,7 +94,7 @@ public class SavegameInfo
             new HashRegion(0x82EAB0, 0x82EAB4, 0x03787C),
             new HashRegion(0x866330, 0x866334, 0x26899C)
         }),
-        new Info(0xACED80, 0x1D7310, 0x1DF7E0, new HashRegion[] {
+        new Info(0xACED80, 0x1D7310, 0x1DF7E0, 50, 50, new HashRegion[] {
             new HashRegion(0x000110, 0x1D6D5C),
             new HashRegion(0x1D6E70, 0x323EEC),
             new HashRegion(0x4FAE70, 0x035D2C),
@@ -114,7 +115,7 @@ public class SavegameInfo
             new HashRegion(0x82EB50, 0x03788C),
             new HashRegion(0x8663E0, 0x26899C)
         }),
-        new Info(0xB05790, 0x1D7310, 0x1DF7E0, new HashRegion[] {
+        new Info(0xB05790, 0x1D7310, 0x1DF7E0, 50, 50, new HashRegion[] {
             new HashRegion(0x000110, 0x1d6d5c),
             new HashRegion(0x1d6e70, 0x323f2c),
             new HashRegion(0x4faeb0, 0x035d2c),
@@ -135,7 +136,7 @@ public class SavegameInfo
             new HashRegion(0x85e8c0, 0x03e5dc),
             new HashRegion(0x89cea0, 0x2688ec)
         }),
-        new Info(0xB20750, 0x1E2710, 0x1EABE0, new HashRegion[] {
+        new Info(0xB20750, 0x1E2710, 0x1EABE0, 50, 50, new HashRegion[] {
             new HashRegion(0x000110, 0x1e215c),
             new HashRegion(0x1e2270, 0x323f6c),
             new HashRegion(0x5062f0, 0x03693c),
@@ -156,7 +157,7 @@ public class SavegameInfo
             new HashRegion(0x878520, 0x03f93c),
             new HashRegion(0x8b7e60, 0x2688ec)
         }),
-        new Info(0xB258E0, 0x1E2710, 0x1EABE0, new HashRegion[] {
+        new Info(0xB258E0, 0x1E2710, 0x1EABE0, 50, 50, new HashRegion[] {
             new HashRegion(0x000110, 0x1e215c),
             new HashRegion(0x1e2270, 0x32403c),
             new HashRegion(0x5063c0, 0x03693c),
@@ -177,7 +178,7 @@ public class SavegameInfo
             new HashRegion(0x87c790, 0x04029c),
             new HashRegion(0x8bca30, 0x268eac)
         }),
-        new Info(0x849C30, 0x1E2710, 0x1EABE0, new HashRegion[] {
+        new Info(0x849C30, 0x1E2710, 0x1EABE0, 50, 50, new HashRegion[] {
             new HashRegion(0x000110, 0x1e215c),
 			new HashRegion(0x1e2270, 0x3221fc),
 			new HashRegion(0x504580, 0x03693c),
@@ -198,26 +199,47 @@ public class SavegameInfo
 			new HashRegion(0x7f7780, 0x02d6ec),
 			new HashRegion(0x824e70, 0x024dbc)
         }),
-        new Info(0x849C30, 0x1E2710, 0x1EABE0, new HashRegion[] {
+        new Info(0x849C30, 0x1E2710, 0x1EABE0, 50, 50, new HashRegion[] {
             new HashRegion(0x000110, 0x1e215c),
-			new HashRegion(0x1e2270, 0x3221fc),
-			new HashRegion(0x504580, 0x03693c),
-			new HashRegion(0x53aec0, 0x02d6ec),
-			new HashRegion(0x5686c0, 0x03693c),
-			new HashRegion(0x59f000, 0x02d6ec),
-			new HashRegion(0x5cc800, 0x03693c),
-			new HashRegion(0x603140, 0x02d6ec),
-			new HashRegion(0x630940, 0x03693c),
-			new HashRegion(0x667280, 0x02d6ec),
-			new HashRegion(0x694a80, 0x03693c),
-			new HashRegion(0x6cb3c0, 0x02d6ec),
-			new HashRegion(0x6f8bc0, 0x03693c),
-			new HashRegion(0x72f500, 0x02d6ec),
-			new HashRegion(0x75cd00, 0x03693c),
-			new HashRegion(0x793640, 0x02d6ec),
-			new HashRegion(0x7c0e40, 0x03693c),
-			new HashRegion(0x7f7780, 0x02d6ec),
-			new HashRegion(0x824e70, 0x024dbc)
+            new HashRegion(0x1e2270, 0x3221fc),
+            new HashRegion(0x504580, 0x03693c),
+            new HashRegion(0x53aec0, 0x02d6ec),
+            new HashRegion(0x5686c0, 0x03693c),
+            new HashRegion(0x59f000, 0x02d6ec),
+            new HashRegion(0x5cc800, 0x03693c),
+            new HashRegion(0x603140, 0x02d6ec),
+            new HashRegion(0x630940, 0x03693c),
+            new HashRegion(0x667280, 0x02d6ec),
+            new HashRegion(0x694a80, 0x03693c),
+            new HashRegion(0x6cb3c0, 0x02d6ec),
+            new HashRegion(0x6f8bc0, 0x03693c),
+            new HashRegion(0x72f500, 0x02d6ec),
+            new HashRegion(0x75cd00, 0x03693c),
+            new HashRegion(0x793640, 0x02d6ec),
+            new HashRegion(0x7c0e40, 0x03693c),
+            new HashRegion(0x7f7780, 0x02d6ec),
+            new HashRegion(0x824e70, 0x024dbc)
+        }),
+        new Info(0x86D560, 0x1E2710, 0x1F30B0, 100, 100, new HashRegion[] {
+            new HashRegion(0x000110, 0x1e215c),
+            new HashRegion(0x1e2270, 0x3221fc),
+            new HashRegion(0x504580, 0x03693c),
+            new HashRegion(0x53aec0, 0x02d6ec),
+            new HashRegion(0x5686c0, 0x03693c),
+            new HashRegion(0x59f000, 0x02d6ec),
+            new HashRegion(0x5cc800, 0x03693c),
+            new HashRegion(0x603140, 0x02d6ec),
+            new HashRegion(0x630940, 0x03693c),
+            new HashRegion(0x667280, 0x02d6ec),
+            new HashRegion(0x694a80, 0x03693c),
+            new HashRegion(0x6cb3c0, 0x02d6ec),
+            new HashRegion(0x6f8bc0, 0x03693c),
+            new HashRegion(0x72f500, 0x02d6ec),
+            new HashRegion(0x75cd00, 0x03693c),
+            new HashRegion(0x793640, 0x02d6ec),
+            new HashRegion(0x7c0e40, 0x03693c),
+            new HashRegion(0x7f7780, 0x02d6ec),
+            new HashRegion(0x824e70, 0x024dbc)
         })
     };
 
@@ -239,17 +261,22 @@ public class SavegameInfo
 
     public class Info
     {
-        public Info(int size, int simpleDesignPatternOffset, int proDesignPatternOffset, HashRegion[] hashRegions)
+        public Info(int size, int simpleDesignPatternOffset, int proDesignPatternOffset, int simpleDesignCount, int proDesignCount, HashRegion[] hashRegions)
         {
             this.Size = size;
             this.SimpleDesignPatternsOffset = simpleDesignPatternOffset;
             this.ProDesignPatternsOffset = proDesignPatternOffset;
             this.HashRegions = hashRegions;
+            this.SimpleDesignCount = simpleDesignCount;
+            this.ProDesignCount = proDesignCount;
         }
 
         public readonly int Size;
         public readonly int SimpleDesignPatternsOffset;
         public readonly int ProDesignPatternsOffset;
+        public readonly int SimpleDesignCount;
+        public readonly int ProDesignCount;
+
         public readonly HashRegion[] HashRegions;
     }
     public readonly struct HashRegion

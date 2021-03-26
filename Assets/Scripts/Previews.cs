@@ -27,6 +27,11 @@ public class Previews : MonoBehaviour
     public MeshPreview _3DSShirtNoSleeve;
     public MeshPreview _3DSShirtShortSleeve;
     public MeshPreview _3DSShirtLongSleeve;
+    public MeshPreview _3DSStandee;
+    public MeshPreview Standee;
+    public MeshPreview Flag;
+    public MeshPreview Umbrella;
+    public MeshPreview Fan;
 
     public Texture2D SleevelessShirtLines;
     public Texture2D TShirtLines;
@@ -51,6 +56,11 @@ public class Previews : MonoBehaviour
     public Texture2D _3DSShirtNoSleeveLines;
     public Texture2D _3DSShirtShortSleeveLines;
     public Texture2D _3DSShirtLongSleeveLines;
+    public Texture2D _3DSStandeeLines;
+    public Texture2D StandeeLines;
+    public Texture2D FlagLines;
+    public Texture2D UmbrellaLines;
+    public Texture2D FanLines;
 
     public Texture2D SleevelessShirtUVs;
     public Texture2D TShirtUVs;
@@ -75,6 +85,11 @@ public class Previews : MonoBehaviour
     public Texture2D _3DSShirtNoSleeveUVs;
     public Texture2D _3DSShirtShortSleeveUVs;
     public Texture2D _3DSShirtLongSleeveUVs;
+    public Texture2D _3DSStandeeUVs;
+    public Texture2D StandeeUVs;
+    public Texture2D FlagUVs;
+    public Texture2D UmbrellaUVs;
+    public Texture2D FanUVs;
 
     public Dictionary<DesignPattern.TypeEnum, MeshPreview> AllPreviews;
     public Dictionary<DesignPattern.TypeEnum, Texture2D> AllUVs;
@@ -109,6 +124,11 @@ public class Previews : MonoBehaviour
             { DesignPattern.TypeEnum.LongSleeveShirt3DS, _3DSShirtLongSleeve },
             { DesignPattern.TypeEnum.ShortSleeveShirt3DS, _3DSShirtShortSleeve },
             { DesignPattern.TypeEnum.NoSleeveShirt3DS, _3DSShirtNoSleeve },
+            { DesignPattern.TypeEnum.Standee3DS, _3DSStandee },
+            { DesignPattern.TypeEnum.Standee, Standee },
+            { DesignPattern.TypeEnum.Umbrella, Umbrella },
+            { DesignPattern.TypeEnum.Flag, Flag },
+            { DesignPattern.TypeEnum.Fan, Fan },
         };
 
         AllLines = new Dictionary<DesignPattern.TypeEnum, Texture2D>()
@@ -136,6 +156,11 @@ public class Previews : MonoBehaviour
             { DesignPattern.TypeEnum.LongSleeveShirt3DS, _3DSShirtLongSleeveLines },
             { DesignPattern.TypeEnum.ShortSleeveShirt3DS, _3DSShirtShortSleeveLines },
             { DesignPattern.TypeEnum.NoSleeveShirt3DS, _3DSShirtNoSleeveLines },
+            { DesignPattern.TypeEnum.Standee3DS, _3DSStandeeLines },
+            { DesignPattern.TypeEnum.Standee, StandeeLines },
+            { DesignPattern.TypeEnum.Umbrella, UmbrellaLines },
+            { DesignPattern.TypeEnum.Flag, FlagLines },
+            { DesignPattern.TypeEnum.Fan, FanLines },
         };
 
         AllUVs = new Dictionary<DesignPattern.TypeEnum, Texture2D>()
@@ -163,6 +188,11 @@ public class Previews : MonoBehaviour
             { DesignPattern.TypeEnum.LongSleeveShirt3DS, _3DSShirtLongSleeveUVs },
             { DesignPattern.TypeEnum.ShortSleeveShirt3DS, _3DSShirtShortSleeveUVs },
             { DesignPattern.TypeEnum.NoSleeveShirt3DS, _3DSShirtNoSleeveUVs },
+            { DesignPattern.TypeEnum.Standee3DS, _3DSStandeeUVs },
+            { DesignPattern.TypeEnum.Standee, StandeeUVs },
+            { DesignPattern.TypeEnum.Umbrella, UmbrellaUVs },
+            { DesignPattern.TypeEnum.Flag, FlagUVs },
+            { DesignPattern.TypeEnum.Fan, FanUVs },
         };
     }
 

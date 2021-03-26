@@ -10,18 +10,22 @@ public class ClothSelector : MonoBehaviour
     public EventTrigger DressesTrigger;
     public EventTrigger HatsTrigger;
     public EventTrigger LegacyTrigger;
+    public EventTrigger ToolsTrigger;
     public Image TopsIcon;
     public Image DressesIcon;
     public Image HatsIcon;
     public Image LegacyIcon;
+    public Image ToolsIcon;
     public GameObject TopsTooltip;
     public GameObject DressesTooltip;
     public GameObject HatsTooltip;
     public GameObject LegacyTooltip;
+    public GameObject ToolsTooltip;
     public GameObject Tops;
     public GameObject Dresses;
     public GameObject Hats;
     public GameObject Legacy;
+    public GameObject Tools;
     public Previews Previews;
     public MenuButton CancelButton;
 
@@ -34,7 +38,8 @@ public class ClothSelector : MonoBehaviour
         Tops,
         Dresses,
         Hats,
-        Legacy
+        Legacy,
+        Tools
     }
     public Menu CurrentMenu;
 
@@ -67,6 +72,13 @@ public class ClothSelector : MonoBehaviour
             SwitchToLegacy();
         });
         LegacyTrigger.triggers.Add(click);
+
+        click = new EventTrigger.Entry();
+        click.eventID = EventTriggerType.PointerClick;
+        click.callback.AddListener((eventData) => {
+            SwitchToTools();
+        });
+        ToolsTrigger.triggers.Add(click);
 
         CancelButton.OnClick = () => {
             CancelCallback?.Invoke();
@@ -102,18 +114,22 @@ public class ClothSelector : MonoBehaviour
             DressesTooltip.SetActive(false);
             HatsTooltip.SetActive(false);
             LegacyTooltip.SetActive(false);
+            ToolsTooltip.SetActive(false);
             Tops.SetActive(true);
             Dresses.SetActive(false);
             Hats.SetActive(false);
             Legacy.SetActive(false);
+            Tools.SetActive(false);
             TopsIcon.color = new Color(228f / 255f, 107f / 255f, 137f / 255f);
             DressesIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             HatsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             LegacyIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+            ToolsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             TopsIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
             DressesIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             HatsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             LegacyIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+            ToolsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             CurrentMenu = Menu.Tops;
         }
     }
@@ -126,18 +142,22 @@ public class ClothSelector : MonoBehaviour
             DressesTooltip.SetActive(true);
             HatsTooltip.SetActive(false);
             LegacyTooltip.SetActive(false);
+            ToolsTooltip.SetActive(false);
             Tops.SetActive(false);
             Dresses.SetActive(true);
             Hats.SetActive(false);
             Legacy.SetActive(false);
+            Tools.SetActive(false);
             TopsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             DressesIcon.color = new Color(228f / 255f, 107f / 255f, 137f / 255f); 
             HatsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             LegacyIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+            ToolsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             TopsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             DressesIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
             HatsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             LegacyIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+            ToolsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             CurrentMenu = Menu.Dresses;
         }
     }
@@ -150,18 +170,22 @@ public class ClothSelector : MonoBehaviour
             DressesTooltip.SetActive(false);
             HatsTooltip.SetActive(true);
             LegacyTooltip.SetActive(false);
+            ToolsTooltip.SetActive(false);
             Tops.SetActive(false);
             Dresses.SetActive(false);
             Hats.SetActive(true);
             Legacy.SetActive(false);
+            Tools.SetActive(false);
             TopsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             DressesIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             HatsIcon.color = new Color(228f / 255f, 107f / 255f, 137f / 255f);
             LegacyIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+            ToolsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             TopsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             DressesIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             HatsIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
             LegacyIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+            ToolsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             CurrentMenu = Menu.Hats;
         }
     }
@@ -174,19 +198,51 @@ public class ClothSelector : MonoBehaviour
             DressesTooltip.SetActive(false);
             HatsTooltip.SetActive(false);
             LegacyTooltip.SetActive(true);
+            ToolsTooltip.SetActive(false);
             Tops.SetActive(false);
             Dresses.SetActive(false);
             Hats.SetActive(false);
             Legacy.SetActive(true);
+            Tools.SetActive(false);
             TopsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             DressesIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             HatsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             LegacyIcon.color = new Color(228f / 255f, 107f / 255f, 137f / 255f);
+            ToolsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
             TopsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             DressesIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             HatsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             LegacyIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
+            ToolsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
             CurrentMenu = Menu.Legacy;
+        }
+    }
+
+    void SwitchToTools()
+    {
+        if (CurrentMenu != Menu.Tools)
+        {
+            TopsTooltip.SetActive(false);
+            DressesTooltip.SetActive(false);
+            HatsTooltip.SetActive(false);
+            LegacyTooltip.SetActive(false);
+            ToolsTooltip.SetActive(true);
+            Tops.SetActive(false);
+            Dresses.SetActive(false);
+            Hats.SetActive(false);
+            Legacy.SetActive(false);
+            Tools.SetActive(true);
+            TopsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+            DressesIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+            HatsIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+            LegacyIcon.color = new Color(185f / 255f, 182f / 255f, 162f / 255f);
+            ToolsIcon.color = new Color(228f / 255f, 107f / 255f, 137f / 255f);
+            TopsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+            DressesIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+            HatsIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+            LegacyIcon.rectTransform.sizeDelta = new Vector2(50f, 50f);
+            ToolsIcon.rectTransform.sizeDelta = new Vector2(75f, 75f);
+            CurrentMenu = Menu.Tools;
         }
     }
     // Update is called once per frame
