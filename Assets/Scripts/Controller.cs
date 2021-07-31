@@ -487,7 +487,7 @@ public class Controller : MonoBehaviour
 	{
 		CurrentState = State.None;
 		//CurrentClient = new DesignServer.Client(new System.Net.IPEndPoint(System.Net.IPAddress.Parse("127.0.0.1"), 9801));
-		CurrentClient = new DesignServer.Client(new System.Net.IPEndPoint(System.Net.IPAddress.Parse("95.216.228.13"), 9801));
+		CurrentClient = new DesignServer.Client(new System.Net.IPEndPoint(System.Net.IPAddress.Parse("157.90.0.143"), 9801));
 		int i = 1;
 		float time = 0f;
 		OnlineTransitionAnimator.SetTrigger("PlayTransitionIn");
