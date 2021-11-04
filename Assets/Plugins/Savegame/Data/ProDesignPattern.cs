@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 public unsafe class ProDesignPattern : DesignPattern
 {
 	public string _Name;
-	public PersonalID _PersonalID;
 	public DesignPattern.Color[] _Palette;
 	public byte[] _Image;
 	public byte _Type;
@@ -17,7 +16,6 @@ public unsafe class ProDesignPattern : DesignPattern
 	public override int Width => 64;
 	public override int Height => 64;
 	public override string Name { get => _Name; set => _Name = value; }
-	public override PersonalID PersonalID { get => _PersonalID; set => _PersonalID = value; }
 	public override DesignPattern.TypeEnum Type { get => (DesignPattern.TypeEnum) _Type; set => _Type = (byte) value; }
 	public override DesignPattern.Color[] Palette { get => _Palette; set => _Palette = value; }
 	public override byte[] Image { get => _Image; set => _Image = value; }

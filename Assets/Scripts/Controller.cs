@@ -498,6 +498,10 @@ public class Controller : MonoBehaviour
 				OnlineTransitionLabel.text = CurrentClient.Error;
 				CurrentClient = null;
 				yield return new WaitForSeconds(2f);
+
+				PatternSelector.gameObject.SetActive(true);
+				OnlineTransitionAnimator.SetTrigger("PlayTransitionOut");
+
 				break;
 			}
 			string label = "Connecting" + new string('.', i);

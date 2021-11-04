@@ -5,7 +5,8 @@ using System.Runtime.InteropServices;
 public abstract class DesignPattern
 {
 	public abstract string Name { get; set; }
-	public abstract PersonalID PersonalID { get; set; }
+	public PersonalID PersonalID { get => _PersonalID; set => _PersonalID = value; }
+	protected PersonalID _PersonalID;
 	public abstract DesignPattern.TypeEnum Type { get; set; }
 	public abstract DesignPattern.Color[] Palette { get; set; }
 	public abstract byte[] Image { get; set; }
@@ -18,9 +19,14 @@ public abstract class DesignPattern
 		var newPersonalID = new PersonalID();
 		newPersonalID.Name = personalID.Name;
 		newPersonalID.UniqueId = 0xFFFFFFFF;
-		newPersonalID.TownId = personalID.TownId;
+		var townID = new TownID();
+		townID.Name = personalID.TownId.Name;
+		townID.UniqueID = personalID.TownId.UniqueID;
+		townID.Unknown = personalID.TownId.Unknown;
+		newPersonalID.TownId = townID;
 		PersonalID = newPersonalID;
 	}
+
 	public virtual byte this[int index]
 	{
 		get
