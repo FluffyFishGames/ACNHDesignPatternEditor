@@ -243,7 +243,7 @@ public class SavegameInfo
             new HashRegion(0x7b6d30, 0x02d70c),
             new HashRegion(0x7e4550, 0x03693c),
             new HashRegion(0x81ae90, 0x02d70c),
-            new HashRegion(0x8485a0, 0x024fbc)
+            new HashRegion(0x8485a0, 0x024fbc) 
         }),
         new Info(0x86D570, 0x1E3958, 0x1F42F8, 100, 100, new HashRegion[] {
             new HashRegion(0x000110, 0x1e216c),
