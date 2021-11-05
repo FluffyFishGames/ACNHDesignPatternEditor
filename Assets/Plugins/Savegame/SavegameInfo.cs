@@ -243,9 +243,9 @@ public class SavegameInfo
             new HashRegion(0x7b6d30, 0x02d70c),
             new HashRegion(0x7e4550, 0x03693c),
             new HashRegion(0x81ae90, 0x02d70c),
-            new HashRegion(0x8485a0, 0x024fbc) 
+            new HashRegion(0x8485a0, 0x024fbc)
         }),
-        new Info(0x86D570, 0x1E3958, 0x1F42F8, 100, 100, new HashRegion[] {
+        new Info(0x86D570, 0x1E2720, 0x1F30C0, 100, 100, new HashRegion[] {
             new HashRegion(0x000110, 0x1e216c),
             new HashRegion(0x1e2280, 0x34582c),
             new HashRegion(0x527bc0, 0x03693c),
@@ -266,7 +266,7 @@ public class SavegameInfo
             new HashRegion(0x81aea0, 0x02d70c),
             new HashRegion(0x8485b0, 0x024fbc)
         }),
-        new Info(0x8F1BB0, 0x1E3968, 0x1F4308, 100, 100, new HashRegion[] {
+        new Info(0x8F1BB0, 0x1E3958, 0x1F42F8, 100, 100, new HashRegion[] {
             new HashRegion(0x000110, 0x1e339c),
             new HashRegion(0x1e34b0, 0x36406c),
             new HashRegion(0x547630, 0x03693c),
