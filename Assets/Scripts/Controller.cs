@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using UnityEngine;
 
@@ -487,7 +488,10 @@ public class Controller : MonoBehaviour
 	{
 		CurrentState = State.None;
 		//CurrentClient = new DesignServer.Client(new System.Net.IPEndPoint(System.Net.IPAddress.Parse("127.0.0.1"), 9801));
-		CurrentClient = new DesignServer.Client(new System.Net.IPEndPoint(System.Net.IPAddress.Parse("157.90.0.143"), 9801));
+		var ipAddresses = Dns.GetHostAddresses("designs.potatoepet.de");
+		if (ipAddresses.Length == 0)
+			throw new System.Exception("Couldn't resolve designs.potatoepet.de");
+        CurrentClient = new DesignServer.Client(new System.Net.IPEndPoint(ipAddresses[0], 9801));
 		int i = 1;
 		float time = 0f;
 		OnlineTransitionAnimator.SetTrigger("PlayTransitionIn");
