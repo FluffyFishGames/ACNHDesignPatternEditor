@@ -90,137 +90,159 @@ public unsafe class Savegame : BinaryData, IDesignPatternContainer
         byte[] mainBytes = File.ReadAllBytes(MainFile.FullName);
         Info = SavegameInfo.GetInfo(headerBytes);
         var bytes = SaveEncryption.Decrypt(headerBytes, mainBytes);
+        System.IO.File.WriteAllBytes(HeaderFile.FullName + ".decrypted", bytes);
+        Info = null;
         if (Info == null)
         {
             UnityEngine.Debug.LogWarning("Save file is not supported out of the box. We need to find the hash regions.");
             var latest = SavegameInfo.GetLatest();
-            var newHashRegions = new SavegameInfo.HashRegion[latest.HashRegions.Length];
-            
-            int offset = 0;
-            const int maxSearchSize = 0x100000;
-            for (var i = 0; i < latest.HashRegions.Length; i++)
+            // check if latest is just working first
+
+            bool needToFindRegions = false;
+            foreach (var region in latest.HashRegions)
             {
-                var region = latest.HashRegions[i];
-                if (i == 0)
-                    offset = region.HashOffset;
-
-                var size = Murmur3.FindBlock(bytes, offset, 128, region.Size + maxSearchSize, 0);
-                if (size == 0)
-                    throw new Exception("Couldn't find hash regions for save file automatically.");
-
-                UnityEngine.Debug.Log("Found hash region: " + offset.ToString("X8") + " with size " + size.ToString("X8"));
-                newHashRegions[i] = new SavegameInfo.HashRegion(offset, size);
-                offset += (int) size + 4;
-                
-                // find non null bytes, non 0x0000FFFF bytes and non 0xFEFF0000 bytes (there are possibilities for hash collisions)
-                while (offset < bytes.Length - 4 && 
-                    (
-                        (bytes[offset] == 0x00 && bytes[offset + 1] == 0x00 && bytes[offset + 2] == 0x00 && bytes[offset + 3] == 0x00) || 
-                        (bytes[offset] == 0x00 && bytes[offset + 1] == 0x00 && bytes[offset + 2] == 0xFF && bytes[offset + 3] == 0xFF) || 
-                        (bytes[offset] == 0xFE && bytes[offset + 1] == 0xFF && bytes[offset + 2] == 0x00 && bytes[offset + 3] == 0x00)
-                    ))
-                    offset += 4;
-            }
-
-            // search for offsets
-            var simpleFound = false;
-            var simpleOffset = newHashRegions[1].HashOffset + 0x4A0; // educated guess
-            UnityEngine.Debug.Log("Start search at " + simpleOffset.ToString("X8"));
-            for (var i = 0; i < 128; i += 4)
-            {
-                var checkOffset = simpleOffset + i + 0x2a8 - 0x03; // look at end of pattern for bytes
-                UnityEngine.Debug.Log("Check offset " + checkOffset.ToString("X8"));
-                if (bytes[checkOffset + 0] == 0x00 && 
-                    bytes[checkOffset + 1] == 0x00 &&
-                    bytes[checkOffset + 2] == 0x00)
+                var originalHash = BitConverter.ToUInt64(bytes, region.HashOffset);
+                var calculatedHash = Murmur3.GetMurmur3Hash(bytes, region.BeginOffset, region.Size);
+                if (originalHash != calculatedHash)
                 {
-                    bool found = true;
-                    for (var j = 1; j < 50; j++)
-                    {
-                        var otherCheck = checkOffset + 0x2a8 * j;
-                        UnityEngine.Debug.Log("Other check " + otherCheck.ToString("X8"));
-                        if (bytes[otherCheck + 0] != 0x00 ||
-                            bytes[otherCheck + 1] != 0x00 ||
-                            bytes[otherCheck + 2] != 0x00)
-                        {
-                            found = false;
-                            break;
-                        }
-                    }
-                    if (found)
-                    {
-                        simpleOffset += i;
-                        simpleFound = true;
-                        UnityEngine.Debug.Log("Found simple design offset at 0x" + simpleOffset.ToString("X8"));
-                        break;
-                    }
-                }
-            }
-            if (!simpleFound)
-            {
-                throw new Exception("Wasn't able to automatically find simple design offset.");
-            }
-            // check how many patterns there are
-            int patterns = 50;
-            var searchOffset = simpleOffset + 0x2a8 * 51;
-            var mainIslandID = BitConverter.ToUInt32(bytes, simpleOffset + 0x38); // first id appears at 0x38 after our offset
-
-            while (patterns < 200)
-            {
-                var byteOffset = searchOffset + 0x2a8 - 0x03;
-                if (bytes[byteOffset + 0] != 0x00 ||
-                    bytes[byteOffset + 1] != 0x00 || 
-                    bytes[byteOffset + 2] != 0x00)
+                    needToFindRegions = true;
                     break;
-                searchOffset += 0x2a8;
-                patterns++;
+                }
             }
-            patterns = patterns - patterns % 50;
 
-            UnityEngine.Debug.Log("The amount of patterns is " + patterns);
-            
-            var proFound = false;
-            var proOffset = simpleOffset + 0x2a8 * patterns; // start searching after 50 patterns and then increase by simple pattern length
-            UnityEngine.Debug.Log("Start search at " + proOffset.ToString("X8"));
-            for (var i = 0; i < 128; i += 4)
+            if (needToFindRegions)
             {
-                var checkOffset = proOffset + i + 0x8a8 - 0x03;
-                UnityEngine.Debug.Log("Check offset " + checkOffset.ToString("X8"));
-                if (bytes[checkOffset + 1] <= 0x1D &&
-                    bytes[checkOffset + 1] == 0x00 &&
-                    bytes[checkOffset + 2] == 0x00)
+                SavegameInfo.HashRegion[] newHashRegions = new SavegameInfo.HashRegion[latest.HashRegions.Length];
+                int offset = 0;
+                const int maxSearchSize = 0x100000;
+                for (var i = 0; i < latest.HashRegions.Length; i++)
                 {
-                    bool found = true;
-                    for (var j = 1; j < 50; j++)
+                    var region = latest.HashRegions[i];
+                    if (i == 0)
+                        offset = region.HashOffset;
+
+                    var size = Murmur3.FindBlock(bytes, offset, 128, region.Size + maxSearchSize, 0);
+                    if (size == 0)
+                        throw new Exception("Couldn't find hash regions for save file automatically.");
+
+                    UnityEngine.Debug.Log("Found hash region: " + offset.ToString("X8") + " with size " + size.ToString("X8"));
+                    newHashRegions[i] = new SavegameInfo.HashRegion(offset, size);
+                    offset += (int) size + 4;
+
+                    // find non null bytes, non 0x0000FFFF bytes and non 0xFEFF0000 bytes (there are possibilities for hash collisions)
+                    while (offset < bytes.Length - 4 &&
+                        (
+                            (bytes[offset] == 0x00 && bytes[offset + 1] == 0x00 && bytes[offset + 2] == 0x00 && bytes[offset + 3] == 0x00) ||
+                            (bytes[offset] == 0x00 && bytes[offset + 1] == 0x00 && bytes[offset + 2] == 0xFF && bytes[offset + 3] == 0xFF) ||
+                            (bytes[offset] == 0xFE && bytes[offset + 1] == 0xFF && bytes[offset + 2] == 0x00 && bytes[offset + 3] == 0x00)
+                        ))
+                        offset += 4;
+                }
+
+                // search for offsets
+                var simpleFound = false;
+                var simpleOffset = newHashRegions[1].HashOffset + 0x4A0; // educated guess
+                UnityEngine.Debug.Log("Start search at " + simpleOffset.ToString("X8"));
+                for (var i = 0; i < 128; i += 4)
+                {
+                    var checkOffset = simpleOffset + i + 0x2a8 - 0x03; // look at end of pattern for bytes
+                    UnityEngine.Debug.Log("Check offset " + checkOffset.ToString("X8"));
+                    if (bytes[checkOffset + 0] == 0x00 &&
+                        bytes[checkOffset + 1] == 0x00 &&
+                        bytes[checkOffset + 2] == 0x00)
                     {
-                        var otherCheck = checkOffset + 0x8a8 * j;
-                        UnityEngine.Debug.Log("Other check " + otherCheck.ToString("X8"));
-                        // check for island id being the same across at least 50 patterns
-                        if (bytes[otherCheck + 1] > 0x1D ||
-                            bytes[otherCheck + 1] != 0x00 ||
-                            bytes[otherCheck + 2] != 0x00)
+                        bool found = true;
+                        for (var j = 1; j < 50; j++)
                         {
-                            found = false;
+                            var otherCheck = checkOffset + 0x2a8 * j;
+                            UnityEngine.Debug.Log("Other check " + otherCheck.ToString("X8"));
+                            if (bytes[otherCheck + 0] != 0x00 ||
+                                bytes[otherCheck + 1] != 0x00 ||
+                                bytes[otherCheck + 2] != 0x00)
+                            {
+                                found = false;
+                                break;
+                            }
+                        }
+                        if (found)
+                        {
+                            simpleOffset += i;
+                            simpleFound = true;
+                            UnityEngine.Debug.Log("Found simple design offset at 0x" + simpleOffset.ToString("X8"));
                             break;
                         }
                     }
-                    if (found)
-                    {
-                        proOffset += i;
-                        proFound = true;
-                        UnityEngine.Debug.Log("Found pro design offset at 0x" + proOffset.ToString("X8"));
+                }
+                if (!simpleFound)
+                {
+                    throw new Exception("Wasn't able to automatically find simple design offset.");
+                }
+                // check how many patterns there are
+                int patterns = 50;
+                var searchOffset = simpleOffset + 0x2a8 * 51;
+                var mainIslandID = BitConverter.ToUInt32(bytes, simpleOffset + 0x38); // first id appears at 0x38 after our offset
+
+                while (patterns < 200)
+                {
+                    var byteOffset = searchOffset + 0x2a8 - 0x03;
+                    if (bytes[byteOffset + 0] != 0x00 ||
+                        bytes[byteOffset + 1] != 0x00 ||
+                        bytes[byteOffset + 2] != 0x00)
                         break;
+                    searchOffset += 0x2a8;
+                    patterns++;
+                }
+                patterns = patterns - patterns % 50;
+
+                UnityEngine.Debug.Log("The amount of patterns is " + patterns);
+
+                var proFound = false;
+                var proOffset = simpleOffset + 0x2a8 * patterns; // start searching after 50 patterns and then increase by simple pattern length
+                UnityEngine.Debug.Log("Start search at " + proOffset.ToString("X8"));
+                for (var i = 0; i < 0xF0000; i += 4)
+                {
+                    var checkOffset = proOffset + i + 0x8a8 - 0x03;
+                    UnityEngine.Debug.Log("Check offset " + checkOffset.ToString("X8"));
+                    if (bytes[checkOffset + 1] <= 0x1D &&
+                        bytes[checkOffset + 1] == 0x00 &&
+                        bytes[checkOffset + 2] == 0x00)
+                    {
+                        bool found = true;
+                        for (var j = 1; j < 50; j++)
+                        {
+                            var otherCheck = checkOffset + 0x8a8 * j;
+                            UnityEngine.Debug.Log("Other check " + otherCheck.ToString("X8"));
+                            // check for island id being the same across at least 50 patterns
+                            if (bytes[otherCheck + 1] > 0x1D ||
+                                bytes[otherCheck + 1] != 0x00 ||
+                                bytes[otherCheck + 2] != 0x00)
+                            {
+                                found = false;
+                                break;
+                            }
+                        }
+                        if (found)
+                        {
+                            proOffset += i;
+                            proFound = true;
+                            UnityEngine.Debug.Log("Found pro design offset at 0x" + proOffset.ToString("X8"));
+                            break;
+                        }
                     }
                 }
+                if (!proFound)
+                {
+                    throw new Exception("Wasn't able to automatically find pro design offset.");
+                }
+
+                var flagOffset = FindFlagOffset(bytes, patterns, patterns, newHashRegions[0].HashOffset);
+
+                Info = new SavegameInfo.Info(bytes.Length, simpleOffset, proOffset, flagOffset, flagOffset + 0x64, patterns, patterns, newHashRegions);
             }
-            if (!proFound)
+            else 
             {
-                throw new Exception("Wasn't able to automatically find pro design offset.");
+                Info = latest;
             }
-
-            var flagOffset = FindFlagOffset(bytes, patterns, patterns, newHashRegions[0].HashOffset);
-
-            Info = new SavegameInfo.Info(bytes.Length, simpleOffset, proOffset, flagOffset, flagOffset + 0x64, patterns, patterns, newHashRegions);
         }
         try
         {

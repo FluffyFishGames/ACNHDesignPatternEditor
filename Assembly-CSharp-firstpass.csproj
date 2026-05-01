@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Temp\bin\Debug\</OutputPath>
-    <DefineConstants>UNITY_2022_3_62;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_NVIDIA;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;PLATFORM_INITIALIZES_MEMORY_MANAGER_EXPLICITLY;ENABLE_MONO;NET_4_6;NET_UNITY_4_8;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
+    <DefineConstants>UNITY_2022_3_62;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_NVIDIA;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;PLATFORM_INITIALIZES_MEMORY_MANAGER_EXPLICITLY;ENABLE_MONO;NET_4_6;NET_UNITY_4_8;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169;USG0001</NoWarn>
@@ -51,7 +51,7 @@
     <UnityProjectGeneratorVersion>2.0.22</UnityProjectGeneratorVersion>
     <UnityProjectGeneratorStyle>Legacy</UnityProjectGeneratorStyle>
     <UnityProjectType>GamePlugins:3</UnityProjectType>
-    <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
+    <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>2022.3.62f3</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -70,8 +70,8 @@
     <Compile Include="Assets\Plugins\ZXing\oned\MultiFormatUPCEANReader.cs" />
     <Compile Include="Assets\Plugins\ZXing\pdf417\decoder\BoundingBox.cs" />
     <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\ErrorCorrectionLevel.cs" />
-    <Compile Include="Assets\Plugins\ZXing\oned\EANManufacturerOrgSupport.cs" />
     <Compile Include="Assets\Plugins\Savegame\Encryption\EncryptedInt32.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\EANManufacturerOrgSupport.cs" />
     <Compile Include="Assets\Plugins\ZXing\qrcode\QRCodeReader.cs" />
     <Compile Include="Assets\Plugins\ZXing\BinaryBitmap.cs" />
     <Compile Include="Assets\Plugins\ZXing\datamatrix\DataMatrixWriter.cs" />
@@ -150,8 +150,8 @@
     <Compile Include="Assets\Plugins\xBRZ\ScalerCfg.cs" />
     <Compile Include="Assets\Plugins\ZXing\aztec\AztecReader.cs" />
     <Compile Include="Assets\Plugins\ZXing\common\GlobalHistogramBinarizer.cs" />
-    <Compile Include="Assets\Plugins\ACNHFileFormat.cs" />
     <Compile Include="Assets\Plugins\ZXing\client\result\VINResultParser.cs" />
+    <Compile Include="Assets\Plugins\ACNHFileFormat.cs" />
     <Compile Include="Assets\Plugins\ZXing\client\result\BizcardResultParser.cs" />
     <Compile Include="Assets\Plugins\Quantization\Quantizers\DistinctSelection\DistinctBucket.cs" />
     <Compile Include="Assets\Plugins\ZXing\ResultMetadataType.cs" />
@@ -218,8 +218,8 @@
     <Compile Include="Assets\Plugins\ZXing\Dimension.cs" />
     <Compile Include="Assets\Plugins\ZXing\common\CharacterSetECI.cs" />
     <Compile Include="Assets\Plugins\xBRZ\Common\IntPtr.cs" />
-    <Compile Include="Assets\Plugins\ZXing\ResultPointCallback.cs" />
     <Compile Include="Assets\Plugins\ZXing\qrcode\QRCodeWriter.cs" />
+    <Compile Include="Assets\Plugins\ZXing\ResultPointCallback.cs" />
     <Compile Include="Assets\Plugins\Quantization\Quantizers\XiaolinWu\WuColorQuantizer.cs" />
     <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\PDF417EncodingOptions.cs" />
     <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\C40Encoder.cs" />
@@ -228,8 +228,8 @@
     <Compile Include="Assets\Plugins\ZXing\common\DetectorResult.cs" />
     <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\QRCode.cs" />
     <Compile Include="Assets\Plugins\ZXing\qrcode\detector\AlignmentPattern.cs" />
-    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\ByteMatrix.cs" />
     <Compile Include="Assets\Plugins\ZXing\multi\GenericMultipleBarcodeReader.cs" />
+    <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\ByteMatrix.cs" />
     <Compile Include="Assets\Plugins\ZXing\client\result\AbstractDoCoMoResultParser.cs" />
     <Compile Include="Assets\Plugins\Savegame\IDesignPatternContainer.cs" />
     <Compile Include="Assets\Plugins\ZXing\qrcode\encoder\QrCodeEncodingOptions.cs" />
@@ -264,8 +264,8 @@
     <Compile Include="Assets\Plugins\ZXing\IBarcodeWriter.cs" />
     <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\EncoderContext.cs" />
     <Compile Include="Assets\Plugins\ZXing\oned\UPCEReader.cs" />
-    <Compile Include="Assets\Plugins\ZXing\BarcodeReader.TextureBitmap.cs" />
     <Compile Include="Assets\Plugins\xBRZ\Blend\BlendType.cs" />
+    <Compile Include="Assets\Plugins\ZXing\BarcodeReader.TextureBitmap.cs" />
     <Compile Include="Assets\Plugins\ZXing\pdf417\PDF417Reader.cs" />
     <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\Dimensions.cs" />
     <Compile Include="Assets\Plugins\Savegame\Data\ProDesignPattern.cs" />
@@ -375,8 +375,8 @@
     <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\ErrorCorrection.cs" />
     <Compile Include="Assets\Plugins\ZXing\client\result\EmailAddressParsedResult.cs" />
     <Compile Include="Assets\Plugins\ZXing\client\result\ProductResultParser.cs" />
-    <Compile Include="Assets\Plugins\ZXing\oned\rss\Pair.cs" />
     <Compile Include="Assets\Plugins\xBRZ\Color\ColorEq.cs" />
+    <Compile Include="Assets\Plugins\ZXing\oned\rss\Pair.cs" />
     <Compile Include="Assets\Plugins\ZXing\oned\rss\RSSUtils.cs" />
     <Compile Include="Assets\Plugins\ZXing\datamatrix\encoder\DataMatrixSymbolInfo144.cs" />
     <Compile Include="Assets\Plugins\ZXing\qrcode\decoder\QRCodeDecoderMetaData.cs" />
@@ -417,8 +417,8 @@
     <Compile Include="Assets\Plugins\ZXing\oned\rss\expanded\ExpandedRow.cs" />
     <Compile Include="Assets\Plugins\ACNHDesignExtractor.cs" />
     <Compile Include="Assets\Plugins\ZXing\pdf417\encoder\PDF417HighLevelEncoder.cs" />
-    <Compile Include="Assets\Plugins\ZXing\TextureBitmapLuminanceSource.cs" />
     <Compile Include="Assets\Plugins\Savegame\Encryption\Aes128Ctr.cs" />
+    <Compile Include="Assets\Plugins\ZXing\TextureBitmapLuminanceSource.cs" />
     <Compile Include="Assets\Plugins\ZXing\common\DecoderResult.cs" />
     <Compile Include="Assets\Plugins\ZXing\IBarcodeReaderGeneric.cs" />
     <Compile Include="Assets\Plugins\ZXing\IBarcodeWriter.TextureBitmap.cs" />
@@ -768,6 +768,10 @@
       <HintPath>C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="SixLabors.ImageSharp">
+      <HintPath>Assets\Plugins\ImageSharp\SixLabors.ImageSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>Assets\Plugins\ImageSharp\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
       <Private>False</Private>
@@ -778,10 +782,6 @@
     </Reference>
     <Reference Include="System.Drawing.Design">
       <HintPath>Assets\Plugins\System.Drawing.Design.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SixLabors.ImageSharp">
-      <HintPath>Assets\Plugins\ImageSharp\SixLabors.ImageSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">

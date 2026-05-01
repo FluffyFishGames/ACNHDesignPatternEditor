@@ -86,7 +86,7 @@ public class MainMenu : MonoBehaviour
 			{
 				if (Controller.Instance.CurrentState == Controller.State.MainMenu)
 				{
-                    var path = TinyFileDialogs.OpenFileDialog("Open savegame", "", new List<string>() { "main.dat", "mainHeader.dat" }, "Savegame", false);
+					var path = TinyFileDialogs.OpenFileDialog("Open savegame", "", new List<string>() { "main.dat", "mainHeader.dat" }, "Savegame", false);
                     if (path != null)
                     {
                         LoadSavegame(path);
